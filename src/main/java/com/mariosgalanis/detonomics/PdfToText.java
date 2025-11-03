@@ -1,4 +1,4 @@
-package com.example;
+package com.mariosgalanis.detonomics;
 
 import java.io.File;
 import java.io.IOException;
