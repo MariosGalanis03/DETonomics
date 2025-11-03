@@ -1,38 +1,21 @@
 package com.mariosgalanis.detonomics;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit test for simple App.
+ * Unit test for the App class, converted to modern JUnit 5 (Jupiter) syntax.
+ * This file replaces the legacy JUnit 3/4 syntax used in the default Maven archetype 
+ * to align with the org.junit.jupiter dependency in the pom.xml.
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+public class AppTest {
 
     /**
-     * @return the suite of tests being tested
+     * Placeholder test to confirm the framework is working.
      */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Test
+    void testPlaceholder() {
+        // This test replaces the old public void testApp() method.
+        assertTrue(true, "The test framework is correctly configured.");
     }
 }
