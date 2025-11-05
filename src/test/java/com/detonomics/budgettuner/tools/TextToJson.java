@@ -141,7 +141,7 @@ public static void main(String[] args) throws Exception {
 
   String json = res.text()
   .trim()
-  .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "")
+  .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "");
   Path out = Paths.get("src/main/resources/budget_data.json");
   Files.writeString(out, json, StandardCharsets.UTF_8,
     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
