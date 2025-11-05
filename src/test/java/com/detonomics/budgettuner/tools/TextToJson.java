@@ -1,4 +1,4 @@
-package com.example;
+package com.detonomics.budgettuner.tools;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -117,37 +117,34 @@ Example:
 Return only the JSON defined by the schema. No extra information.
 """;
 
-  public static void main(String[] args) throws Exception {
-    Client client = Client.builder()
-        .apiKey("AIzaSyD-MOWwcxvEGmMHuMKiIRFYp0jQQ_E56YY")
-        .build();
+public static void main(String[] args) throws Exception {
+  Client client = Client.builder()
+      .apiKey("AIzaSyD-MOWwcxvEGmMHuMKiIRFYp0jQQ_E56YY")
+      .build();
 
-    Content systemInstruction = Content.fromParts(Part.fromText(PROMPT));
+  Content systemInstruction = Content.fromParts(Part.fromText(PROMPT));
 
-    GenerateContentConfig cfg = GenerateContentConfig.builder()
-        .systemInstruction(systemInstruction)
-        .build();
+  GenerateContentConfig cfg = GenerateContentConfig.builder()
+      .systemInstruction(systemInstruction)
+      .build();
 
-   
-    Path in = Paths.get("D:\\Uni\\3o_Examino\\Programming_2\\GroupProject\\P2025Test.txt"); 
-    String raw = Files.readString(in, StandardCharsets.UTF_8);
-    
+  Path in = Paths.get("data/P2025Test.txt"); 
+  String raw = Files.readString(in, StandardCharsets.UTF_8);
 
+  GenerateContentResponse res = client.models.generateContent(
+      "gemini-2.5-flash-lite",
+      raw,
+      cfg
+  );
 
-    GenerateContentResponse res = client.models.generateContent(
-        "gemini-2.5-flash-lite",
-        raw,
-        cfg
-    );
+  System.out.println(res.text());
 
-    System.out.println(res.text());
-
-    String json = res.text()
-    .trim()
-    .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", ""); // strip Markdown fences if present 
-    Path out = Paths.get("budget.json");
-    Files.writeString(out, json, StandardCharsets.UTF_8,
-      StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    System.out.println("Saved to " + out.toAbsolutePath());
+  String json = res.text()
+  .trim()
+  .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "")
+  Path out = Paths.get("src/main/resources/budget_data.json");
+  Files.writeString(out, json, StandardCharsets.UTF_8,
+    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+  System.out.println("Saved to " + out.toAbsolutePath());
   }
 }

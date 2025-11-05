@@ -1,4 +1,4 @@
-package com.mariosgalanis.detonomics;
+package com.detonomics.budgettuner;
 
 import java.io.File;
 import java.io.IOException;

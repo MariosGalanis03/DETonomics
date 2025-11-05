@@ -1,4 +1,4 @@
 /**
  * Contains classes for reading and parsing PDF documents.
  */
-package com.budgetingestion.pdf;
+package com.detonomics.budgettuner.budgetingestion.pdf;

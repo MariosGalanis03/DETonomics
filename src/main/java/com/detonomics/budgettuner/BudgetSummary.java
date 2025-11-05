@@ -1,4 +1,4 @@
-package com.mariosgalanis.detonomics;
+package com.detonomics.budgettuner;
 
 public class BudgetSummary {
     private long totalRevenues;

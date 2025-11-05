@@ -1,4 +1,4 @@
-package com.mariosgalanis.detonomics;
+package com.detonomics.budgettuner;
 
 public class BudgetItem {
     private String category;
