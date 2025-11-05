@@ -2,18 +2,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.detonomics.budgettuner</groupId>
-  <artifactId>BudgetTuner</artifactId>
+  <groupId>com.detonomics</groupId>
+  <artifactId>budgettuner</artifactId>
   <packaging>jar</packaging>
   <version>0.1.0-SNAPSHOT</version>
+  <name>DETonomics</name>
+  <url>http://maven.apache.org</url>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
+    
     <jackson.version>2.17.2</jackson.version>
     <junit.version>5.10.1</junit.version>
+    <!-- Standard Plugin Versions to avoid warnings -->
+    <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+    <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
   </properties>
 
   <dependencies>
@@ -25,73 +30,49 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Jackson Dependencies for JSON processing -->
+    <!-- Jackson Dependencies for JSON processing (Critical to fix the error) -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.20</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.20.0</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.20.0</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <!-- PDF box dependencies for PDF to text conversion-->
     <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-      <version>2.0.30</version>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>2.0.30</version>
     </dependency>
 
+    <!-- Tabula dependency for table extraction from PDF-->
     <dependency>
-      <groupId>com.google.genai</groupId>
-      <artifactId>google-genai</artifactId>
-      <version>1.25.0</version>
+      <groupId>technology.tabula</groupId>
+      <artifactId>tabula</artifactId>
+      <version>1.0.5</version>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <!-- *** Jar plugin to define main clas *** -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <!-- Defining main class -->
-              <mainClass>com.detonomics.budgettuner.App</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <!-- Standard Compiler Plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
-      </plugin>
-
-      <!-- Standard Surefire Plugin for testing -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
-      </plugin>
-
-      <!-- Plugin for creating executable jar (uber jar) -->
+      <!-- 
+        NEW: Maven Shade Plugin to create an "uber-jar" 
+        This bundles all dependencies (like Jackson) into the final JAR, 
+        fixing the NoClassDefFoundError when running with 'java -jar'.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.5.2</version> 
         <executions>
           <execution>
             <phase>package</phase>
@@ -99,25 +80,31 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <finalName>${project.artifactId}-${project.version}-exec</finalName>
               <transformers>
+                <!-- Sets the Main-Class entry in the JAR's manifest -->
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.detonomics.budgettuner.App</mainClass>
+                  <mainClass>com.mariosgalanis.detonomics.App</mainClass> 
                 </transformer>
               </transformers>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
+              <!-- Optional: Rename the shaded JAR for clarity -->
+              <finalName>${project.artifactId}-${project.version}-uber</finalName>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- Standard Compiler Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version> 
+      </plugin>
+      
+      <!-- Standard Surefire Plugin for testing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin.version}</version>
       </plugin>
     </plugins>
   </build>

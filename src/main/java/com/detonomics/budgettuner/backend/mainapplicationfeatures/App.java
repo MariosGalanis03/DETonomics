@@ -1,9 +1,10 @@
-package com.detonomics.budgettuner;
+package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.io.InputStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class App {
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void main(String[] args) {
         ObjectMapper mapper = new ObjectMapper();
 

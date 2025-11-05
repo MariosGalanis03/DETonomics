@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner;
+package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.util.ArrayList;
 
