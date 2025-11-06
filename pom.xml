@@ -14,23 +14,33 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
+    <!-- Dependency Versions -->
     <jackson.version>2.17.2</jackson.version>
     <junit.version>5.10.1</junit.version>
-    <!-- Standard Plugin Versions to avoid warnings -->
+    <slf4j.version>2.0.17</slf4j.version>
+    
+    <!-- Plugin Versions -->
     <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
     <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+    <maven.shade.plugin.version>3.5.2</maven.shade.plugin.version> 
   </properties>
 
   <dependencies>
-    <!-- JUnit for testing -->
+    <!-- Logging Implementation: Fixes StaticLoggerBinder error -->
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
     </dependency>
 
-    <!-- Jackson Dependencies for JSON processing (Critical to fix the error) -->
+    <!-- Google Gen AI SDK (Gemini API) -->
+    <dependency>
+      <groupId>com.google.genai</groupId>
+      <artifactId>google-genai</artifactId>
+      <version>1.25.0</version>
+    </dependency>
+
+    <!-- Jackson Dependencies for JSON processing -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
@@ -47,32 +57,33 @@
       <version>${jackson.version}</version>
     </dependency>
 
-    <!-- PDF box dependencies for PDF to text conversion-->
+    <!-- PDF Box & Tabula Dependencies -->
     <dependency>
-        <groupId>org.apache.pdfbox</groupId>
-        <artifactId>pdfbox</artifactId>
-        <version>2.0.30</version>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>2.0.30</version>
     </dependency>
-
-    <!-- Tabula dependency for table extraction from PDF-->
     <dependency>
       <groupId>technology.tabula</groupId>
       <artifactId>tabula</artifactId>
       <version>1.0.5</version>
     </dependency>
+    
+    <!-- JUnit for testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-
   <build>
     <plugins>
-      <!-- 
-        NEW: Maven Shade Plugin to create an "uber-jar" 
-        This bundles all dependencies (like Jackson) into the final JAR, 
-        fixing the NoClassDefFoundError when running with 'java -jar'.
-      -->
+      <!-- Maven Shade Plugin: Creates the executable 'uber' JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.2</version> 
+        <version>${maven.shade.plugin.version}</version> 
         <executions>
           <execution>
             <phase>package</phase>
@@ -80,27 +91,41 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <!-- FIX: Strips all security signatures to prevent JNI/SecurityException -->
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>META-INF/*.MF</exclude>
+                    <exclude>META-INF/SIG-*</exclude>
+                    <exclude>META-INF/services/javax.*</exclude> 
+                  </excludes>
+                </filter>
+              </filters>
               <transformers>
-                <!-- Sets the Main-Class entry in the JAR's manifest -->
+                <!-- FIX: Sets the correct Main Class -->
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.mariosgalanis.detonomics.App</mainClass> 
+                  <mainClass>com.detonomics.budgettuner.backend.mainapplicationfeatures.App</mainClass> 
                 </transformer>
+                <!-- FIX: Merges SLF4J binding files -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
               </transformers>
-              <!-- Optional: Rename the shaded JAR for clarity -->
               <finalName>${project.artifactId}-${project.version}-uber</finalName>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Standard Compiler Plugin -->
+      <!-- Standard Plugins -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler.plugin.version}</version> 
       </plugin>
       
-      <!-- Standard Surefire Plugin for testing -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

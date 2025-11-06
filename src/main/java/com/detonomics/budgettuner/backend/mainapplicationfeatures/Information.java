@@ -16,4 +16,9 @@ public class Information {
     public BudgetSummary getSummary() {
         return summary;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Τίτλος: %s%nΗμερομηνία: %s%nΣύνοψη:%n%s", getTitle(), getDate(), getSummary());
+    }
 }
