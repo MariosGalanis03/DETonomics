@@ -113,16 +113,18 @@ public class App {
     }
 
     private static void searchRevenues(Scanner scanner, BudgetData budgetData) {
-        System.out.print("Εισάγετε Κατηγορία Εσόδου (π.χ. Φόροι): ");
+        System.out.println(budgetData.getRevenueCategoryList()); 
+        System.out.print("Εισάγετε Κατηγορία Εσόδου για αναζήτηση: ");
         String category = scanner.nextLine();
-
         System.out.println("\n--- ΑΠΟΤΕΛΕΣΜΑΤΑ ΓΙΑ '" + category + "' ---");
-        String results = budgetData.findRevenuesByCategory(category.trim()); 
+        String results = budgetData.findRevenuesByCategory(category);
         
-        if (!results.isEmpty()) {
+        if (results != null && !results.isEmpty()) {
             System.out.println(results);
         } else {
-            System.out.println("\nΔεν βρέθηκαν έσοδα για την κατηγορία: " + category);
+            // Πιο ενημερωτικό μήνυμα λάθους
+            System.out.println("Δεν βρέθηκαν έσοδα που να περιέχουν την κατηγορία: " + category + ".");
+            System.out.println("Ελέγξτε τη λίστα και δοκιμάστε ξανά ή αναζητήστε μερική λέξη (π.χ. 'Εισφορές').");
         }
     }
 }

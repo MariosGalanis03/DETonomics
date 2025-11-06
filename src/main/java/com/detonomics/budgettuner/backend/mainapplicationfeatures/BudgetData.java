@@ -3,6 +3,7 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class BudgetData {
 
@@ -115,6 +116,16 @@ public class BudgetData {
         return summary.toString();
     }    
     
+    public String getRevenueCategoryList() {
+        if (revenues == null || revenues.isEmpty()) {
+            return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
+        }
+        return revenues.stream()
+            .map(RevenueItem::getCategory) // Παίρνουμε μόνο το πεδίο "category"
+            .distinct() // Φιλτράρουμε τις διπλότυπες κατηγορίες
+            .sorted() // Ταξινομούμε αλφαβητικά για καλύτερη αναγνωσιμότητα
+            .collect(Collectors.joining("\n- ", "\n--- Διαθέσιμες Κατηγορίες Εσόδων ---\n- ", "\n------------------------------------"));
+    }
     
     @Override
     public String toString() {
