@@ -16,4 +16,9 @@ public class BudgetItem {
     public long getAmount() {
         return amount;
     }
+
+     @Override
+    public String toString() {
+        return String.format("Κατηγορία: %s%nΚωδικός: %d%nΠοσό: %d", getCategory(), getCode(), getAmount());
+    }
 }

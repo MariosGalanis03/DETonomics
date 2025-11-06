@@ -21,4 +21,9 @@ public class BudgetSummary {
     public long getCoverageByCashReserves() {
         return coverageByCashReserves;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Συνολικά Έσοδα: %d%nΣυνολικά Έξοδα: %d%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %d%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %d", getTotalRevenues(), getTotalExpenditures(), getBudgetResult(), getCoverageByCashReserves());
+    }
 }

@@ -26,4 +26,10 @@ public class GovernmentEntity {
     public long getGeneralTotal() {
         return generalTotal;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Όνομα: %s%nΚωδικός: %d%nΤακτικός Προϋπολογισμός: %d%nΠροϋπολογισμός Δημοσίων Επενδύσεων: %d%nΓενικό Σύνολο: %d"
+        ,getName(), getCode(), getRegularBudget(), getPublicInvestmentsBudget(), getGeneralTotal());
+    }
 }

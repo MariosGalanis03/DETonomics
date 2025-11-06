@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.tools;
+package com.detonomics.budgettuner.backend.budgetingestion.parser;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
