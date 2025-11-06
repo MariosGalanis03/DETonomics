@@ -113,18 +113,28 @@ public class App {
     }
 
     private static void searchRevenues(Scanner scanner, BudgetData budgetData) {
+        // 1. Εμφάνιση της λίστας κωδικών/κατηγοριών
         System.out.println(budgetData.getRevenueCategoryList()); 
-        System.out.print("Εισάγετε Κατηγορία Εσόδου για αναζήτηση: ");
-        String category = scanner.nextLine();
-        System.out.println("\n--- ΑΠΟΤΕΛΕΣΜΑΤΑ ΓΙΑ '" + category + "' ---");
-        String results = budgetData.findRevenuesByCategory(category);
         
-        if (results != null && !results.isEmpty()) {
-            System.out.println(results);
+        System.out.print("Εισάγετε τον Κωδικό Εσόδου: ");
+        
+        if (scanner.hasNextInt()) {
+            int code = scanner.nextInt();
+            scanner.nextLine();
+            
+            System.out.println("\n--- ΑΠΟΤΕΛΕΣΜΑΤΑ ΓΙΑ ΚΩΔΙΚΟ '" + code + "' ---");
+            
+            // 2. Κλήση της νέας μεθόδου αναζήτησης με βάση τον κωδικό
+            String results = budgetData.findRevenuesByCode(code);
+            
+            if (results != null) {
+                System.out.println(results);
+            } else {
+                System.out.println("Δεν βρέθηκαν έσοδα με τον κωδικό: " + code + ". Ελέγξτε τη λίστα και δοκιμάστε ξανά.");
+            }
         } else {
-            // Πιο ενημερωτικό μήνυμα λάθους
-            System.out.println("Δεν βρέθηκαν έσοδα που να περιέχουν την κατηγορία: " + category + ".");
-            System.out.println("Ελέγξτε τη λίστα και δοκιμάστε ξανά ή αναζητήστε μερική λέξη (π.χ. 'Εισφορές').");
+            System.out.println("\nΆκυρη είσοδος. Παρακαλώ εισάγετε έναν **αριθμό**.");
+            scanner.nextLine();
         }
     }
 }

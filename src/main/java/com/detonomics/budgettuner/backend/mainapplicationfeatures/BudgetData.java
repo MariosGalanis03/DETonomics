@@ -2,8 +2,11 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class BudgetData {
 
@@ -68,35 +71,34 @@ public class BudgetData {
         return null;
     }
 
-    //Αναζητά και επιστρέφει όλα τα Έσοδα που περιέχουν την δοσμένη κατηγορία
-    public String findRevenuesByCategory(String searchCategory) {
-        if (revenues == null || searchCategory == null || searchCategory.isEmpty()) return "";
-    
-        String results = "";
-        // Μετατροπή σε πεζά για αναζήτηση χωρίς ευαισθησία στα κεφαλαία (case-insensitive)
-        String lowerCaseSearch = searchCategory.toLowerCase(); 
-    
+    // Αναζητά και επιστρέφει όλα τα Έσοδα με βάση τον δοσμένο κωδικό.
+    public String findRevenuesByCode(int code) {
+        if (revenues == null) return null;
+        
+        StringBuilder results = new StringBuilder();
+        
         for (RevenueItem revenue : revenues) { 
-            if (revenue.getCategory().toLowerCase().contains(lowerCaseSearch)) {
-                results = results + revenue + "\n---\n";
+            if (revenue.getCode() == code) {
+                // Χρησιμοποιούμε StringBuilder για αποτελεσματικότερη σύνδεση strings
+                results.append(revenue).append("\n---\n"); 
             }
         }
-        return results;
+        return results.length() > 0 ? results.toString() : null;
     }
 
-    //ΜΕΘΟΔΟΣ ΓΙΑ ΜΟΡΦΟΠΟΙΗΣΗ ΠΟΣΩΝ, Μορφοποιεί έναν αριθμό long σε μορφή ευρώ με διαχωριστή χιλιάδων (π.χ., 1.234.567 €).
+    // Μορφοποιεί έναν αριθμό long σε μορφή ευρώ με διαχωριστή χιλιάδων (π.χ., 1.234.567 €).
     public static String formatAmount(long amount) {
-        //Χρήση του NumberFormat για τη μορφοποίηση με διαχωριστή χιλιάδων
+        // Χρήση του NumberFormat για τη μορφοποίηση με διαχωριστή χιλιάδων
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY); 
         
-        //Θέτουμε 0 δεκαδικά ψηφία, καθώς τα ποσά του προϋπολογισμού είναι ακέραια
+        // Θέτουμε 0 δεκαδικά ψηφία, καθώς τα ποσά του προϋπολογισμού είναι ακέραια
         nf.setMaximumFractionDigits(0);
         
         return nf.format(amount) + " €";
     }
 
 
-    //Επιστρέφει μια συνοπτική λίστα με τους κωδικούς και τα ονόματα όλων των φορέων.
+    // Επιστρέφει μια συνοπτική λίστα με τους κωδικούς και τα ονόματα όλων των φορέων.
     public String getEntitySummaryList() {
         if (entities == null || entities.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένοι κυβερνητικοί φορείς.";
@@ -120,13 +122,36 @@ public class BudgetData {
         if (revenues == null || revenues.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
         }
-        return revenues.stream()
-            .map(RevenueItem::getCategory) // Παίρνουμε μόνο το πεδίο "category"
-            .distinct() // Φιλτράρουμε τις διπλότυπες κατηγορίες
-            .sorted() // Ταξινομούμε αλφαβητικά για καλύτερη αναγνωσιμότητα
-            .collect(Collectors.joining("\n- ", "\n--- Διαθέσιμες Κατηγορίες Εσόδων ---\n- ", "\n------------------------------------"));
+        
+        // Χρησιμοποιούμε απλό HashMap για να συλλέξουμε τις μοναδικές τιμές
+        Map<String, Integer> categoryMap = new LinkedHashMap<>();
+        
+        // Συλλογή των μοναδικών κατηγοριών και κωδικών
+        for (RevenueItem revenue : revenues) {
+            if (!categoryMap.containsKey(revenue.getCategory()) && revenue.getCode() > 0) {
+                // Κρατάμε το πλήρες όνομα κατηγορίας ως κλειδί και τον κωδικό ως τιμή
+                categoryMap.put(revenue.getCategory(), revenue.getCode()); 
+            }
+        }
+        
+        StringBuilder summary = new StringBuilder();
+        summary.append("\n--- Διαθέσιμες Κατηγορίες Εσόδων ---\n");
+        
+        // 1. Μετατρέπουμε το Map σε Stream
+        categoryMap.entrySet().stream()
+            // 2. Ταξινομούμε με βάση την τιμή (δηλαδή, τον κωδικό)
+            .sorted(Map.Entry.comparingByValue())
+            // 3. Επεξεργαζόμαστε τα ταξινομημένα στοιχεία
+            .forEach(entry -> {
+                // entry.getKey() είναι το όνομα της κατηγορίας
+                // entry.getValue() είναι ο κωδικός
+                summary.append(String.format("%d : %s%n", entry.getValue(), entry.getKey()));
+            });
+
+        summary.append("------------------------------------\n");
+        return summary.toString();
     }
-    
+
     @Override
     public String toString() {
         return String.format("%s%n%n--- ΕΣΟΔΑ ---%n%s%n--- ΕΞΟΔΑ ---%n%s%n--- ΦΟΡΕΙΣ ---%n%s", 
