@@ -29,7 +29,10 @@ public class GovernmentEntity {
 
     @Override
     public String toString() {
-        return String.format("Όνομα: %s%nΚωδικός: %d%nΤακτικός Προϋπολογισμός: %d%nΠροϋπολογισμός Δημοσίων Επενδύσεων: %d%nΓενικό Σύνολο: %d"
-        ,getName(), getCode(), getRegularBudget(), getPublicInvestmentsBudget(), getGeneralTotal());
+        return String.format("Όνομα: %s%nΚωδικός: %d%nΤακτικός Προϋπολογισμός: %s%nΠροϋπολογισμός Δημοσίων Επενδύσεων: %s%nΓενικό Σύνολο: %s"
+        ,getName(), getCode(), 
+        BudgetData.formatAmount(getRegularBudget()), 
+        BudgetData.formatAmount(getPublicInvestmentsBudget()), 
+        BudgetData.formatAmount(getGeneralTotal()));
     }
 }

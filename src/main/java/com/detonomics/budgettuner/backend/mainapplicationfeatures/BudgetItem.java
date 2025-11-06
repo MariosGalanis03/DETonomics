@@ -6,9 +6,7 @@ public class BudgetItem {
     private long amount;
 
     // 1. Κατασκευαστής χωρίς ορίσματα (No-argument Constructor)
-    public BudgetItem() {
-        
-    }
+    public BudgetItem() {}
 
     // 2. Κατασκευαστής με όλα τα ορίσματα
     public BudgetItem(String category, int code, long amount) {
@@ -45,7 +43,13 @@ public class BudgetItem {
     
     @Override
     public String toString() {
-        return String.format("Κατηγορία: %s%nΚωδικός: %d%nΠοσό: %d", getCategory(), getCode(), getAmount());
+        // Καλεί τη στατική μέθοδο της BudgetData για μορφοποίηση του ποσού
+        String formattedAmount = BudgetData.formatAmount(getAmount());
+    
+        return String.format("Κατηγορία: %s%nΚωδικός: %d%nΠοσό: %s", 
+            getCategory(), 
+            getCode(), 
+            formattedAmount //Εκτυπώνεται το μορφοποιημένο string
+        );
     }
-
 }

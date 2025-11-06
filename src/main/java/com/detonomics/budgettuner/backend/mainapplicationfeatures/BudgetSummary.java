@@ -24,6 +24,11 @@ public class BudgetSummary {
 
     @Override
     public String toString() {
-        return String.format("Συνολικά Έσοδα: %d%nΣυνολικά Έξοδα: %d%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %d%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %d", getTotalRevenues(), getTotalExpenditures(), getBudgetResult(), getCoverageByCashReserves());
+        return String.format("Συνολικά Έσοδα: %s%nΣυνολικά Έξοδα: %s%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %s%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %s", 
+            BudgetData.formatAmount(getTotalRevenues()), 
+            BudgetData.formatAmount(getTotalExpenditures()), 
+            BudgetData.formatAmount(getBudgetResult()), 
+            BudgetData.formatAmount(getCoverageByCashReserves())
+        );
     }
 }
