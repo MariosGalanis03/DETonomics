@@ -9,15 +9,15 @@ This directory serves as the workspace for the application's data ingestion pipe
 
 data/
 ├── input/
-│ └── pdfs/ <-- STEP 1: Place raw PDFs here
+│ └── pdf <-- STEP 1: Place raw PDFs here
 ├── processed/
-│ ├── txt/ <-- STEP 2: PDF parser writes .txt files here
-│ └── json/ <-- STEP 3: Text parser writes .json files here
+│ ├── txt <-- STEP 2: PDF parser writes .txt files here
+│ └── json <-- STEP 3: Text parser writes .json files here
 └── output/
-└── sql/ <-- STEP 4: JSON loader writes final .sql files here
+└── sql <-- STEP 4: JSON loader writes final .sql files here
 
 
-### 1. `input/pdfs/`
+### 1. `input/`
 
 *   **Purpose:** Contains the source PDF documents that need to be processed.
 *   **Process:** This is the starting point of the pipeline. The `PdfReader` program in the `com.budgetingestion.pdf` package reads files from this directory.
