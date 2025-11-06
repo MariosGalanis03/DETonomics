@@ -50,9 +50,39 @@ public class BudgetData {
         return formattedEntities;
     }
 
+//Αναζητά έναν Κυβερνητικό Φορέα με βάση τον κωδικό του.
+public GovernmentEntity findEntityByCode(int code) {
+    if (entities == null) return null;
+    
+    for (GovernmentEntity entity : entities) {
+        // Επειδή ο κωδικός στο JSON μπορεί να είναι null (όπως στο "Υπουργεία - Subtotal"), 
+        // πρέπει να λάβουμε υπόψη και τους φορείς με null κωδικό αν και η κλάση GovernmentEntity
+        // ορίζει τον κωδικό ως int. Υποθέτουμε ότι το JSON θα το διαχειριστεί σωστά.
+        if (entity.getCode() == code) {
+            return entity;
+        }
+    }
+    return null;
+}
+
+//Αναζητά και επιστρέφει όλα τα Έσοδα που περιέχουν την δοσμένη κατηγορία
+public String findRevenuesByCategory(String searchCategory) {
+    if (revenues == null || searchCategory == null || searchCategory.isEmpty()) return "";
+    
+    String results = "";
+    // Μετατροπή σε πεζά για αναζήτηση χωρίς ευαισθησία στα κεφαλαία (case-insensitive)
+    String lowerCaseSearch = searchCategory.toLowerCase(); 
+    
+    for (RevenueItem revenue : revenues) { 
+        if (revenue.getCategory().toLowerCase().contains(lowerCaseSearch)) {
+            results = results + revenue + "\n---\n";
+        }
+    }
+    return results;
+}
+
     @Override
     public String toString() {
-        // Τροποποίηση: Προσθήκη κεφαλίδων για σαφήνεια
         return String.format("%s%n%n--- ΕΣΟΔΑ ---%n%s%n--- ΕΞΟΔΑ ---%n%s%n--- ΦΟΡΕΙΣ ---%n%s", 
             getInformation(), 
             getFormattedRevenues(), 
