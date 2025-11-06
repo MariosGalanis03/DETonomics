@@ -93,7 +93,27 @@ public class BudgetData {
         
         return nf.format(amount) + " €";
     }
-    
+
+
+    //Επιστρέφει μια συνοπτική λίστα με τους κωδικούς και τα ονόματα όλων των φορέων.
+    public String getEntitySummaryList() {
+        if (entities == null || entities.isEmpty()) {
+            return "Δεν υπάρχουν καταγεγραμμένοι κυβερνητικοί φορείς.";
+        }
+        
+        StringBuilder summary = new StringBuilder();
+        
+        for (GovernmentEntity entity : entities) {
+            //Ελέγχουμε αν ο κωδικός είναι έγκυρος (όχι 0 ή null) για να αποφύγουμε τα sub-totals
+            if (entity.getCode() > 0) { 
+                summary.append(String.format("Κωδικός: %d | Όνομα: %s%n", 
+                    entity.getCode(), 
+                    entity.getName()));
+            }
+        }
+        
+        return summary.toString();
+    }    
     
     
     @Override

@@ -87,20 +87,27 @@ public class App {
     }
     
     // Μέθοδοι που θα καλέσουν λειτουργίες της BudgetData
+
     private static void searchEntity(Scanner scanner, BudgetData budgetData) {
-        System.out.print("Εισάγετε τον Κωδικό Φορέα (π.χ. 1015 για Υπ. Υγείας): ");
+        System.out.println("--- ΛΙΣΤΑ ΔΙΑΘΕΣΙΜΩΝ ΦΟΡΕΩΝ (Σύνοψη) ---");
+        System.out.println(budgetData.getEntitySummaryList()); 
+        System.out.println("----------------------------------------");
+
+        System.out.print("Εισάγετε τον Κωδικό Φορέα: ");
+        
         if (scanner.hasNextInt()) {
             int code = scanner.nextInt();
             scanner.nextLine();
-            GovernmentEntity entity = budgetData.findEntityByCode(code);
+            GovernmentEntity entity = budgetData.findEntityByCode(code); 
+            
             if (entity != null) {
                 System.out.println("\nΒρέθηκε Φορέας:");
-                System.out.println(entity);
+                System.out.println(entity); 
             } else {
-                System.out.println("\nΔεν βρέθηκε φορέας με κωδικό: " + code);
+                System.out.println("\nΔεν βρέθηκε φορέας με κωδικό: " + code + ". Ελέγξτε τη λίστα και προσπαθήστε ξανά.");
             }
         } else {
-            System.out.println("\nΆκυρη είσοδος. Παρακαλώ εισάγετε έναν αριθμό.");
+            System.out.println("\nΆκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό.");
             scanner.nextLine();
         }
     }
