@@ -3,6 +3,7 @@ package com.detonomics.budgettuner.backend.budgetingestion.pdf;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -22,14 +23,17 @@ public class PdfToText {
      * @throws IOException If any error occurs during file reading or writing.
      */
     public void extractAndSaveText(String pdfPath) throws IOException {
+
+        Path outputDir = Path.of("data", "processed");
         // 1. Extract text from the PDF
         String text = this.extractTextFromFile(pdfPath);
-
+        
         // 2. Automatically determine the output filename
         String outputFileName = this.getOutputFileName(pdfPath);
 
         // 3. Write the extracted text to the output file
-        try (PrintWriter out = new PrintWriter(outputFileName)) {
+        Path outputPath = outputDir.resolve(outputFileName);
+        try (PrintWriter out = new PrintWriter(outputPath.toFile())) {
             out.println(text);
         }
 
