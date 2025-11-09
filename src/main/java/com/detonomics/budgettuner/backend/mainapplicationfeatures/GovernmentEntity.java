@@ -1,38 +1,15 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-public class GovernmentEntity {
-    private String name;
-    private int code;
-    private long regularBudget;
-    private long publicInvestmentsBudget;
-    private long generalTotal;
-
-    public String getName() {
-        return name;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public long getRegularBudget() {
-        return regularBudget;
-    }
-
-    public long getPublicInvestmentsBudget() {
-        return publicInvestmentsBudget;
-    }
-
-    public long getGeneralTotal() {
-        return generalTotal;
-    }
+// Χρήση Java Record για απλοποίηση κώδικα
+public record GovernmentEntity(String name, int code, long regularBudget, long publicInvestmentsBudget, long generalTotal) {
 
     @Override
     public String toString() {
+        // Χρήση των record accessors (π.χ. name()) και της BudgetFormatter
         return String.format("Όνομα: %s%nΚωδικός: %d%nΤακτικός Προϋπολογισμός: %s%nΠροϋπολογισμός Δημοσίων Επενδύσεων: %s%nΓενικό Σύνολο: %s"
-        ,getName(), getCode(), 
-        BudgetData.formatAmount(getRegularBudget()), 
-        BudgetData.formatAmount(getPublicInvestmentsBudget()), 
-        BudgetData.formatAmount(getGeneralTotal()));
+        ,name(), code(), 
+        BudgetFormatter.formatAmount(regularBudget()), 
+        BudgetFormatter.formatAmount(publicInvestmentsBudget()), 
+        BudgetFormatter.formatAmount(generalTotal()));
     }
 }

@@ -1,34 +1,16 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-public class BudgetSummary {
-    private long totalRevenues;
-    private long totalExpenditures;
-    private long budgetResult;
-    private long coverageByCashReserves;
-
-    public long getTotalRevenues() {
-        return totalRevenues;
-    }
-
-    public long getTotalExpenditures() {
-        return totalExpenditures;
-    }
-
-    public long getBudgetResult() {
-        return budgetResult;
-    }
-
-    public long getCoverageByCashReserves() {
-        return coverageByCashReserves;
-    }
+// Χρήση Java Record για απλοποίηση κώδικα
+public record BudgetSummary(long totalRevenues, long totalExpenditures, long budgetResult, long coverageByCashReserves) {
 
     @Override
     public String toString() {
+        // Χρήση των record accessors (π.χ. totalRevenues()) και της BudgetFormatter
         return String.format("Συνολικά Έσοδα: %s%nΣυνολικά Έξοδα: %s%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %s%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %s", 
-            BudgetData.formatAmount(getTotalRevenues()), 
-            BudgetData.formatAmount(getTotalExpenditures()), 
-            BudgetData.formatAmount(getBudgetResult()), 
-            BudgetData.formatAmount(getCoverageByCashReserves())
+            BudgetFormatter.formatAmount(totalRevenues()), 
+            BudgetFormatter.formatAmount(totalExpenditures()), 
+            BudgetFormatter.formatAmount(budgetResult()), 
+            BudgetFormatter.formatAmount(coverageByCashReserves())
         );
     }
 }

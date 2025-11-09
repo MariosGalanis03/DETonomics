@@ -1,55 +1,57 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-public class BudgetItem {
-    private String category;
-    private int code;
-    private long amount;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-    // 1. Κατασκευαστής χωρίς ορίσματα (No-argument Constructor)
-    public BudgetItem() {}
+// Η αφηρημένη κλάση BudgetItem παρέχει τη βασική δομή για όλα τα χρηματοοικονομικά στοιχεία (Έσοδα/Έξοδα).
+// Περιλαμβάνει τα πεδία: κατηγορία, κωδικό και ποσό.
+@JsonIgnoreProperties(ignoreUnknown = true)
+public abstract class BudgetItem {
+    
+    // Τα πεδία ορίζονται ως protected για να είναι προσβάσιμα στις υποκλάσεις και να επιτρέπουν τη χαρτογράφηση από τη Jackson.
+    protected String category;
+    protected int code;
+    protected long amount;
 
-    // 2. Κατασκευαστής με όλα τα ορίσματα
+    // Βασικός, κενός constructor, ο οποίος είναι απαραίτητος για τη διαδικασία
+    // απο-σειριοποίησης (Deserialization) από το JSON (Jackson).
+    public BudgetItem() {
+        // Ο Jackson Deserializer χρησιμοποιεί αυτόν τον constructor.
+    }
+
+    // Constructor για τη δημιουργία αντικειμένων μέσω κώδικα.
     public BudgetItem(String category, int code, long amount) {
         this.category = category;
         this.code = code;
         this.amount = amount;
     }
 
-    // Getters
-    public String getCategory() {
-        return category;
-    }
+    // --- Accessors (Getters & Setters) για τη Jackson ---
 
-    public int getCode() {
-        return code;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public long getAmount() {
-        return amount;
-    }
+    public int getCode() { return code; }
+    public void setCode(int code) { this.code = code; }
+
+    public long getAmount() { return amount; }
+    public void setAmount(long amount) { this.amount = amount; }
+
+    // --- Accessors (Record-style) για ευκολότερη χρήση στο υπόλοιπο του κώδικα ---
+
+    public String category() { return category; }
+    public int code() { return code; }
+    public long amount() { return amount; }
     
-    // Setters
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public void setAmount(long amount) {
-        this.amount = amount;
-    }
-    
+    // Παρέχει μια μορφοποιημένη αναπαράσταση του στοιχείου.
     @Override
     public String toString() {
-        // Καλεί τη στατική μέθοδο της BudgetData για μορφοποίηση του ποσού
-        String formattedAmount = BudgetData.formatAmount(getAmount());
+        // Χρησιμοποιεί τον BudgetFormatter για ορθή μορφοποίηση του ποσού.
+        String formattedAmount = BudgetFormatter.formatAmount(amount);
     
         return String.format("Κατηγορία: %s%nΚωδικός: %d%nΠοσό: %s", 
-            getCategory(), 
-            getCode(), 
-            formattedAmount //Εκτυπώνεται το μορφοποιημένο string
+            category, 
+            code, 
+            formattedAmount
         );
     }
 }

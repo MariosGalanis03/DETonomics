@@ -1,164 +1,53 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Collections;
+import java.util.List;
 
+// Αυτή η κλάση λειτουργεί ως Data Transfer Object (DTO) 
+// για τη χαρτογράφηση της δομής του JSON αρχείου.
 public class BudgetData {
 
     private Information information;
-    private ArrayList<RevenueItem> revenues; 
-    private ArrayList<ExpenditureItem> expenditures; 
-    private ArrayList<GovernmentEntity> entities;
+    private List<RevenueItem> revenues; 
+    private List<ExpenditureItem> expenditures; 
+    private List<GovernmentEntity> entities;
 
-    // Getters
+    // --- Getters ---
+
     public Information getInformation() {
         return information;
     }
 
-    public ArrayList<RevenueItem> getRevenues() { // Τύπος επιστροφής RevenueItem
-        return revenues;
+    // Επιστρέφει τη λίστα εσόδων ως αμετάβλητη (immutable) συλλογή.
+    public List<RevenueItem> getRevenues() { 
+        return revenues != null ? Collections.unmodifiableList(revenues) : Collections.emptyList();
     }
 
-    public ArrayList<ExpenditureItem> getExpenditures() { // Τύπος επιστροφής ExpenditureItem
-        return expenditures;
+    // Επιστρέφει τη λίστα εξόδων ως αμετάβλητη (immutable) συλλογή.
+    public List<ExpenditureItem> getExpenditures() { 
+        return expenditures != null ? Collections.unmodifiableList(expenditures) : Collections.emptyList();
     }
 
-    public ArrayList<GovernmentEntity> getEntities() {
-        return entities;
+    // Επιστρέφει τη λίστα φορέων ως αμετάβλητη (immutable) συλλογή.
+    public List<GovernmentEntity> getEntities() {
+        return entities != null ? Collections.unmodifiableList(entities) : Collections.emptyList();
     }
-
-    public String getFormattedRevenues() {
-        String formattedRevenues = "";
-        for (BudgetItem revenue : getRevenues()) { // revenue είναι RevenueItem (υποκλάση του BudgetItem)
-            formattedRevenues = formattedRevenues + revenue + "\n";
-        }
-        return formattedRevenues;
-    }
-
-    public String getFormattedExpenditures() {
-        String formattedExpenditures = "";
-        for (BudgetItem expenditure : getExpenditures()) { // expenditure είναι ExpenditureItem (υποκλάση του BudgetItem)
-            formattedExpenditures = formattedExpenditures + expenditure + "\n";
-        }
-        return formattedExpenditures;
-    }
-
-    public String getFormattedEntities() {
-        String formattedEntities = "";
-        for (GovernmentEntity entity : getEntities()) {
-            formattedEntities = formattedEntities + entity + "\n";
-        }
-        return formattedEntities;
-    }
-
-    //Αναζητά έναν Κυβερνητικό Φορέα με βάση τον κωδικό του.
-    public GovernmentEntity findEntityByCode(int code) {
-        if (entities == null) return null;
     
-        for (GovernmentEntity entity : entities) {
-            // Επειδή ο κωδικός στο JSON μπορεί να είναι null (όπως στο "Υπουργεία - Subtotal"), 
-            // πρέπει να λάβουμε υπόψη και τους φορείς με null κωδικό αν και η κλάση GovernmentEntity
-            // ορίζει τον κωδικό ως int. Υποθέτουμε ότι το JSON θα το διαχειριστεί σωστά.
-            if (entity.getCode() == code) {
-                return entity;
-            }
-        }
-        return null;
+    // --- Setters ---
+
+    public void setInformation(Information information) {
+        this.information = information;
     }
 
-    // Αναζητά και επιστρέφει όλα τα Έσοδα με βάση τον δοσμένο κωδικό.
-    public String findRevenuesByCode(int code) {
-        if (revenues == null) return null;
-        
-        StringBuilder results = new StringBuilder();
-        
-        for (RevenueItem revenue : revenues) { 
-            if (revenue.getCode() == code) {
-                // Χρησιμοποιούμε StringBuilder για αποτελεσματικότερη σύνδεση strings
-                results.append(revenue).append("\n---\n"); 
-            }
-        }
-        return results.length() > 0 ? results.toString() : null;
+    public void setRevenues(List<RevenueItem> revenues) {
+        this.revenues = revenues;
     }
 
-    // Μορφοποιεί έναν αριθμό long σε μορφή ευρώ με διαχωριστή χιλιάδων (π.χ., 1.234.567 €).
-    public static String formatAmount(long amount) {
-        // Χρήση του NumberFormat για τη μορφοποίηση με διαχωριστή χιλιάδων
-        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY); 
-        
-        // Θέτουμε 0 δεκαδικά ψηφία, καθώς τα ποσά του προϋπολογισμού είναι ακέραια
-        nf.setMaximumFractionDigits(0);
-        
-        return nf.format(amount) + " €";
+    public void setExpenditures(List<ExpenditureItem> expenditures) {
+        this.expenditures = expenditures;
     }
 
-
-    // Επιστρέφει μια συνοπτική λίστα με τους κωδικούς και τα ονόματα όλων των φορέων.
-    public String getEntitySummaryList() {
-        if (entities == null || entities.isEmpty()) {
-            return "Δεν υπάρχουν καταγεγραμμένοι κυβερνητικοί φορείς.";
-        }
-        
-        StringBuilder summary = new StringBuilder();
-        
-        for (GovernmentEntity entity : entities) {
-            //Ελέγχουμε αν ο κωδικός είναι έγκυρος (όχι 0 ή null) για να αποφύγουμε τα sub-totals
-            if (entity.getCode() > 0) { 
-                summary.append(String.format("Κωδικός: %d | Όνομα: %s%n", 
-                    entity.getCode(), 
-                    entity.getName()));
-            }
-        }
-        
-        return summary.toString();
-    }    
-    
-    public String getRevenueCategoryList() {
-        if (revenues == null || revenues.isEmpty()) {
-            return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
-        }
-        
-        // Χρησιμοποιούμε απλό HashMap για να συλλέξουμε τις μοναδικές τιμές
-        Map<String, Integer> categoryMap = new LinkedHashMap<>();
-        
-        // Συλλογή των μοναδικών κατηγοριών και κωδικών
-        for (RevenueItem revenue : revenues) {
-            if (!categoryMap.containsKey(revenue.getCategory()) && revenue.getCode() > 0) {
-                // Κρατάμε το πλήρες όνομα κατηγορίας ως κλειδί και τον κωδικό ως τιμή
-                categoryMap.put(revenue.getCategory(), revenue.getCode()); 
-            }
-        }
-        
-        StringBuilder summary = new StringBuilder();
-        summary.append("\n--- Διαθέσιμες Κατηγορίες Εσόδων ---\n");
-        
-        // 1. Μετατρέπουμε το Map σε Stream
-        categoryMap.entrySet().stream()
-            // 2. Ταξινομούμε με βάση την τιμή (δηλαδή, τον κωδικό)
-            .sorted(Map.Entry.comparingByValue())
-            // 3. Επεξεργαζόμαστε τα ταξινομημένα στοιχεία
-            .forEach(entry -> {
-                // entry.getKey() είναι το όνομα της κατηγορίας
-                // entry.getValue() είναι ο κωδικός
-                summary.append(String.format("%d : %s%n", entry.getValue(), entry.getKey()));
-            });
-
-        summary.append("------------------------------------\n");
-        return summary.toString();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s%n%n--- ΕΣΟΔΑ ---%n%s%n--- ΕΞΟΔΑ ---%n%s%n--- ΦΟΡΕΙΣ ---%n%s", 
-            getInformation(), 
-            getFormattedRevenues(), 
-            getFormattedExpenditures(), 
-            getFormattedEntities()
-        );
+    public void setEntities(List<GovernmentEntity> entities) {
+        this.entities = entities;
     }
 }

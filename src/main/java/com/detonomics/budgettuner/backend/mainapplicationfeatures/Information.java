@@ -1,24 +1,11 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-public class Information {
-    private String title;
-    private String date;
-    private BudgetSummary summary;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public BudgetSummary getSummary() {
-        return summary;
-    }
+// Χρήση Java Record για απλοποίηση κώδικα
+public record Information(String title, String date, BudgetSummary summary) {
 
     @Override
     public String toString() {
-        return String.format("Τίτλος: %s%nΗμερομηνία: %s%nΣύνοψη:%n%s", getTitle(), getDate(), getSummary());
+        // Χρήση των record accessors (π.χ. title())
+        return String.format("Τίτλος: %s%nΗμερομηνία: %s%nΣύνοψη:%n%s", title(), date(), summary());
     }
 }
