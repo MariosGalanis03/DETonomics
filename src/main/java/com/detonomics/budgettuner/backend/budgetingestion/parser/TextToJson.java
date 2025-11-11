@@ -14,7 +14,7 @@ import com.google.genai.types.Part;
 
 public class TextToJson {
 
-private static final String PROMPT1 = """
+  private static final String PROMPT1 = """
 **ROLE**
 You are a budget data-extraction agent. You read unstructured text in Greek or English and return valid JSON only, following the schema below. No prose.
 
@@ -36,49 +36,47 @@ Extract clean numeric euro values from budget documents, reconstruct hierarchica
 **OUTPUT JSON SCHEMA**
 
 {
-  "μεταδεδομένα": {
-    "τίτλος_πηγής": null,
-    "ημερομηνία_πηγής": null,
-    "έτος_προϋπολογισμού": null,
-    "νόμισμα": "EUR",
-    "τοπικότητα": "el-GR",
-    "εξαγωγή_στις": null,
-    "λείπουν_πεδία": [],
-    "σημειώσεις": []
+  "metadata": {
+    "sourceTitle": null,
+    "sourceDate": null,
+    "budgetYear": null,
+    "currency": "EUR",
+    "locale": "Greece",
+    "missingFields": [],
   },
-  "σύνοψη_προϋπολογισμού": {
-    "σύνολο_εσόδων": 0,
-    "σύνολο_εξόδων": 0,
-    "αποτέλεσμα_κρατικού_προϋπολογισμού": 0,
-    "κάλυψη_με_ταμειακά_διαθέσιμα": 0
+  "budgetSummary": {
+    "totalRevenue": 0,
+    "totalExpenses": 0,
+    "stateBudgetBalance": 0,
+    "coverageWwithCashReserves": 0
   },
-  "ανάλυση_εσόδων": [
+  "revenueAnalysis": [
     {
-      "κωδικός": "string",
-      "όνομα": "string",
-      "ποσό": 0,
-      "παιδιά": []
+      "code": "string",
+      "name": "string",
+      "amount": 0,
+      "children": []
     }
   ],
-  "ανάλυση_εξόδων": [
-    { "όνομα": "string", "ποσό": 0, "κωδικός": null }
+  "expenseAnalysis": [
+    { "name": "string", "amount": 0, "code": null }
   ],
-  "κατανομή_ανά_υπουργείο": [
+  "distributionByMinistry": [
     {
-      "κωδικός": "string",
-      "υπουργείο_φορέας": "string",
-      "συνολο_απο__μείζονες_κατηγορίες": [
-        { "κωδικός": "string|number", "ονομασία": "string", "ποσό": 0 }
+      "code": "string",
+      "ministryBody": "string",
+      "totalFromMajorCategories": [
+        { "code": "string|number", "name": "string", "amount": 0 }
       ],
-      "τακτικός_προϋπολογισμός": 0,
-      "προϋπολογισμός_δημοσίων_επενδύσεων": 0,
-      "σύνολο": 0
+      "regularBudget": 0,
+      "publicInvestmentBudget": 0,
+      "total": 0
     }
   ],
-  "έλεγχοι": {
-    "άθροισμα_εσόδων_ίσο_με_σύνολο": { "αναμενόμενο": 0, "υπολογισμένο": 0, "εντάξει": true, "διαφορά": 0 },
-    "άθροισμα_εξόδων_ίσο_με_σύνολο": { "αναμενόμενο": 0, "υπολογισμένο": 0, "εντάξει": true, "διαφορά": 0 },
-    "ισοζύγιο_ίσον_έσοδα_μείον_έξοδα": { "αναμενόμενο": 0, "υπολογισμένο": 0, "εντάξει": true, "διαφορά": 0 }
+  "checks": {
+    "sumOfRevenueEqualsTotal": { "expected": 0, "calculated": 0, "ok": true, "difference": 0 },
+    "sumOfExpensesEqualsTotal": { "expected": 0, "calculated": 0, "ok": true, "difference": 0 },
+    "balanceEqualsRevenueMinusExpenses": { "expected": 0, "calculated": 0, "ok": true, "difference": 0 }
   }
 }
 
@@ -98,30 +96,30 @@ Example: "1.304.827.000.000 €" → 1304827000000
 Example: "85.000,50" → 85000.5
 
 
-**EXAMPLE OUTPUT FOR "ανάλυση_εσόδων" (Hierarchical)**
+**EXAMPLE OUTPUT FOR "revenueAnalysis" (Hierarchical)**
 
 {
-  "ανάλυση_εσόδων": [
+  "revenueAnalysis": [
     {
-      "κωδικός": "11",
-      "όνομα": "Φόροι",
-      "ποσό": 62055000000,
-      "παιδιά": [
+      "code": "11",
+      "name": "Φόροι",
+      "amount": 62055000000,
+      "children": [
         {
-          "κωδικός": "111",
-          "όνομα": "Φόροι επί αγαθών και υπηρεσιών",
-          "ποσό": 33667000000,
-          "παιδιά": [
+          "code": "111",
+          "name": "Φόροι επί αγαθών και υπηρεσιών",
+          "amount": 33667000000,
+          "children": [
             {
-              "κωδικός": "11101",
-              "όνομα": "Φόροι προστιθέμενης αξίας που εισπράττονται μέσω Δ.Ο.Υ",
-              "ποσό": 14635000000,
-              "παιδιά": [
+              "code": "11101",
+              "name": "Φόροι προστιθέμενης αξίας που εισπράττονται μέσω Δ.Ο.Υ",
+              "amount": 14635000000,
+              "children": [
                 {
-                  "κωδικός": "1110103",
-                  "όνομα": "ΦΠΑ από ηλεκτρονικό εμπόριο",
-                  "ποσό": 250000000,
-                  "παιδιά": []
+                  "code": "1110103",
+                  "name": "ΦΠΑ από ηλεκτρονικό εμπόριο",
+                  "amount": 250000000,
+                  "children": []
                 }
               ]
             }
@@ -130,39 +128,37 @@ Example: "85.000,50" → 85000.5
       ]
     },
     {
-      "κωδικός": "12",
-      "όνομα": "Κοινωνικές εισφορές",
-      "ποσό": 60000000,
-      "παιδιά": []
+      "code": "12",
+      "name": "Κοινωνικές εισφορές",
+      "amount": 60000000,
+      "children": []
     }
   ]
 }
-
-**EXAMPLE 2: "ανάλυση_εξόδων"**
-
+**EXAMPLE 2: "expenseAnalysis"**
 {
-  "ανάλυση_εξόδων": [
-    { "κωδικός": "21", "όνομα": "Παροχές σε εργαζομένους", "ποσό": 14889199000 },
-    { "κωδικός": "22", "όνομα": "Κοινωνικές παροχές", "ποσό": 425136000 },
-    { "κωδικός": "23", "όνομα": "Μεταβιβάσεις", "ποσό": 34741365000 },
-    { "κωδικός": "26", "όνομα": "Τόκοι", "ποσό": 7701101000 }
+  "expenseAnalysis": [
+    { "code": "21", "name": "Παροχές σε εργαζομένους", "amount": 14889199000 },
+    { "code": "22", "name": "Κοινωνικές παροχές", "amount": 425136000 },
+    { "code": "23", "name": "Μεταβιβάσεις", "amount": 34741365000 },
+    { "code": "26", "name": "Τόκοι", "amount": 7701101000 }
   ]
 }
 
-**EXAMPLE OUTPUT FOR "κατανομή_ανά_υπουργείο"**
+**EXAMPLE OUTPUT FOR "distributionByMinistry"**
 
 {
-  "κατανομή_ανά_υπουργείο": [
+  "distributionByMinistry": [
     {
-      "κωδικός": "1001",
-      "υπουργείο_φορέας": "ΠΡΟΕΔΡΙΑ ΤΗΣ ΔΗΜΟΚΡΑΤΙΑΣ",
-      "συνολο_απο__μείζονες_κατηγορίες": [
-        { "κωδικός": "21", "ονομασία": "Παροχές σε εργαζομένους", "ποσό": 3532000 },
-        { "κωδικός": "24", "ονομασία": "Αγορές αγαθών και υπηρεσιών", "ποσό": 850000 }
+      "code": "1001",
+      "ministryBody": "ΠΡΟΕΔΡΙΑ ΤΗΣ ΔΗΜΟΚΡΑΤΙΑΣ",
+      "totalFromMajorCategories": [
+        { "code": "21", "name": "Παροχές σε εργαζομένους", "amount": 3532000 },
+        { "code": "24", "name": "Αγορές αγαθών και υπηρεσιών", "amount": 850000 }
       ],
-      "τακτικός_προϋπολογισμός": 4638000,
-      "προϋπολογισμός_δημοσίων_επενδύσεων": 0,
-      "σύνολο": 4638000
+      "regularBudget": 4638000,
+      "publicInvestment_budget": 0,
+      "total": 4638000
     }
   ]
 }
