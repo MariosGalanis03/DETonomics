@@ -15,4 +15,4 @@ This module is responsible for the entire budget data processing pipeline. It is
 
 The **IngestBudgetPdf.java** is a program that creates all the steps   
 
-When you want to add a new budget call **IngestBudgetPdf.java** with the path of the pdf as argument
+When you want to add a new budget use **IngestBudgetPdf.java** with the path of the pdf as argument
