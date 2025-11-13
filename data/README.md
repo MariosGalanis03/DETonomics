@@ -6,7 +6,7 @@ This directory serves as the workspace for the application's data ingestion pipe
 
 ## Directory Structure and Data Flow
 
-
+```
 data/
 ├── input/
 │ └── pdf <-- STEP 1: Ρaw PDFs are placed here
@@ -15,7 +15,7 @@ data/
 │ └── json <-- STEP 3: Text parser writes .json files here
 └── output/
 └── sql <-- STEP 4: JSON loader writes final .sql files here
-
+```
 
 ### 1. `input/`
 
@@ -80,7 +80,7 @@ The data is stored in a relational SQLite database with the following structure.
 The easiest way to explore the database is with a graphical tool. We recommend **[DB Browser for SQLite](https://sqlitebrowser.org/)**, which is a free, open-source tool available for Windows, macOS, and Linux. Simply open the `greek_budget_data.db` file with this application to browse tables and run SQL queries.
 
 #### Example SQL Queries
-
+```
 Here are some useful queries to get you started.
 
 1. Get Total Revenue and Expenses for a Specific Year
@@ -148,7 +148,7 @@ WHERE
     m.code = '1015'
     AND m.budget_id = (SELECT budget_id FROM Budgets WHERE budget_year = 2025);
 
-
+```
 
 
 
