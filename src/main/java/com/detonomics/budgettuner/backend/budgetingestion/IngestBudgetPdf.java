@@ -3,6 +3,7 @@ package com.detonomics.budgettuner.backend.budgetingestion;
 import java.io.File;
 import java.nio.file.Path;
 
+import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcessor;
 import com.detonomics.budgettuner.backend.budgetingestion.parser.TextToJson;
 import com.detonomics.budgettuner.backend.budgetingestion.pdf.PdfToText;
 
@@ -23,27 +24,54 @@ public class IngestBudgetPdf {
     }
 
     public static void process(String pdfPath) throws Exception {
-        System.out.println("Converting PDF to TEXT");
+        // --- Step 1: PDF to Text (remains the same) ---
+        System.out.println("STEP 1: Converting PDF to TEXT...");
         PdfToText p = new PdfToText();
         p.extractAndSaveText(pdfPath);
-        System.out.println("PDF to TEXT converted");
+        System.out.println("-> PDF to TEXT conversion complete.");
 
-        // Locate the generated TXT inside data/processed
+        // --- Step 2: Text to JSON (remains the same) ---
         String txtFileName = toTxtName(pdfPath);
         Path inTxt = Path.of("data/processed", txtFileName);
-        System.out.println("Located TXT: " + inTxt.toAbsolutePath());
-
-        System.out.println("Converting TEXT to JSON");
+        System.out.println("STEP 2: Converting TEXT to JSON from: " + inTxt.toAbsolutePath());
+        
         Path outJson = Path.of("data/processed", toJsonName(pdfPath));
         TextToJson.textFileToJson(inTxt, outJson);
-        System.out.println("PDF to JSON converted");
+        System.out.println("-> TEXT to JSON conversion complete. Output at: " + outJson.toAbsolutePath());
+
+        // --- Step 3: JSON to Database (NEW STEP) ---
+        System.out.println("STEP 3: Loading JSON into Database...");
+        try {
+            // Create an instance of our processor
+            BudgetProcessor dbProcessor = new BudgetProcessor();
+            
+            // Get the full path of the JSON file we just created
+            String jsonFilePath = outJson.toAbsolutePath().toString();
+            
+            // Call the public method to process and store the budget
+            dbProcessor.processAndStoreBudget(jsonFilePath);
+            
+            System.out.println("-> Database loading complete.");
+            System.out.println("\nPIPELINE FINISHED SUCCESSFULLY!");
+
+        } catch (Exception e) {
+            System.err.println("-> FAILED to load data into the database.");
+            // Re-throw the exception to let the caller know the pipeline failed
+            throw e;
+        }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("usage: IngestBudgetPdf <pdfPath>");
             System.exit(1);
         }
-        process(args[0]);
+        try {
+            process(args[0]);
+        } catch (Exception e) {
+            System.err.println("\nPIPELINE FAILED!");
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

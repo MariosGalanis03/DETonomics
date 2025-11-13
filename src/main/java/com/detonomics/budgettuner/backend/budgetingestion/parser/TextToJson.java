@@ -3,7 +3,6 @@ package com.detonomics.budgettuner.backend.budgetingestion.parser;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 import com.google.genai.Client;
@@ -177,26 +176,33 @@ Return only the JSON defined by the schema. No extra information.
         .build();
 
    
-    Path in = Paths.get("D:\\Uni\\3o_Examino\\Programming_2\\GroupProject\\pdf-to-text\\BudgetGreece2024Test.txt"); 
-    String raw = Files.readString(in, StandardCharsets.UTF_8);
+ 
+    String raw = Files.readString(inTxt, StandardCharsets.UTF_8);
     
 
 
     GenerateContentResponse res = client.models.generateContent(
-        "gemini-2.5-flash-lite",
+        "gemini-2.5-flash",
         raw,
         cfg
     );
 
-    String json = res.text()
-        .trim()
-        .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", ""); // strip Markdown fences if present 
-        
-    Files.writeString(outJson, json, StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    System.out.println("Saved to " + outJson.toAbsolutePath());
+    String text = res.text();
+
+    if (text == null) {
+        System.err.println("Model returned null text. Check API key, model name, or input size.");
+        System.err.println("Raw response: " + res);
+        return;
     }
-  }
 
+    String json = text.trim()
+        .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", ""); // remove markdown fences
 
+    Files.writeString(outJson, json, StandardCharsets.UTF_8,
+        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
+    System.out.println("Saved to " + outJson.toAbsolutePath());
+
+}
+
+}
