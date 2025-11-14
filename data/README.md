@@ -14,7 +14,7 @@ data/
 │ ├── txt <-- STEP 2: PDF parser writes .txt files here
 │ └── json <-- STEP 3: Text parser writes .json files here
 └── output/
-└── sql <-- STEP 4: JSON loader writes final .sql files here
+   └── sql <-- STEP 4: JSON loader writes final .sql files here
 ```
 
 ### 1. `input/`
@@ -151,6 +151,9 @@ WHERE
 ```
 
 
+Θα ήθελα να σας ενημερώσω ότι το μέρος του κώδικα που μου είχε ανατεθεί, έχει πλέον ολοκληρωθεί.   
+Για οποιαδήποτε διευκρίνιση ή απορία σχετικά με τα προγράμματα, παρακαλώ επικοινωνήστε μαζί μου ή με τον Στέφανο.  
+Είμαι στη διάθεσή σας να συνδράμω και σε άλλους τομείς, εφόσον υπάρχει ανάγκη.
 
 
 
