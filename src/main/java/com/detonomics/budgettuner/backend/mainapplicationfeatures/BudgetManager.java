@@ -1,5 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public class BudgetManager {
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
         if (results.isEmpty() || results.getFirst().get("totalExpenditure") == null) {
-            return 1.0;
+            return 0.0;
         }
 
         Object rawResult = results.getFirst().get("totalExpenditure");
@@ -50,7 +51,36 @@ public class BudgetManager {
         if (rawResult instanceof Number) {
             return ((Number) rawResult).doubleValue();
         }
-        return 2.0;
+        return 0.0;
+    }
+
+    ArrayList<RevenueCategory> loadRevenues(int budgetID) {
+        ArrayList<RevenueCategory> revenues = new ArrayList<>();
+
+        String sql = "SELECT * FROM RevenueCategories WHERE budget_id = " + budgetID;
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+
+        if (results.isEmpty()) {
+            return revenues;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            Integer revenueCategoryID = (Integer) resultRow.get("revenue_category_id");
+            long code = Long.parseLong((String) resultRow.get("code"));
+            String name = (String) resultRow.get("name");
+            Double amount = (Double) resultRow.get("amount");
+            Object potentialParentID = resultRow.get("parent_id");
+            int parentID;
+            if (potentialParentID == null) {
+                parentID = 0;
+            } else {
+                parentID = (Integer) potentialParentID;
+            }
+
+            RevenueCategory revenue = new RevenueCategory(revenueCategoryID, code, name, amount, parentID);
+            revenues.add(revenue);
+        }
+        return revenues;
     }
 
     public static void main(String[] args) {
@@ -65,5 +95,11 @@ public class BudgetManager {
         Double expenditure2025 =  budgetManager.getTotalExpenditure(1);
 
         System.out.println("Total expenditure: " + expenditure2025);
+
+        ArrayList<RevenueCategory> revenues = budgetManager.loadRevenues(1);
+        System.out.println("Revenue_category_id|code|name|amount");
+        for  (RevenueCategory revenueCategory : revenues) {
+            System.out.println(revenueCategory);
+        }
     }
 }
