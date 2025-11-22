@@ -1,52 +1,50 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
 
-// Η κεντρική κλάση της εφαρμογής, υπεύθυνη για τη φόρτωση δεδομένων,
-// τη διαχείριση της ροής της εφαρμογής και την αλληλεπίδραση με τον χρήστη.
+// Η κεντρική κλάση της εφαρμογής
 public class App {
-    
-    // Απενεργοποίηση της προειδοποίησης για χρήση printStackTrace (καθαρός χειρισμός εξαιρέσεων).
-    @SuppressWarnings("CallToPrintStackTrace")
+
     public static void main(String[] args) {
-        ObjectMapper mapper = new ObjectMapper();
-        BudgetData budgetData = null;
-        BudgetService budgetService = null; 
 
-        try (InputStream inputStream = App.class.getClassLoader().getResourceAsStream("budget2025.json")) {
-            if (inputStream == null) {
-                throw new RuntimeException("Το αρχείο 'budget2025.json' δεν βρέθηκε.");
-            }
-
-            // 1. Φόρτωση των δεδομένων από το JSON
-            budgetData = mapper.readValue(inputStream, BudgetData.class);
-            
-            // 2. Δημιουργία της Service κλάσης για πρόσβαση στη λογική των δεδομένων
-            budgetService = new BudgetService(budgetData);
-
-            System.out.println("Επιτυχής Φόρτωση Δεδομένων JSON!");
-            System.out.println("Τίτλος Προϋπολογισμού: " + budgetData.getInformation().title());
-            System.out.println("------------------------------------");
-            
-            // Εκκίνηση του μενού επιλογών
-            startMenu(budgetData, budgetService);
-
-        } catch (Exception e) {
-            System.err.println("\n----------------------------------------------------");
-            System.err.println("ΣΦΑΛΜΑ: Προέκυψε πρόβλημα κατά τη φόρτωση του JSON.");
-            System.err.println("Λεπτομέρειες: " + e.getMessage()); 
-            System.err.println("----------------------------------------------------\n");
-        }
-    }
-
-    // Εμφανίζει το Κεντρικό Μενού της εφαρμογής και χειρίζεται τη βασική ροή.
-    private static void startMenu(BudgetData budgetData, BudgetService budgetService) {
         Scanner scanner = new Scanner(System.in);
+
+        // Φόρτωση λίστας ετών προϋπολογισμού
+        List<BudgetYear> years = loadYears();
+
+        int year;
         int choice;
 
+        // === ΕΙΣΑΓΩΓΗ ΕΤΟΥΣ ===
+        do {
+            System.out.print("Εισάγετε το έτος προϋπολογισμού: ");
+
+            while (!scanner.hasNextInt()) {
+                System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
+                scanner.nextLine();
+            }
+
+            year = scanner.nextInt();
+            scanner.nextLine();
+
+            boolean exists = false;
+
+            for (BudgetYear y : years) {
+                if (y.getYear() == year) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (!exists) {
+                System.out.println("Το έτος δεν υπάρχει. Ξαναδοκίμασε.");
+            }
+
+        } while (!exists);
+
+
+        // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
         do {
             System.out.println("\n--- ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ---");
             System.out.println("1. Προβολή Συνολικών Στοιχείων (Σύνοψη)");
@@ -55,47 +53,46 @@ public class App {
             System.out.println("4. Αναζήτηση Φορέων");
             System.out.println("0. Έξοδος");
             System.out.println("-----------------------");
-            System.out.print("Επιλογή: ");
+            System.out.println("Επιλογή: ");
 
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
-                scanner.nextLine(); 
+                scanner.nextLine();
             } else {
                 System.out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
-                scanner.nextLine(); 
+                scanner.nextLine();
                 choice = -1;
             }
-            
+
             switch (choice) {
                 case 1:
-                    System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ ---");
-                    // Καλεί την getSummary() από την BudgetService
-                    BudgetSummary summary = budgetService.getSummary(); 
-                    System.out.println(summary);
+                    // κώδικας για σύνοψη
                     break;
                 case 2:
-                    revenueMenu(scanner, budgetData, budgetService); // Μετάβαση στο υπο-μενού Εσόδων
+                    // κώδικας για έσοδα
                     break;
                 case 3:
-                    // Κλήση με όλες τις παραμέτρους
-                    expenditureMenu(scanner, budgetData, budgetService); // Μετάβαση στο υπο-μενού Εξόδων
+                    // κώδικας για έξοδα
                     break;
                 case 4:
-                    entityMenu(scanner, budgetService); // Μετάβαση στο υπο-μενού Φορέων
+                    // κώδικας για αναζήτηση φορέων
                     break;
                 case 0:
-                    System.out.println("Έξοδος από την εφαρμογή. Αντίο!");
+                    System.out.println("Έξοδος...");
                     break;
                 default:
-                    if (choice != -1) {
-                        System.out.println("Μη έγκυρη επιλογή. Παρακαλώ δοκιμάστε ξανά.");
-                    }
-                    break;
+                    System.out.println("Μη έγκυρη επιλογή.");
             }
+
         } while (choice != 0);
-        
-        scanner.close();
     }
+
+
+
+
+
+
+
 
     // Υπο-Μενού για τη διαχείριση των Εσόδων.
     private static void revenueMenu(Scanner scanner, BudgetData budgetData, BudgetService budgetService) {
@@ -139,7 +136,6 @@ public class App {
     }
     
     // Υπο-Μενού για τη διαχείριση των Εξόδων.
-    // Πλέον περιλαμβάνει την αναζήτηση.
     private static void expenditureMenu(Scanner scanner, BudgetData budgetData, BudgetService budgetService) {
         int choice;
         do {
@@ -221,27 +217,7 @@ public class App {
         } while (choice != 9);
     }
 
-    // Χειρίζεται τη λογική για την αναζήτηση Κυβερνητικού Φορέα με βάση τον κωδικό.
-    private static void searchEntity(Scanner scanner, BudgetService budgetService) {
-        System.out.print("Εισάγετε τον Κωδικό Φορέα: ");
-        
-        if (scanner.hasNextInt()) {
-            int code = scanner.nextInt();
-            scanner.nextLine();
-            
-            GovernmentEntity entity = budgetService.findEntityByCode(code); 
-            
-            if (entity != null) {
-                System.out.println("\nΒρέθηκε Φορέας:");
-                System.out.println(entity); 
-            } else {
-                System.out.println("\nΔεν βρέθηκε φορέας με κωδικό: " + code + ".");
-            }
-        } else {
-            System.out.println("\nΆκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό.");
-            scanner.nextLine();
-        }
-    }
+    
 
     // Χειρίζεται τη λογική για την αναζήτηση Εσόδων με βάση τον κωδικό κατηγορίας.
     private static void searchRevenues(Scanner scanner, BudgetService budgetService) {
@@ -271,7 +247,7 @@ public class App {
         }
     }
     
-    // ΝΕΑ ΜΕΘΟΔΟΣ: Χειρίζεται τη λογική για την αναζήτηση Εξόδων με βάση τον κωδικό κατηγορίας.
+    // Χειρίζεται τη λογική για την αναζήτηση Εξόδων με βάση τον κωδικό κατηγορίας.
     private static void searchExpenditures(Scanner scanner, BudgetService budgetService) {
         // Εμφάνιση των διαθέσιμων κωδικών για διευκόλυνση του χρήστη
         System.out.println(budgetService.getExpenditureCategoryList()); 
@@ -298,4 +274,28 @@ public class App {
             scanner.nextLine();
         }
     }
+
+    // Χειρίζεται τη λογική για την αναζήτηση Κυβερνητικού Φορέα με βάση τον κωδικό.
+    private static void searchEntity(Scanner scanner, BudgetService budgetService) {
+        System.out.print("Εισάγετε τον Κωδικό Φορέα: ");
+        
+        if (scanner.hasNextInt()) {
+            int code = scanner.nextInt();
+            scanner.nextLine();
+            
+            GovernmentEntity entity = budgetService.findEntityByCode(code); 
+            
+            if (entity != null) {
+                System.out.println("\nΒρέθηκε Φορέας:");
+                System.out.println(entity); 
+            } else {
+                System.out.println("\nΔεν βρέθηκε φορέας με κωδικό: " + code + ".");
+            }
+        } else {
+            System.out.println("\nΆκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό.");
+            scanner.nextLine();
+        }
+    }
+
+    
 }
