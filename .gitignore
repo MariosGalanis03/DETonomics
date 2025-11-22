@@ -6,3 +6,5 @@ pom.xml.versionsBackup
 dependency-reduced-pom.xml
 # Individual vs code config
 .vscode
+# Individual IntellijIdea config
+.idea
