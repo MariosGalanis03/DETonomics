@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.text.NumberFormat;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -16,23 +16,23 @@ public class BudgetFormatter {
     }
 
     // Μορφοποιεί τη λίστα εσόδων για εμφάνιση.
-    public static String getFormattedRevenues(List<RevenueItem> revenues) {
+    public static String getFormattedRevenues(ArrayList<RevenueCategory> revenues) {
         if (revenues.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
         return revenues.stream()
-                       .map(RevenueItem::toString) // Χρησιμοποιεί το toString του RevenueItem
+                       .map(RevenueCategory::toString) // Χρησιμοποιεί το toString του RevenueCategory
                        .collect(Collectors.joining("\n"));
     }
 
     // Μορφοποιεί τη λίστα εξόδων για εμφάνιση.
-    public static String getFormattedExpenditures(List<ExpenditureItem> expenditures) {
+    public static String getFormattedExpenditures(ArrayList<ExpenditureCategory> expenditures) {
         if (expenditures.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έξοδα.";
         return expenditures.stream()
-                           .map(ExpenditureItem::toString) // Χρησιμοποιεί το toString του ExpenditureItem
+                           .map(ExpenditureCategory::toString) // Χρησιμοποιεί το toString του ExpenditureCategory
                            .collect(Collectors.joining("\n"));
     }
 
     // Μορφοποιεί τη λίστα φορέων για εμφάνιση
-    public static String getFormattedEntities(List<GovernmentEntity> entities) {
+    public static String getFormattedEntities(ArrayList<GovernmentEntity> entities) {
         if (entities.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
         return entities.stream()
                            .map(GovernmentEntity::toString)

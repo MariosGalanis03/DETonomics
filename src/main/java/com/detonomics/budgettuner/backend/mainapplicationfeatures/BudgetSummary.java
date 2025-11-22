@@ -1,16 +1,14 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-// Χρήση Java Record για απλοποίηση κώδικα
-public record BudgetSummary(long totalRevenues, long totalExpenditures, long budgetResult, long coverageByCashReserves) {
+public record BudgetSummary(String sourceTitle, String currency, String locale, String sourceDate, int budgetYear, long totalRevenues, long totalExpenses, long budgetResult, long coverageWithCashReserves) {
 
     @Override
     public String toString() {
-        // Χρήση των record accessors (π.χ. totalRevenues()) και της BudgetFormatter
         return String.format("Συνολικά Έσοδα: %s%nΣυνολικά Έξοδα: %s%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %s%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %s", 
             BudgetFormatter.formatAmount(totalRevenues()), 
-            BudgetFormatter.formatAmount(totalExpenditures()), 
+            BudgetFormatter.formatAmount(totalExpenses()), 
             BudgetFormatter.formatAmount(budgetResult()), 
-            BudgetFormatter.formatAmount(coverageByCashReserves())
+            BudgetFormatter.formatAmount(coverageWithCashReserves())
         );
     }
 }
