@@ -3,8 +3,6 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 import java.util.Collections;
 import java.util.List;
 
-// Αυτή η κλάση λειτουργεί ως Data Transfer Object (DTO) 
-// για τη χαρτογράφηση της δομής του JSON αρχείου.
 public class BudgetData {
 
     private Information information;
