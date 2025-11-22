@@ -1,6 +1,6 @@
-package com.detonomics.budgettuner.backend.mainapplicationfeatures;
+package com.detonomics.budgettuner.backend.mainapplicationfeature;
 
-import java.math.BigDecimal;
+import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcessor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,32 @@ public class BudgetManager {
         }
         return 0.0;
     }
+  
+    BudgetSummary loadBudgetSummary(int budgetID) {
+        String summarySQL = "SELECT * FROM Budgets WHERE budgetID = " + budgetID;
+        List<Map<String, Object>> result = dbManager.executeQuery(dbPath, summarySQL);
 
+        if (result.isEmpty()) {
+            return null;
+        }
+
+        String sourceTitle = (String) result.getFirst().get("source_title");
+        String currency = (String) result.getFirst().get("currency");
+        String locale = (String) result.getFirst().get("locale");
+        LocalDate sourceDate = LocalDate.parse((String) result.getFirst().get("source_date"));
+        int budgetYear = (Integer) result.getFirst().get("budget_year");
+        Long totalRevenues = (Long) result.getFirst().get("total_revenues");
+        Long totalExpenses = (Long) result.getFirst().get("total_expenses");
+        Long budgetResult = (Long) result.getFirst().get("budget_result");
+        Long coverageWithCashReserves = (Long) result.getFirst().get("coverage_with_cash_reserves");
+    
+        BudgetSummary summary = new BudgetSummary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
+    }
+
+    /*
+     * Loads Revenue Table in an array list for specific year
+     * Returns array list of revenue category objects
+    */
     ArrayList<RevenueCategory> loadRevenues(int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
 
@@ -84,26 +109,26 @@ public class BudgetManager {
         return revenues;
     }
 
-    BudgetManager loadBudgetSummary(int budgetID) {
-        String summarySQL = "SELECT * FROM Budgets WHERE budgetID = " + budgetID;
-        List<Map<String, Object>> result = dbManager.executeQuery(dbPath, summarySQL);
+    ArrayList<MinistryExpense> loadExpenses(int budgetID) {
+        ArrayList<MinistryExpense> expenses = new ArrayList<>();
 
-        if (result.isEmpty()) {
-            return null;
-        }
+        String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
-        String sourceTitle = (String) result.getFirst().get("source_title");
-        String currency = (String) result.getFirst().get("currency");
-        String locale = (String) result.getFirst().get("locale");
-        LocalDate sourceDate = LocalDate.parse((String) result.getFirst().get("source_date"));
-        int budgetYear = (Integer) result.getFirst().get("budget_year");
-        Long totalRevenues = (Long) result.getFirst().get("total_revenues");
-        Long totalExpenses = (Long) result.getFirst().get("total_expenses");
-        Long budgetResult = (Long) result.getFirst().get("budget_result");
-        Long coverageWithCashReserves = (Long) result.getFirst().get("coverage_with_cash_reserves");
-    
-        BudgetSummary summary = new BudgetSummary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
+       if (results.isEmpty()) {
+           return expenses;
+       }
 
+       for (Map<String, Object> resultRow : results) {
+           Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
+           Integer ministryID = (Integer) resultRow.get("ministry_id");
+           Double amount = (Double) resultRow.get("amount");
+           Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
+
+           MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
+           expenses.add(expense);
+       }
+       return expenses;
     }
 
     public static void main(String[] args) {
@@ -123,6 +148,12 @@ public class BudgetManager {
         System.out.println("Revenue_category_id|code|name|amount");
         for  (RevenueCategory revenueCategory : revenues) {
             System.out.println(revenueCategory);
+        }
+
+        ArrayList<MinistryExpense> expenses = budgetManager.loadExpenses(1);
+        System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
+        for (MinistryExpense ministryExpense : expenses) {
+            System.out.println(ministryExpense);
         }
     }
 }
