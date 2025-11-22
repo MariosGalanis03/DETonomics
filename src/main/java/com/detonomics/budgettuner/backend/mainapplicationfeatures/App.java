@@ -95,7 +95,7 @@ public class App {
 
 
     // Υπο-Μενού για τη διαχείριση των Εσόδων.
-    private static void revenueMenu(Scanner scanner, BudgetData budgetData, BudgetService budgetService) {
+    private static void revenueMenu(Scanner scanner, BudgetYear budgetYear, BudgetService budgetService) {
         int choice;
         do {
             System.out.println("\n--- ΜΕΝΟΥ ΕΣΟΔΩΝ ---");
@@ -118,7 +118,7 @@ public class App {
                 case 1:
                     System.out.println("\n--- ΛΕΠΤΟΜΕΡΕΙΕΣ ΟΛΩΝ ΤΩΝ ΕΣΟΔΩΝ ---");
                     // Χρήση της BudgetFormatter για μορφοποίηση λίστας εσόδων.
-                    System.out.println(BudgetFormatter.getFormattedRevenues(budgetData.getRevenues()));
+                    System.out.println(BudgetFormatter.getFormattedRevenues(budgetYear.getRevenues()));
                     break;
                 case 2:
                     searchRevenues(scanner, budgetService); // Λειτουργία αναζήτησης

@@ -1,5 +1,7 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,6 @@ public class BudgetManager {
         }
 
         Object rawResult = results.getFirst().get("totalExpenditure");
-
         if (rawResult instanceof Number) {
             return ((Number) rawResult).doubleValue();
         }
@@ -83,6 +84,28 @@ public class BudgetManager {
         return revenues;
     }
 
+    BudgetManager loadBudgetSummary(int budgetID) {
+        String summarySQL = "SELECT * FROM Budgets WHERE budgetID = " + budgetID;
+        List<Map<String, Object>> result = dbManager.executeQuery(dbPath, summarySQL);
+
+        if (result.isEmpty()) {
+            return null;
+        }
+
+        String sourceTitle = (String) result.getFirst().get("source_title");
+        String currency = (String) result.getFirst().get("currency");
+        String locale = (String) result.getFirst().get("locale");
+        LocalDate sourceDate = LocalDate.parse((String) result.getFirst().get("source_date"));
+        int budgetYear = (Integer) result.getFirst().get("budget_year");
+        Long totalRevenues = (Long) result.getFirst().get("total_revenues");
+        Long totalExpenses = (Long) result.getFirst().get("total_expenses");
+        Long budgetResult = (Long) result.getFirst().get("budget_result");
+        Long coverageWithCashReserves = (Long) result.getFirst().get("coverage_with_cash_reserves");
+    
+        BudgetSummary summary = new BudgetSummary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
+
+    }
+
     public static void main(String[] args) {
         System.out.println("Testing the database queries");
 
@@ -92,7 +115,7 @@ public class BudgetManager {
 
         System.out.println("Total revenue: " + revenue2025);
 
-        Double expenditure2025 =  budgetManager.getTotalExpenditure(1);
+        Double expenditure2025 =  budgetManager.getTotalExpenses(1);
 
         System.out.println("Total expenditure: " + expenditure2025);
 
