@@ -1,6 +1,5 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcessor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,8 +108,8 @@ public class BudgetManager {
         return revenues;
     }
 
-    ArrayList<MinistryExpense> loadExpenses(int budgetID) {
-        ArrayList<MinistryExpense> expenses = new ArrayList<>();
+    ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
+        ArrayList<ExpenseCategory> expenses = new ArrayList<>();
 
         String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
@@ -125,7 +124,7 @@ public class BudgetManager {
            Double amount = (Double) resultRow.get("amount");
            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
 
-           MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
+           ExpenseCategory expense = new ExpenseCategory(ministryExpenseID, ministryID, expenseCategoryID, amount);
            expenses.add(expense);
        }
        return expenses;
@@ -150,9 +149,9 @@ public class BudgetManager {
             System.out.println(revenueCategory);
         }
 
-        ArrayList<MinistryExpense> expenses = budgetManager.loadExpenses(1);
+        ArrayList<ExpenseCategory> expenses = budgetManager.loadExpenses(1);
         System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
-        for (MinistryExpense ministryExpense : expenses) {
+        for (ExpenseCategory ministryExpense : expenses) {
             System.out.println(ministryExpense);
         }
     }
