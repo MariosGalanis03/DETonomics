@@ -1,5 +1,7 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
+import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcessor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,10 @@ public class BudgetManager {
         return 0.0;
     }
 
+    /*
+     * Loads Revenue Table in an array list for specific year
+     * Returns array list of revenue category objects
+    */
     ArrayList<RevenueCategory> loadRevenues(int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
 
@@ -83,6 +89,28 @@ public class BudgetManager {
         return revenues;
     }
 
+    ArrayList<MinistryExpense> loadExpenses(int budgetID) {
+        ArrayList<MinistryExpense> expenses = new ArrayList<>();
+
+        String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+
+       if (results.isEmpty()) {
+           return expenses;
+       }
+
+       for (Map<String, Object> resultRow : results) {
+           Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
+           Integer ministryID = (Integer) resultRow.get("ministry_id");
+           Double amount = (Double) resultRow.get("amount");
+           Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
+
+           MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
+           expenses.add(expense);
+       }
+       return expenses;
+    }
+
     public static void main(String[] args) {
         System.out.println("Testing the database queries");
 
@@ -100,6 +128,12 @@ public class BudgetManager {
         System.out.println("Revenue_category_id|code|name|amount");
         for  (RevenueCategory revenueCategory : revenues) {
             System.out.println(revenueCategory);
+        }
+
+        ArrayList<MinistryExpense> expenses = budgetManager.loadExpenses(1);
+        System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
+        for (MinistryExpense ministryExpense : expenses) {
+            System.out.println(ministryExpense);
         }
     }
 }
