@@ -1,15 +1,60 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-// Χρήση Java Record για απλοποίηση κώδικα
-record Minisry(String name, int code, long regularBudget, long publicInvestmentsBudget, long generalTotal) {
+class Ministry {
+    private final int ministryID;
+    private final String code;
+    private final String name;
+    private double regularBudget;
+    private double publicInvestmentBudget;
+    private double totalBudget;
+
+    Ministry(int ministryID, String code, String name, double regularBudget, double publicInvestmentBudget, double totalBudget) {
+        this.ministryID = ministryID;
+        this.code = code;
+        this.name = name;
+        this.regularBudget = regularBudget;
+        this.publicInvestmentBudget = publicInvestmentBudget;
+        this.totalBudget = totalBudget;
+    }
+
+    public int getMinistryID() {
+        return ministryID;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getRegularBudget() {
+        return regularBudget;
+    }
+
+    public double getPublicInvestmentBudget() {
+        return publicInvestmentBudget;
+    }
+
+    public double getTotalBudget() {
+        return totalBudget;
+    }
+
+    public void setRegularBudget(double regularBudget) {
+        this.regularBudget = regularBudget;
+    }
+
+    public void setPublicInvestmentBudget(double publicInvestmentBudget) {
+        this.publicInvestmentBudget = publicInvestmentBudget;
+    }
+
+    public void setTotalBudget(double totalBudget) {
+        this.totalBudget = totalBudget;
+    }
 
     @Override
     public String toString() {
-        // Χρήση των record accessors (π.χ. name()) και της BudgetFormatter
-        return String.format("Όνομα: %s%nΚωδικός: %d%nΤακτικός Προϋπολογισμός: %s%nΠροϋπολογισμός Δημοσίων Επενδύσεων: %s%nΓενικό Σύνολο: %s"
-        ,name(), code(), 
-        BudgetFormatter.formatAmount(regularBudget()), 
-        BudgetFormatter.formatAmount(publicInvestmentsBudget()), 
-        BudgetFormatter.formatAmount(generalTotal()));
+        return (this.ministryID + "|" + this.code + "|" + this.name + "|" + this.totalBudget);
     }
 }

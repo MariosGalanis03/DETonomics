@@ -154,7 +154,7 @@ public class App {
                 case 1:
                     System.out.println("\n--- ΛΕΠΤΟΜΕΡΕΙΕΣ ΟΛΩΝ ΤΩΝ ΕΞΟΔΩΝ ---");
                     // Χρήση της BudgetFormatter για μορφοποίηση λίστας εξόδων.
-                    System.out.println(BudgetFormatter.getFormattedExpenditures(budgetData.getExpenditures()));
+                    System.out.println(BudgetFormatter.getFormattedExpenditures(budgetYear.getExpenditures()));
                     break;
                 case 2:
                     // Κλήση της νέας συνάρτησης αναζήτησης
@@ -228,7 +228,7 @@ public class App {
             System.out.println("\n--- ΑΠΟΤΕΛΕΣΜΑΤΑ ΓΙΑ ΚΩΔΙΚΟ '" + code + "' ---");
             
             // Κλήση της Service για τη λήψη των αντικειμένων
-            List<RevenueItem> results = budgetService.findRevenuesByCode(code);
+            List<RevenueCategory> results = budgetService.findRevenuesByCode(code);
             
             if (!results.isEmpty()) {
                 // Χρήση του BudgetFormatter για τη μορφοποίηση της λίστας
@@ -256,7 +256,7 @@ public class App {
             System.out.println("\n--- ΑΠΟΤΕΛΕΣΜΑΤΑ ΓΙΑ ΚΩΔΙΚΟ '" + code + "' ---");
             
             // Κλήση της Service για τη λήψη των αντικειμένων
-            List<ExpenditureItem> results = budgetService.findExpendituresByCode(code);
+            List<ExpenseCategory> results = budgetService.findExpendituresByCode(code);
             
             if (!results.isEmpty()) {
                 // Χρήση του BudgetFormatter για τη μορφοποίηση της λίστας
@@ -278,11 +278,11 @@ public class App {
             int code = scanner.nextInt();
             scanner.nextLine();
             
-            GovernmentEntity entity = budgetService.findEntityByCode(code); 
+            Ministry ministry = budgetService.findEntityByCode(code); 
             
-            if (entity != null) {
+            if (ministry != null) {
                 System.out.println("\nΒρέθηκε Φορέας:");
-                System.out.println(entity); 
+                System.out.println(ministry); 
             } else {
                 System.out.println("\nΔεν βρέθηκε φορέας με κωδικό: " + code + ".");
             }

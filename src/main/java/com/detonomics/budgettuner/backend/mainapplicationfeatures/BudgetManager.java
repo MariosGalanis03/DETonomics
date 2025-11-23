@@ -150,6 +150,45 @@ public class BudgetManager {
         return expenses;
     }
 
+    /*
+     * Loads Ministries Table in an array list for a specific budget
+     * Returns array list of Ministry objects
+    */
+    ArrayList<Ministry> loadMinistries(int budgetID) {
+        ArrayList<Ministry> ministries = new ArrayList<>();
+
+        // Query the Ministries table
+        String sql = "SELECT * FROM Ministries WHERE budget_id = " + budgetID;
+        // dbManager and dbPath are assumed to be accessible in this scope
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+
+        if (results.isEmpty()) {
+            return ministries;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            // Extracting fields for Ministry object
+            Integer ministryID = (Integer) resultRow.get("ministry_id");
+            String code = (String) resultRow.get("code");
+            String name = (String) resultRow.get("name");
+            Double regularBudget = (Double) resultRow.get("regular_budget");
+            Double publicInvestmentBudget = (Double) resultRow.get("public_investment_budget");
+            Double totalBudget = (Double) resultRow.get("total_budget");
+
+            // Ensure null checks for budgets, though DB schema implies they are REAL
+            // Using safe defaults in case they are null (e.g., 0.0)
+            double rb = regularBudget != null ? regularBudget : 0.0;
+            double pib = publicInvestmentBudget != null ? publicInvestmentBudget : 0.0;
+            double tb = totalBudget != null ? totalBudget : 0.0;
+
+
+            // Ministry constructor: ID, code, name, regularBudget, publicInvestmentBudget, totalBudget
+            Ministry ministry = new Ministry(ministryID, code, name, rb, pib, tb);
+            ministries.add(ministry);
+        }
+        return ministries;
+    }
+
     ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID) {
         ArrayList<MinistryExpense> expenses = new ArrayList<>();
 
@@ -191,9 +230,9 @@ public class BudgetManager {
             System.out.println(revenueCategory);
         }
 
-        ArrayList<MinistryExpense> expenses = budgetManager.loadExpenses(1);
+        ArrayList<MinistryExpense> ministryExpenses = budgetManager.loadMinistryExpenses(1);
         System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
-        for (MinistryExpense ministryExpense : expenses) {
+        for (MinistryExpense ministryExpense : ministryExpenses) {
             System.out.println(ministryExpense);
         }
     }
