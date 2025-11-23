@@ -1,5 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -70,7 +71,9 @@ public class App {
                     }
                     break;
                 case 2:
-                    // κώδικας για εμφάνιση εσόδων
+                    ArrayList<RevenueCategory> revenues = budgetManager.loadRevenues(yearID);
+                    System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + " ---");
+                    System.out.println(BudgetFormatter.getFormattedRevenues(revenues));
                     break;
                 case 3:
                     // κώδικας για εμφάνιση εξόδων

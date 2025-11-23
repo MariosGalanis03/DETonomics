@@ -18,17 +18,37 @@ public class BudgetFormatter {
     // Μορφοποιεί τη λίστα εσόδων για εμφάνιση.
     public static String getFormattedRevenues(ArrayList<RevenueCategory> revenues) {
         if (revenues.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
-        return revenues.stream()
-                       .map(RevenueCategory::toString) // Χρησιμοποιεί το toString του RevenueCategory
-                       .collect(Collectors.joining("\n"));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-15s | %-100s | %s%n", "ΚΩΔΙΚΟΣ", "ΠΟΣΟ", "ΠΕΡΙΓΡΑΦΗ"));
+        sb.append("----------------|-----------------|--------------------------------------------------\n");
+
+        for (RevenueCategory r : revenues) {
+            sb.append(String.format("%-15d | %-100s | %s%n", 
+                r.getCode(), 
+                r.getName(), 
+                formatAmount((long)r.getAmount()) 
+            ));
+        }
+        return sb.toString();
     }
 
     // Μορφοποιεί τη λίστα εξόδων για εμφάνιση.
     public static String getFormattedExpenditures(ArrayList<ExpenseCategory> expenditures) {
         if (expenditures.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έξοδα.";
-        return expenditures.stream()
-                           .map(ExpenseCategory::toString) // Χρησιμοποιεί το toString του ExpenditureCategory
-                           .collect(Collectors.joining("\n"));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-15s | %-100s | %s%n", "ΚΩΔΙΚΟΣ", "ΠΟΣΟ", "ΠΕΡΙΓΡΑΦΗ"));
+        sb.append("----------------|-----------------|--------------------------------------------------\n");
+
+        for (ExpenseCategory e : expenditures) {
+            sb.append(String.format("%-15d | %-100s | %s%n", 
+                e.getCode(), 
+                e.getName(), 
+                formatAmount((long)e.getAmount())
+            ));
+        }
+        return sb.toString();
     }
 
     // Μορφοποιεί τη λίστα φορέων για εμφάνιση
