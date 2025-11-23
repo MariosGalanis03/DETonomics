@@ -67,7 +67,7 @@ public class App {
                     case 1:
                         Summary summary = budgetManager.loadSummary(yearID);
                         if (summary != null) {
-                            System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + " ---");
+                            System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
                             System.out.println(summary);
                         } else {
                             System.out.println("Δεν βρέθηκαν στοιχεία σύνοψης για το έτος " + year);
@@ -75,16 +75,18 @@ public class App {
                         break;
                     case 2:
                         ArrayList<RevenueCategory> revenues = budgetManager.loadRevenues(yearID);
-                        System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + " ---");
+                        System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
                         System.out.println(BudgetFormatter.getFormattedRevenues(revenues));
                         break;
                     case 3:
                         ArrayList<ExpenseCategory> expenses = budgetManager.loadExpenses(yearID);
-                        System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + " ---");
+                        System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
                         System.out.println(BudgetFormatter.getFormattedExpenditures(expenses));
                         break;
                     case 4:
-                        // κώδικας για εμφάνιση φορέων
+                        ArrayList<Ministry> ministries = budgetManager.loadMinistries(yearID);
+                        System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                        System.out.println(BudgetFormatter.getFormattedMinistries(ministries));
                         break;
                     case 5:
                         System.out.println("Αλλαγή έτους προϋπολογισμού...");
