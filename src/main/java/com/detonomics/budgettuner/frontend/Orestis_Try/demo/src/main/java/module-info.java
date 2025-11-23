@@ -1,7 +1,7 @@
-module con.myapp {
+module com.myapp {
     requires javafx.controls;
     requires javafx.fxml;
 
-    opens con.myapp to javafx.fxml;
-    exports con.myapp;
+    opens com.myapp to javafx.fxml;
+    exports com.myapp;
 }

@@ -1,4 +1,4 @@
-package con.myapp;
+package com.myapp;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
