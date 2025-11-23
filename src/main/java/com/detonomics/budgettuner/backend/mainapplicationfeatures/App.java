@@ -43,7 +43,7 @@ public class App {
             System.out.println("2. Διαχείριση Εσόδων");
             System.out.println("3. Διαχείριση Εξόδων");
             System.out.println("4. Αναζήτηση Φορέων");
-            System.out.println("0. Έξοδος");
+            System.out.println("5. Έξοδος");
             System.out.println("-----------------------");
             System.out.println("Επιλογή: ");
 

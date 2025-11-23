@@ -2,15 +2,17 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.util.ArrayList;
 
+import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcessor.Ministry;
+
 class BudgetYear {
-    private BudgetSummary summary;
+    private Summary summary;
     private ArrayList<RevenueCategory> revenues; 
     private ArrayList<ExpenseCategory> expenses; 
-    private ArrayList<GovernmentEntity> entities;
+    private ArrayList<Ministry> ministries;
 
     // --- Getters ---
 
-    public BudgetSummary getBudgetSummary() {
+    public Summary getSummary() {
         return summary;
     }
 
@@ -25,13 +27,13 @@ class BudgetYear {
     }
 
     // Επιστρέφει τη λίστα φορέων ως αμετάβλητη (immutable) συλλογή.
-    public ArrayList<GovernmentEntity> getEntities() {
-        return entities;
+    public ArrayList<Ministry> getMinistries() {
+        return ministries;
     }
     
     // --- Setters ---
 
-    public void setSummary(BudgetSummary summary) {
+    public void setSummary(Summary summary) {
         this.summary = summary;
     }
 
@@ -43,7 +45,7 @@ class BudgetYear {
         this.expenses = expenses;
     }
 
-    public void setEntities(ArrayList<GovernmentEntity> entities) {
-        this.entities = entities;
+    public void setMinistries(ArrayList<Ministry> ministries) {
+        this.ministries = ministries;
     }
 }

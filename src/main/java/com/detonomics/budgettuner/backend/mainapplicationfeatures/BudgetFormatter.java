@@ -32,10 +32,10 @@ public class BudgetFormatter {
     }
 
     // Μορφοποιεί τη λίστα φορέων για εμφάνιση
-    public static String getFormattedEntities(ArrayList<GovernmentEntity> entities) {
-        if (entities.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
-        return entities.stream()
-                           .map(GovernmentEntity::toString)
+    public static String getFormattedEntities(ArrayList<Ministry> ministries) {
+        if (ministries.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
+        return ministries.stream()
+                           .map(Ministry::toString)
                            .collect(Collectors.joining("\n"));
     }
 }

@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 // Χρήση Java Record για απλοποίηση κώδικα
-record GovernmentEntity(String name, int code, long regularBudget, long publicInvestmentsBudget, long generalTotal) {
+record Minisry(String name, int code, long regularBudget, long publicInvestmentsBudget, long generalTotal) {
 
     @Override
     public String toString() {
