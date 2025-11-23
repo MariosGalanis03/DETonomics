@@ -35,6 +35,9 @@ public class App {
             }
         } while (!years.contains(year));
 
+        // Βρισκει το ID για το συγκεκριμένο έτος
+        int yearID = budgetManager.getBudgetIDByYear(year);
+
 
         // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
         do {
@@ -58,7 +61,13 @@ public class App {
 
             switch (choice) {
                 case 1:
-                    // κώδικας για εμφάνιση σύνοψης
+                    Summary summary = budgetManager.loadSummary(yearID);
+                    if (summary != null) {
+                        System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + " ---");
+                        System.out.println(summary);
+                    } else {
+                        System.out.println("Δεν βρέθηκαν στοιχεία σύνοψης για το έτος " + year);
+                    }
                     break;
                 case 2:
                     // κώδικας για εμφάνιση εσόδων

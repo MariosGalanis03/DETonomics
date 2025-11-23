@@ -12,6 +12,17 @@ public class BudgetManager {
         this.dbManager = new DatabaseManager();
     }
 
+    public int getBudgetIDByYear(int year) {
+        String sql = "SELECT budget_id FROM Budgets WHERE budget_year = " + year;
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+
+        if (results.isEmpty()) {
+            return -1;
+        }
+
+        return (Integer) results.getFirst().get("budget_id");
+    }
+
     public ArrayList<Integer> loadBudgetYears() {
         String sql = "SELECT budget_year FROM Budgets";
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
@@ -66,22 +77,26 @@ public class BudgetManager {
     }
 
     Summary loadSummary(int budgetID) {
-        String sql = "SELECT * FROM Budgets WHERE budgetID = " + budgetID;
+        String sql = "SELECT * FROM Budgets WHERE budget_id = " + budgetID;
         List<Map<String, Object>> result = dbManager.executeQuery(dbPath, sql);
 
         if (result.isEmpty()) {
             return null;
         }
 
-        String sourceTitle = (String) result.getFirst().get("source_title");
-        String currency = (String) result.getFirst().get("currency");
-        String locale = (String) result.getFirst().get("locale");
-        String sourceDate = (String) result.getFirst().get("source_date");
-        int budgetYear = (Integer) result.getFirst().get("budget_year");
-        Long totalRevenues = (Long) result.getFirst().get("total_revenues");
-        Long totalExpenses = (Long) result.getFirst().get("total_expenses");
-        Long budgetResult = (Long) result.getFirst().get("budget_result");
-        Long coverageWithCashReserves = (Long) result.getFirst().get("coverage_with_cash_reserves");
+        Map<String, Object> row = result.getFirst();
+
+        String sourceTitle = (String) row.get("source_title");
+        String currency = (String) row.get("currency");
+        String locale = (String) row.get("locale");
+        String sourceDate = (String) row.get("source_date");
+        int budgetYear = (Integer) row.get("budget_year");
+
+        long totalRevenues = (long) getTotalRevenue(budgetID);
+        long totalExpenses = (long) getTotalExpenditure(budgetID);
+        long budgetResult = totalRevenues - totalExpenses;
+        Object covObj = row.get("coverage_with_cash_reserves");
+        long coverageWithCashReserves = (covObj != null) ? ((Number) covObj).longValue() : 0;
 
         return new Summary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
     }
