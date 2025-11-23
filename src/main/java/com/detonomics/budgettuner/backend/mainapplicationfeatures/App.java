@@ -1,6 +1,7 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 // Η κεντρική κλάση της εφαρμογής
@@ -77,6 +78,8 @@ public class App {
             }
 
         } while (choice != 0);
+
+        scanner.close();
     }
 
 
@@ -288,6 +291,4 @@ public class App {
             scanner.nextLine();
         }
     }
-
-    
 }

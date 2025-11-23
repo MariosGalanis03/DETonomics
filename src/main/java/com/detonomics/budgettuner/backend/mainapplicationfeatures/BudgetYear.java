@@ -7,7 +7,8 @@ import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcess
 class BudgetYear {
     private Summary summary;
     private ArrayList<RevenueCategory> revenues; 
-    private ArrayList<ExpenseCategory> expenses; 
+    private ArrayList<ExpenseCategory> expenses;
+    private ArrayList<MinistryExpense> ministryExpenses;
     private ArrayList<Ministry> ministries;
 
     // --- Getters ---
@@ -26,26 +27,13 @@ class BudgetYear {
         return expenses;
     }
 
+    // Επιστρέφει τη λίστα εξόδων φορέων ως αμετάβλητη (immutable) συλλογή.
+    public ArrayList<MinistryExpense> getMinistryExpenses() {
+        return ministryExpenses;
+    }
+
     // Επιστρέφει τη λίστα φορέων ως αμετάβλητη (immutable) συλλογή.
     public ArrayList<Ministry> getMinistries() {
         return ministries;
-    }
-    
-    // --- Setters ---
-
-    public void setSummary(Summary summary) {
-        this.summary = summary;
-    }
-
-    public void setRevenues(ArrayList<RevenueCategory> revenues) {
-        this.revenues = revenues;
-    }
-
-    public void setExpenditures(ArrayList<ExpenseCategory> expenses) {
-        this.expenses = expenses;
-    }
-
-    public void setMinistries(ArrayList<Ministry> ministries) {
-        this.ministries = ministries;
     }
 }

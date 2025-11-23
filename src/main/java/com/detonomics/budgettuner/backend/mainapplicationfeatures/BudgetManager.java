@@ -119,7 +119,38 @@ public class BudgetManager {
         return revenues;
     }
 
-    ArrayList<MinistryExpense> loadExpenses(int budgetID) {
+    /*
+     * Loads Expense Table in an array list for specific year
+     * Returns array list of expense category objects
+    */
+    ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
+        ArrayList<ExpenseCategory> expenses = new ArrayList<>();
+
+        // Query the ExpenseCategories table
+        String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = " + budgetID;
+        // dbManager and dbPath are assumed to be accessible in this scope
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+
+        if (results.isEmpty()) {
+            return expenses;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            // Adjusting column name assumptions to match ExpenseCategory fields
+            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
+            // Note: Assuming 'code', 'name', and 'amount' columns remain the same data types and names
+            long code = Long.parseLong((String) resultRow.get("code"));
+            String name = (String) resultRow.get("name");
+            Double amount = (Double) resultRow.get("amount");
+
+            // ExpenseCategory constructor only requires ID, code, name, and amount
+            ExpenseCategory expense = new ExpenseCategory(expenseCategoryID, code, name, amount);
+            expenses.add(expense);
+        }
+        return expenses;
+    }
+
+    ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID) {
         ArrayList<MinistryExpense> expenses = new ArrayList<>();
 
         String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
