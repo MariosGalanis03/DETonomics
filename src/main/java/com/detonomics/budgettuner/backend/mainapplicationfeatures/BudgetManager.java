@@ -141,9 +141,7 @@ public class BudgetManager {
     ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
 
-        // Query the ExpenseCategories table
         String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = " + budgetID;
-        // dbManager and dbPath are assumed to be accessible in this scope
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
         if (results.isEmpty()) {
@@ -151,14 +149,13 @@ public class BudgetManager {
         }
 
         for (Map<String, Object> resultRow : results) {
-            // Adjusting column name assumptions to match ExpenseCategory fields
             Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
-            // Note: Assuming 'code', 'name', and 'amount' columns remain the same data types and names
             long code = Long.parseLong((String) resultRow.get("code"));
             String name = (String) resultRow.get("name");
-            Double amount = (Double) resultRow.get("amount");
 
-            // ExpenseCategory constructor only requires ID, code, name, and amount
+            Object amountObj = resultRow.get("amount");
+            double amount = (amountObj != null) ? ((Number) amountObj).doubleValue() : 0.0;
+
             ExpenseCategory expense = new ExpenseCategory(expenseCategoryID, code, name, amount);
             expenses.add(expense);
         }

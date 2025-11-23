@@ -76,7 +76,9 @@ public class App {
                     System.out.println(BudgetFormatter.getFormattedRevenues(revenues));
                     break;
                 case 3:
-                    // κώδικας για εμφάνιση εξόδων
+                    ArrayList<ExpenseCategory> expenses = budgetManager.loadExpenses(yearID);
+                    System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + " ---");
+                    System.out.println(BudgetFormatter.getFormattedExpenditures(expenses));
                     break;
                 case 4:
                     // κώδικας για εμφάνιση φορέων
