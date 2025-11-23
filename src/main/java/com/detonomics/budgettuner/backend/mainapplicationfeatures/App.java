@@ -1,17 +1,17 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 // Η κεντρική κλάση της εφαρμογής
 public class App {
 
     public static void main(String[] args) {
-
         Scanner scanner = new Scanner(System.in);
+        BudgetManager budgetManager = new BudgetManager();
 
         // Φόρτωση λίστας ετών προϋπολογισμού
-        List<BudgetYear> years = loadYears();
+        ArrayList<Integer> years = budgetManager.loadBudgetYears();
 
         int year;
         int choice;
@@ -28,20 +28,12 @@ public class App {
             year = scanner.nextInt();
             scanner.nextLine();
 
-            boolean exists = false;
-
-            for (BudgetYear y : years) {
-                if (y.getYear() == year) {
-                    exists = true;
-                    break;
-                }
+            if (years.contains(year)) {
+                System.out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
+            } else {
+                System.out.println("Το έτος " + year + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
             }
-
-            if (!exists) {
-                System.out.println("Το έτος δεν υπάρχει. Ξαναδοκίμασε.");
-            }
-
-        } while (!exists);
+        } while (!years.contains(year));
 
 
         // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
@@ -136,7 +128,7 @@ public class App {
     }
     
     // Υπο-Μενού για τη διαχείριση των Εξόδων.
-    private static void expenditureMenu(Scanner scanner, BudgetData budgetData, BudgetService budgetService) {
+    private static void expenditureMenu(Scanner scanner, BudgetYear budgetYear, BudgetService budgetService) {
         int choice;
         do {
             System.out.println("\n--- ΜΕΝΟΥ ΕΞΟΔΩΝ ---");

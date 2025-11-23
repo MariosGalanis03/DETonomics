@@ -24,10 +24,10 @@ public class BudgetFormatter {
     }
 
     // Μορφοποιεί τη λίστα εξόδων για εμφάνιση.
-    public static String getFormattedExpenditures(ArrayList<ExpenditureCategory> expenditures) {
+    public static String getFormattedExpenditures(ArrayList<ExpenseCategory> expenditures) {
         if (expenditures.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έξοδα.";
         return expenditures.stream()
-                           .map(ExpenditureCategory::toString) // Χρησιμοποιεί το toString του ExpenditureCategory
+                           .map(ExpenseCategory::toString) // Χρησιμοποιεί το toString του ExpenditureCategory
                            .collect(Collectors.joining("\n"));
     }
 

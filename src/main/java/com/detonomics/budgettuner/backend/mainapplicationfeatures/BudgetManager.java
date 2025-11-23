@@ -1,6 +1,5 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +8,20 @@ public class BudgetManager {
     private final DatabaseManager dbManager;
     private final String dbPath = "data/output/BudgetDB.db";
 
-    public BudgetManager() {
+    BudgetManager() {
         this.dbManager = new DatabaseManager();
+    }
+
+    public ArrayList<Integer> loadBudgetYears() {
+        String sql = "SELECT budget_year FROM Budgets";
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+        ArrayList<Integer> years = new ArrayList<>();
+
+        for (Map<String, Object> resultRow : results) {
+            Integer year = (Integer) resultRow.get("budget_year");
+            years.add(year);
+        }
+        return years;
     }
 
     /*
@@ -18,7 +29,7 @@ public class BudgetManager {
      * @param year The year to query.
      * @return The total revenue as a Double.
     */
-    public double getTotalRevenue(int budgetID) {
+    double getTotalRevenue(int budgetID) {
         String sql = "SELECT SUM(amount) AS totalRev FROM RevenueCategories WHERE budget_id = " + budgetID  + " AND parent_id IS NULL";
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
@@ -39,7 +50,7 @@ public class BudgetManager {
      * @param year The year to query.
      * @ return The total expenditure as a Double.
     */
-    public double getTotalExpenditure(int budgetID) {
+    double getTotalExpenditure(int budgetID) {
         String sql = "SELECT SUM(amount) as totalExpenditure FROM ExpenseCategories WHERE budget_id = " + budgetID;
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
@@ -54,9 +65,9 @@ public class BudgetManager {
         return 0.0;
     }
 
-    BudgetSummary loadBudgetSummary(int budgetID) {
-        String summarySQL = "SELECT * FROM Budgets WHERE budgetID = " + budgetID;
-        List<Map<String, Object>> result = dbManager.executeQuery(dbPath, summarySQL);
+    Summary loadSummary(int budgetID) {
+        String sql = "SELECT * FROM Budgets WHERE budgetID = " + budgetID;
+        List<Map<String, Object>> result = dbManager.executeQuery(dbPath, sql);
 
         if (result.isEmpty()) {
             return null;
@@ -65,14 +76,14 @@ public class BudgetManager {
         String sourceTitle = (String) result.getFirst().get("source_title");
         String currency = (String) result.getFirst().get("currency");
         String locale = (String) result.getFirst().get("locale");
-        LocalDate sourceDate = LocalDate.parse((String) result.getFirst().get("source_date"));
+        String sourceDate = (String) result.getFirst().get("source_date");
         int budgetYear = (Integer) result.getFirst().get("budget_year");
         Long totalRevenues = (Long) result.getFirst().get("total_revenues");
         Long totalExpenses = (Long) result.getFirst().get("total_expenses");
         Long budgetResult = (Long) result.getFirst().get("budget_result");
         Long coverageWithCashReserves = (Long) result.getFirst().get("coverage_with_cash_reserves");
 
-        BudgetSummary summary = new BudgetSummary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
+        return new Summary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
     }
 
     /*
