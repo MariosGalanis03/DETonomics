@@ -11,23 +11,32 @@ public class App {
         Scanner scanner = new Scanner(System.in);
         BudgetManager budgetManager = new BudgetManager();
 
+        System.out.println();
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Καλωσορίσατε στο Budget Tuner!");
+        System.out.println("Το εργαλείο διαχείρισης προϋπολογισμών");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
         Map<String, Integer> sequence = budgetManager.loadSqliteSequence();
         sequence.forEach((key, value) -> {
             System.out.println("Total " + key + ": " + value);
         });
-        System.out.println();
 
         // Φόρτωση λίστας ετών προϋπολογισμού
         ArrayList<Integer> years = budgetManager.loadBudgetYears();
         boolean programrunning = true;
+        boolean menurunning = true;
         int year;
         int choice;
 
         while (programrunning) {
             // === ΕΙΣΑΓΩΓΗ ΕΤΟΥΣ ===
             do {
-                System.out.println("Διαθέσιμα Έτη στη Βάση: " + years);
-                System.out.print("Εισάγετε το έτος προϋπολογισμού: ");
+                System.out.println("Διαθέσιμα Έτη στη Βάση: ");
+                for (int y : years) {
+                    System.out.println("- " + y);
+                }
+                System.out.print("Εισάγετε το έτος προϋπολογισμού (ή 0 για έξοδο): ");
 
                 while (!scanner.hasNextInt()) {
                     System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
@@ -39,15 +48,18 @@ public class App {
 
                 if (years.contains(year)) {
                     System.out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
+                } else if  (year == 0) {
+                    System.out.println("Έξοδος από την εφαρμογή...");
+                    programrunning = false;
+                    menurunning = false;
                 } else {
                     System.out.println("Το έτος " + year + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
                 }
-            } while (!years.contains(year));
+            } while (!years.contains(year) && programrunning);
 
             // Βρισκει το ID για το συγκεκριμένο έτος
             int budgetID = budgetManager.getBudgetIDByYear(year);
             BudgetYear budget = budgetManager.loadBudgetYear(budgetID);
-            boolean menurunning = true;
 
             // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
             while (menurunning) {
