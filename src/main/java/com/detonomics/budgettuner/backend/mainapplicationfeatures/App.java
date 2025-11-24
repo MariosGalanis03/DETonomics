@@ -2,6 +2,7 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Map;
 
 // Η κεντρική κλάση της εφαρμογής
 public class App {
@@ -9,6 +10,12 @@ public class App {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         BudgetManager budgetManager = new BudgetManager();
+
+        Map<String, Integer> sequence = budgetManager.loadSqliteSequence();
+        sequence.forEach((key, value) -> {
+            System.out.println("Total " + key + ": " + value);
+        });
+        System.out.println();
 
         // Φόρτωση λίστας ετών προϋπολογισμού
         ArrayList<Integer> years = budgetManager.loadBudgetYears();

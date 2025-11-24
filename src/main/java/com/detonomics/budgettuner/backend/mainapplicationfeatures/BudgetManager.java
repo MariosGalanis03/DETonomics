@@ -3,6 +3,7 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class BudgetManager {
     private final DatabaseManager dbManager;
@@ -234,6 +235,20 @@ public class BudgetManager {
        return expenses;
     }
 
+    public Map<String, Integer> loadSqliteSequence() {
+        String sql = "SELECT name, seq FROM sqlite_sequence";
+
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+        Map<String, Integer> sequences = new HashMap<>();
+        for (Map<String, Object> resultRow : results) {
+            String tableName = (String) resultRow.get("name");
+        Integer sequenceValue = ((Number) resultRow.get("seq")).intValue();
+        
+        sequences.put(tableName, sequenceValue);
+    }
+    
+    return sequences;
+}
     public static void main(String[] args) {
         System.out.println("Testing the database queries");
 
