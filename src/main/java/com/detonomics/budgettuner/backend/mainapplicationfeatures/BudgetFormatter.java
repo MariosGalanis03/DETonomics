@@ -2,19 +2,18 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
-// Η κλάση αυτή περιέχει όλες τις βοηθητικές μεθόδους μορφοποίησης και εκτύπωσης.
 public class BudgetFormatter {
 
-    // Μορφοποιεί έναν αριθμό long σε μορφή ευρώ (π.χ., 1.234.567 €).
     public static String formatAmount(long amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY); 
         nf.setMaximumFractionDigits(0);
         return nf.format(amount) + " €";
     }
 
-    // Μορφοποιεί τη λίστα εσόδων για εμφάνιση.
     public static String getFormattedRevenues(ArrayList<RevenueCategory> revenues) {
         if (revenues.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
 
@@ -31,7 +30,6 @@ public class BudgetFormatter {
         return sb.toString();
     }
 
-    // Μορφοποιεί τη λίστα εξόδων για εμφάνιση.
     public static String getFormattedExpenditures(ArrayList<ExpenseCategory> expenditures) {
         if (expenditures.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένα έξοδα.";
 
@@ -48,7 +46,6 @@ public class BudgetFormatter {
         return sb.toString();
     }
 
-    // Μορφοποιεί τη λίστα φορέων για εμφάνιση
     public static String getFormattedMinistries(ArrayList<Ministry> ministries) {
         if (ministries.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
 
@@ -66,22 +63,60 @@ public class BudgetFormatter {
         return sb.toString();
         
     }
+    
+    public static String getFormattedMinistryExpenses(
+        ArrayList<Ministry> ministries, 
+        ArrayList<ExpenseCategory> expenseCategories, 
+        ArrayList<MinistryExpense> ministryExpenses) {
 
-    public static String getFormattedMinistryExpenses(ArrayList<MinistryExpense> ministryExpenses) {
         if (ministryExpenses.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένες δαπάνες φορέων.";
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%-20s | %-15s | %-20s | %20s%n", "ΔΑΠΑΝΗ ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ", "ΠΟΣΟ"));
-        sb.append("---------------------|-----------------|----------------------|----------------------\n");
+        Map<Integer, Ministry> ministryMap = new HashMap<>();
+        for (Ministry m : ministries) ministryMap.put(m.getMinistryID(), m);
+        
+        Map<Integer, String> categoryMap = new HashMap<>();
+        for (ExpenseCategory c : expenseCategories) categoryMap.put(c.getExpenseID(), c.getName());
 
+        Map<String, Long> aggregatedExpenses = new HashMap<>();
+        
         for (MinistryExpense me : ministryExpenses) {
-            sb.append(String.format("%-20d | %-15d | %-20d | %20s%n", 
-                me.getExpenseID(), 
-                me.getMinistryID(), 
-                me.getExpenseCategoryID(),
-                formatAmount((long)me.getAmount())
+            String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
+            long currentAmount = (long) me.getAmount(); 
+            
+            aggregatedExpenses.put(key, aggregatedExpenses.getOrDefault(key, 0L) + currentAmount);
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- ΣΥΝΟΛΙΚΕΣ ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (2025) ---\n");
+        
+        String separator = String.format("%-" + 167 + "s", "").replace(' ', '-');
+
+        sb.append(String.format("%-" + 10 + "s | %-" + 70 + "s | %-" + 53 + "s | %" + 25 + "s%n", 
+            "ΚΩΔ. ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ", "ΣΥΝΟΛΙΚΟ ΠΟΣΟ"));
+            
+        sb.append(separator).append("\n");
+
+        for (Map.Entry<String, Long> entry : aggregatedExpenses.entrySet()) {
+            String[] ids = entry.getKey().split("\\|");
+            int ministryID = Integer.parseInt(ids[0]);
+            int categoryID = Integer.parseInt(ids[1]);
+            Long totalAmount = entry.getValue();
+            
+            Ministry ministry = ministryMap.get(ministryID);
+            String ministryIDString = String.valueOf(ministryID);
+            String ministryName = ministry != null ? ministry.getName() : "Άγνωστος Φορέας (" + ministryID + ")";
+            String categoryName = categoryMap.getOrDefault(categoryID, "Άγνωστη Κατηγορία (" + categoryID + ")");
+
+            String amountString = String.format("%,d \u20ac", totalAmount).replace(',', '.');
+            
+            sb.append(String.format("%-" + 10 + "s | %-" + 70 + "s | %-" + 53 + "s | %" + 25 + "s%n", 
+                ministryIDString,
+                ministryName, 
+                categoryName,
+                amountString
             ));
         }
+        
         return sb.toString();
     }
 }

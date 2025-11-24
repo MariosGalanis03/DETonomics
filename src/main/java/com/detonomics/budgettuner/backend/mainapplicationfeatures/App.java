@@ -66,33 +66,24 @@ public class App {
 
                 switch (choice) {
                     case 1:
-                        Summary summary = budget.getSummary();
-                        if (summary != null) {
                             System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                            System.out.println(summary);
-                        } else {
-                            System.out.println("Δεν βρέθηκαν στοιχεία σύνοψης για το έτος " + year);
-                        }
+                            System.out.println(budget.getSummary());
                         break;
                     case 2:
-                        ArrayList<RevenueCategory> revenues = budget.getRevenues();
                         System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedRevenues(revenues));
+                        System.out.println(BudgetFormatter.getFormattedRevenues(budget.getRevenues()));
                         break;
                     case 3:
-                        ArrayList<ExpenseCategory> expenses = budget.getExpenses();
                         System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedExpenditures(expenses));
+                        System.out.println(BudgetFormatter.getFormattedExpenditures(budget.getExpenses()));
                         break;
                     case 4:
-                        ArrayList<Ministry> ministries = budget.getMinistries();
                         System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedMinistries(ministries));
+                        System.out.println(BudgetFormatter.getFormattedMinistries(budget.getMinistries()));
                         break;
                     case 5:
-                        ArrayList<MinistryExpense> ministryExpenses = budget.getMinistryExpenses();
                         System.out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedMinistryExpenses(ministryExpenses));
+                        System.out.println(BudgetFormatter.getFormattedMinistryExpenses(budget.getMinistries(), budget.getExpenses(), budget.getMinistryExpenses()));
                         break;
                     case 6:
                         System.out.println("Αλλαγή έτους προϋπολογισμού...");
