@@ -3,7 +3,6 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class BudgetManager {
     private final DatabaseManager dbManager;
@@ -235,20 +234,37 @@ public class BudgetManager {
        return expenses;
     }
 
-    public Map<String, Integer> loadSqliteSequence() {
+    public SqlSequence loadSqliteSequence() {
         String sql = "SELECT name, seq FROM sqlite_sequence";
 
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
-        Map<String, Integer> sequences = new HashMap<>();
+
+        int budgets = 0;
+        int revenueCategories = 0;
+        int expenseCategories = 0;
+        int ministries = 0;
+        int ministryExpenses = 0;
+
         for (Map<String, Object> resultRow : results) {
             String tableName = (String) resultRow.get("name");
-        Integer sequenceValue = ((Number) resultRow.get("seq")).intValue();
+            Integer sequenceValue = ((Number) resultRow.get("seq")).intValue();
         
-        sequences.put(tableName, sequenceValue);
+            if ("Budgets".equals(tableName)) {
+                budgets = sequenceValue;
+            } else if ("RevenueCategories".equals(tableName)) {
+                revenueCategories = sequenceValue;
+            } else if ("ExpenseCategories".equals(tableName)) {
+                expenseCategories = sequenceValue;
+            } else if ("Ministries".equals(tableName)) {
+                ministries = sequenceValue;
+            } else if ("MinistryExpenses".equals(tableName)) {
+                ministryExpenses = sequenceValue;
+            }
+        }
+
+        return new SqlSequence(budgets, revenueCategories, expenseCategories, ministries, ministryExpenses);
     }
     
-    return sequences;
-}
     public static void main(String[] args) {
         System.out.println("Testing the database queries");
 
