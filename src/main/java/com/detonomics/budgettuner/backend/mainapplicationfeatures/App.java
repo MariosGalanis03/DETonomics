@@ -1,6 +1,5 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -39,7 +38,8 @@ public class App {
             } while (!years.contains(year));
 
             // Βρισκει το ID για το συγκεκριμένο έτος
-            int yearID = budgetManager.getBudgetIDByYear(year);
+            int budgetID = budgetManager.getBudgetIDByYear(year);
+            BudgetYear budget = budgetManager.loadBudgetYear(budgetID);
             boolean menurunning = true;
 
             // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
@@ -65,7 +65,7 @@ public class App {
 
                 switch (choice) {
                     case 1:
-                        Summary summary = budgetManager.loadSummary(yearID);
+                        Summary summary = budget.getSummary();
                         if (summary != null) {
                             System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
                             System.out.println(summary);
@@ -74,19 +74,19 @@ public class App {
                         }
                         break;
                     case 2:
-                        ArrayList<RevenueCategory> revenues = budgetManager.loadRevenues(yearID);
+                        ArrayList<RevenueCategory> revenues = budget.getRevenues();
                         System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
                         System.out.println(BudgetFormatter.getFormattedRevenues(revenues));
                         break;
                     case 3:
-                        ArrayList<ExpenseCategory> expenses = budgetManager.loadExpenses(yearID);
+                        ArrayList<ExpenseCategory> expenses = budget.getExpenses();
                         System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
                         System.out.println(BudgetFormatter.getFormattedExpenditures(expenses));
                         break;
                     case 4:
-                        ArrayList<Ministry> ministries = budgetManager.loadMinistries(yearID);
+                        ArrayList<Entity> entities = budget.getEntities();
                         System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedMinistries(ministries));
+                        System.out.println(BudgetFormatter.getFormattedEntities(entities));
                         break;
                     case 5:
                         System.out.println("Αλλαγή έτους προϋπολογισμού...");

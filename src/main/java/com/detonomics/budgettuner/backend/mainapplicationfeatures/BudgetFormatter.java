@@ -3,7 +3,6 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 // Η κλάση αυτή περιέχει όλες τις βοηθητικές μεθόδους μορφοποίησης και εκτύπωσης.
 public class BudgetFormatter {
@@ -50,18 +49,18 @@ public class BudgetFormatter {
     }
 
     // Μορφοποιεί τη λίστα φορέων για εμφάνιση
-    public static String getFormattedMinistries(ArrayList<Ministry> ministries) {
-        if (ministries.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
+    public static String getFormattedEntities(ArrayList<Entity> entities) {
+        if (entities.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
 
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-15s | %-100s | %20s%n", "ΚΩΔΙΚΟΣ", "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ"));
         sb.append("----------------|------------------------------------------------------------------------------------------------------|----------------------\n");
 
-        for (Ministry m : ministries) {
+        for (Entity e : entities) {
             sb.append(String.format("%-15s | %-100s | %20s%n", 
-                m.getCode(), 
-                m.getName(), 
-                formatAmount((long)m.getTotalBudget())
+                e.getCode(), 
+                e.getName(), 
+                formatAmount((long)e.getTotalBudget())
             ));
         }
         return sb.toString();

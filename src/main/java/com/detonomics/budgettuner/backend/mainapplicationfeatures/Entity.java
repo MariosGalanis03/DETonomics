@@ -1,14 +1,14 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class Ministry {
+class Entity {
     private final int ministryID;
-    private final String code;
+    private final long code;
     private final String name;
     private double regularBudget;
     private double publicInvestmentBudget;
     private double totalBudget;
 
-    Ministry(int ministryID, String code, String name, double regularBudget, double publicInvestmentBudget, double totalBudget) {
+    public Entity(int ministryID, long code, String name, double regularBudget, double publicInvestmentBudget, double totalBudget) {
         this.ministryID = ministryID;
         this.code = code;
         this.name = name;
@@ -21,7 +21,7 @@ class Ministry {
         return ministryID;
     }
 
-    public String getCode() {
+    public long getCode() {
         return code;
     }
 

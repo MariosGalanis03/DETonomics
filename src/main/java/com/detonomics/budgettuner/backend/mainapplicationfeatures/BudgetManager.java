@@ -76,6 +76,18 @@ public class BudgetManager {
         return 0.0;
     }
 
+    BudgetYear loadBudgetYear(int budgetID) {
+        Summary summary = loadSummary(budgetID);
+        ArrayList<RevenueCategory> revenues = loadRevenues(budgetID);
+        ArrayList<ExpenseCategory> expenses = loadExpenses(budgetID);
+        ArrayList<Entity> entities = loadEntities(budgetID);
+        ArrayList<EntityExpense> entityExpenses = loadEntityExpenses(budgetID);
+
+        BudgetYear budget = new BudgetYear(summary, revenues, expenses, entities, entityExpenses);
+
+        return budget;
+    }
+
     Summary loadSummary(int budgetID) {
         String sql = "SELECT * FROM Budgets WHERE budget_id = " + budgetID;
         List<Map<String, Object>> result = dbManager.executeQuery(dbPath, sql);
@@ -166,8 +178,8 @@ public class BudgetManager {
      * Loads Ministries Table in an array list for a specific budget
      * Returns array list of Ministry objects
     */
-    ArrayList<Ministry> loadMinistries(int budgetID) {
-        ArrayList<Ministry> ministries = new ArrayList<>();
+    ArrayList<Entity> loadEntities(int budgetID) {
+        ArrayList<Entity> entities = new ArrayList<>();
 
         // Query the Ministries table
         String sql = "SELECT * FROM Ministries WHERE budget_id = " + budgetID;
@@ -175,13 +187,13 @@ public class BudgetManager {
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
         if (results.isEmpty()) {
-            return ministries;
+            return entities;
         }
 
         for (Map<String, Object> resultRow : results) {
             // Extracting fields for Ministry object
             Integer ministryID = (Integer) resultRow.get("ministry_id");
-            String code = (String) resultRow.get("code");
+            long code = Long.parseLong((String) resultRow.get("code"));
             String name = (String) resultRow.get("name");
             Double regularBudget = (Double) resultRow.get("regular_budget");
             Double publicInvestmentBudget = (Double) resultRow.get("public_investment_budget");
@@ -195,15 +207,14 @@ public class BudgetManager {
 
 
             // Ministry constructor: ID, code, name, regularBudget, publicInvestmentBudget, totalBudget
-            Ministry ministry = new Ministry(ministryID, code, name, rb, pib, tb);
-            ministries.add(ministry);
+            Entity entity = new Entity(ministryID, code, name, rb, pib, tb);
+            entities.add(entity);
         }
-        return ministries;
+        return entities;
     }
 
-    ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID) {
-        ArrayList<MinistryExpense> expenses = new ArrayList<>();
-
+    ArrayList<EntityExpense> loadEntityExpenses(int budgetID) {
+        ArrayList<EntityExpense> expenses = new ArrayList<>();
         String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
@@ -217,7 +228,7 @@ public class BudgetManager {
            Double amount = (Double) resultRow.get("amount");
            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
 
-           MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
+           EntityExpense expense = new EntityExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
            expenses.add(expense);
        }
        return expenses;
@@ -242,10 +253,10 @@ public class BudgetManager {
             System.out.println(revenueCategory);
         }
 
-        ArrayList<MinistryExpense> ministryExpenses = budgetManager.loadMinistryExpenses(1);
-        System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
-        for (MinistryExpense ministryExpense : ministryExpenses) {
-            System.out.println(ministryExpense);
+        ArrayList<EntityExpense> entityExpenses = budgetManager.loadEntityExpenses(1);
+        System.out.println("entity_expense_id | entity_id | expense_category_id | amount");
+        for (EntityExpense entityExpense : entityExpenses) {
+            System.out.println(entityExpense);
         }
     }
 }
