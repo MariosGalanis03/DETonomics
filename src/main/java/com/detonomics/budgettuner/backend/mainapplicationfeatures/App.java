@@ -13,6 +13,7 @@ public class App {
         // Φόρτωση λίστας ετών προϋπολογισμού
         ArrayList<Integer> years = budgetManager.loadBudgetYears();
         boolean programrunning = true;
+        boolean menurunning = true;
         int year;
         int choice;
 
@@ -32,15 +33,18 @@ public class App {
 
                 if (years.contains(year)) {
                     System.out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
+                } else if  (year == 0) {
+                    System.out.println("Έξοδος από την εφαρμογή...");
+                    programrunning = false;
+                    menurunning = false;
                 } else {
                     System.out.println("Το έτος " + year + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
                 }
-            } while (!years.contains(year));
+            } while (!years.contains(year) && programrunning);
 
             // Βρισκει το ID για το συγκεκριμένο έτος
             int budgetID = budgetManager.getBudgetIDByYear(year);
             BudgetYear budget = budgetManager.loadBudgetYear(budgetID);
-            boolean menurunning = true;
 
             // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
             while (menurunning) {
