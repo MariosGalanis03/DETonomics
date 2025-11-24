@@ -10,6 +10,12 @@ public class App {
         Scanner scanner = new Scanner(System.in);
         BudgetManager budgetManager = new BudgetManager();
 
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Καλωσορίσατε στο Budget Tuner!");
+        System.out.println("Το εργαλείο διαχείρισης προϋπολογισμών");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+
         // Φόρτωση λίστας ετών προϋπολογισμού
         ArrayList<Integer> years = budgetManager.loadBudgetYears();
         boolean programrunning = true;
@@ -20,8 +26,11 @@ public class App {
         while (programrunning) {
             // === ΕΙΣΑΓΩΓΗ ΕΤΟΥΣ ===
             do {
-                System.out.println("Διαθέσιμα Έτη στη Βάση: " + years);
-                System.out.print("Εισάγετε το έτος προϋπολογισμού: ");
+                System.out.println("Διαθέσιμα Έτη στη Βάση: ");
+                for (int y : years) {
+                    System.out.println("- " + y);
+                }
+                System.out.print("Εισάγετε το έτος προϋπολογισμού (ή 0 για έξοδο): ");
 
                 while (!scanner.hasNextInt()) {
                     System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
