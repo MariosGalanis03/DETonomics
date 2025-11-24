@@ -49,21 +49,39 @@ public class BudgetFormatter {
     }
 
     // Μορφοποιεί τη λίστα φορέων για εμφάνιση
-    public static String getFormattedEntities(ArrayList<Entity> entities) {
-        if (entities.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
+    public static String getFormattedMinistries(ArrayList<Ministry> ministries) {
+        if (ministries.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
 
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-15s | %-100s | %20s%n", "ΚΩΔΙΚΟΣ", "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ"));
         sb.append("----------------|------------------------------------------------------------------------------------------------------|----------------------\n");
 
-        for (Entity e : entities) {
+        for (Ministry m : ministries) {
             sb.append(String.format("%-15s | %-100s | %20s%n", 
-                e.getCode(), 
-                e.getName(), 
-                formatAmount((long)e.getTotalBudget())
+                m.getCode(), 
+                m.getName(), 
+                formatAmount((long)m.getTotalBudget())
             ));
         }
         return sb.toString();
         
+    }
+
+    public static String getFormattedMinistryExpenses(ArrayList<MinistryExpense> ministryExpenses) {
+        if (ministryExpenses.isEmpty()) return "Δεν υπάρχουν καταγεγραμμένες δαπάνες φορέων.";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-20s | %-15s | %-20s | %20s%n", "ΔΑΠΑΝΗ ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ", "ΠΟΣΟ"));
+        sb.append("---------------------|-----------------|----------------------|----------------------\n");
+
+        for (MinistryExpense me : ministryExpenses) {
+            sb.append(String.format("%-20d | %-15d | %-20d | %20s%n", 
+                me.getExpenseID(), 
+                me.getMinistryID(), 
+                me.getExpenseCategoryID(),
+                formatAmount((long)me.getAmount())
+            ));
+        }
+        return sb.toString();
     }
 }

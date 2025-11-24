@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class Entity {
+class Ministry {
     private final int ministryID;
     private final long code;
     private final String name;
@@ -8,7 +8,7 @@ class Entity {
     private double publicInvestmentBudget;
     private double totalBudget;
 
-    public Entity(int ministryID, long code, String name, double regularBudget, double publicInvestmentBudget, double totalBudget) {
+    public Ministry(int ministryID, long code, String name, double regularBudget, double publicInvestmentBudget, double totalBudget) {
         this.ministryID = ministryID;
         this.code = code;
         this.name = name;

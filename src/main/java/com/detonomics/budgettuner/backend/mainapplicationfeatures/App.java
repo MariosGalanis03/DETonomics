@@ -49,8 +49,9 @@ public class App {
                 System.out.println("2. Προβολή Εσόδων");
                 System.out.println("3. Προβολή Εξόδων");
                 System.out.println("4. Προβολή Φορέων");
-                System.out.println("5. Αλλαγή Έτους Προϋπολογισμού");
-                System.out.println("6. Έξοδος");
+                System.out.println("5. Προβολή Δαπανών Φορέων");
+                System.out.println("6. Αλλαγή Έτους Προϋπολογισμού");
+                System.out.println("7. Έξοδος");
                 System.out.println("-----------------------");
                 System.out.println("Επιλογή: ");
 
@@ -84,15 +85,20 @@ public class App {
                         System.out.println(BudgetFormatter.getFormattedExpenditures(expenses));
                         break;
                     case 4:
-                        ArrayList<Entity> entities = budget.getEntities();
+                        ArrayList<Ministry> ministries = budget.getMinistries();
                         System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedEntities(entities));
+                        System.out.println(BudgetFormatter.getFormattedMinistries(ministries));
                         break;
                     case 5:
+                        ArrayList<MinistryExpense> ministryExpenses = budget.getMinistryExpenses();
+                        System.out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                        System.out.println(BudgetFormatter.getFormattedMinistryExpenses(ministryExpenses));
+                        break;
+                    case 6:
                         System.out.println("Αλλαγή έτους προϋπολογισμού...");
                         menurunning = false;
                         break;
-                    case 6:
+                    case 7:
                         System.out.println("Έξοδος...");
                         menurunning = false;
                         programrunning = false;

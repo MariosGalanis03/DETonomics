@@ -80,15 +80,15 @@ public class BudgetManager {
         Summary summary = loadSummary(budgetID);
         ArrayList<RevenueCategory> revenues = loadRevenues(budgetID);
         ArrayList<ExpenseCategory> expenses = loadExpenses(budgetID);
-        ArrayList<Entity> entities = loadEntities(budgetID);
-        ArrayList<EntityExpense> entityExpenses = loadEntityExpenses(budgetID);
+        ArrayList<Ministry> ministries = loadMinistries(budgetID);
+        ArrayList<MinistryExpense> ministryExpenses = loadMinistryExpenses(budgetID);
 
-        BudgetYear budget = new BudgetYear(summary, revenues, expenses, entities, entityExpenses);
+        BudgetYear budget = new BudgetYear(summary, revenues, expenses, ministries, ministryExpenses);
 
         return budget;
     }
 
-    Summary loadSummary(int budgetID) {
+    private Summary loadSummary(int budgetID) {
         String sql = "SELECT * FROM Budgets WHERE budget_id = " + budgetID;
         List<Map<String, Object>> result = dbManager.executeQuery(dbPath, sql);
 
@@ -117,7 +117,7 @@ public class BudgetManager {
      * Loads Revenue Table in an array list for specific year
      * Returns array list of revenue category objects
     */
-    ArrayList<RevenueCategory> loadRevenues(int budgetID) {
+    private ArrayList<RevenueCategory> loadRevenues(int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
 
         String sql = "SELECT * FROM RevenueCategories WHERE budget_id = " + budgetID;
@@ -150,7 +150,7 @@ public class BudgetManager {
      * Loads Expense Table in an array list for specific year
      * Returns array list of expense category objects
     */
-    ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
+    private ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
 
         String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = " + budgetID;
@@ -178,8 +178,8 @@ public class BudgetManager {
      * Loads Ministries Table in an array list for a specific budget
      * Returns array list of Ministry objects
     */
-    ArrayList<Entity> loadEntities(int budgetID) {
-        ArrayList<Entity> entities = new ArrayList<>();
+    private ArrayList<Ministry> loadMinistries(int budgetID) {
+        ArrayList<Ministry> ministries = new ArrayList<>();
 
         // Query the Ministries table
         String sql = "SELECT * FROM Ministries WHERE budget_id = " + budgetID;
@@ -187,7 +187,7 @@ public class BudgetManager {
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
         if (results.isEmpty()) {
-            return entities;
+            return ministries;
         }
 
         for (Map<String, Object> resultRow : results) {
@@ -207,14 +207,14 @@ public class BudgetManager {
 
 
             // Ministry constructor: ID, code, name, regularBudget, publicInvestmentBudget, totalBudget
-            Entity entity = new Entity(ministryID, code, name, rb, pib, tb);
-            entities.add(entity);
+            Ministry ministry = new Ministry(ministryID, code, name, rb, pib, tb);
+            ministries.add(ministry);
         }
-        return entities;
+        return ministries;
     }
 
-    ArrayList<EntityExpense> loadEntityExpenses(int budgetID) {
-        ArrayList<EntityExpense> expenses = new ArrayList<>();
+    private ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID) {
+        ArrayList<MinistryExpense> expenses = new ArrayList<>();
         String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
@@ -228,7 +228,7 @@ public class BudgetManager {
            Double amount = (Double) resultRow.get("amount");
            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
 
-           EntityExpense expense = new EntityExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
+           MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
            expenses.add(expense);
        }
        return expenses;
@@ -253,10 +253,10 @@ public class BudgetManager {
             System.out.println(revenueCategory);
         }
 
-        ArrayList<EntityExpense> entityExpenses = budgetManager.loadEntityExpenses(1);
-        System.out.println("entity_expense_id | entity_id | expense_category_id | amount");
-        for (EntityExpense entityExpense : entityExpenses) {
-            System.out.println(entityExpense);
+        ArrayList<MinistryExpense> ministryExpenses = budgetManager.loadMinistryExpenses(1);
+        System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
+        for (MinistryExpense ministryExpense : ministryExpenses) {
+            System.out.println(ministryExpense);
         }
     }
 }
