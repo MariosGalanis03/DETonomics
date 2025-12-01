@@ -62,6 +62,10 @@ public class App {
             BudgetYear budget = budgetManager.loadBudgetYear(budgetID);
 
             // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
+            if (!programrunning) {
+                break;
+            }
+            menurunning = true;
             while (menurunning) {
                 System.out.println("\n--- ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ---");
                 System.out.println("1. Προβολή Συνολικών Στοιχείων (Σύνοψη)");
