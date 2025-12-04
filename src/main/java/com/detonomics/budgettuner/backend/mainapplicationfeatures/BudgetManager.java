@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class BudgetManager {
     private final DatabaseManager dbManager;
-    private final String dbPath = "data/output/BudgetDB.db";
+    private final String dbPath = "data/output/BudgetDB_copy.db";
 
     BudgetManager() {
         this.dbManager = new DatabaseManager();
@@ -264,30 +264,121 @@ public class BudgetManager {
 
         return new SqlSequence(budgets, revenueCategories, expenseCategories, ministries, ministryExpenses);
     }
-    
+
+    /*
+     * Setting revenue amount inside database
+     * Returns rowsAffected (if 0 then something went wrong)
+    */ 
+
+    private int setRevenueAmount(long code, double amount) {
+        int rowsAffected = 0;
+
+        // calculating difference so we can update parent amounts
+        int revenueCategoryID = this.getRevenueCategoryIDFromCode(code);
+        int parentID = this.checkRevenueParent(revenueCategoryID);
+        double oldAmount = this.checkRevenueAmount(revenueCategoryID);
+        double difference = amount - oldAmount;
+
+        // Updating the database with the new amount
+        String sql = "UPDATE RevenueCategories SET amount = " + amount + " WHERE revenue_category_id = " + revenueCategoryID;
+        int check = dbManager.executeUpdate(dbPath, sql);
+        rowsAffected += check;
+
+        // Updating the parent amounts
+        while (parentID != 0) {
+            sql = "UPDATE RevenueCategories SET amount = amount + " + difference + " WHERE revenue_category_id = " + parentID;
+            check = dbManager.executeUpdate(dbPath, sql);
+            rowsAffected += check;
+            parentID = checkRevenueParent(parentID);
+        }
+
+        // Updating the children amounts (not finished)
+        boolean hasChildren;
+        if (this.getRevenueChildren(revenueCategoryID).isEmpty()) {
+            hasChildren = false;
+        } else {
+            hasChildren = true;
+        }
+
+        return rowsAffected;
+    }    
+
+    private int getRevenueCategoryIDFromCode(long code) {
+        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE code = " + code;
+        List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+        int revenueCategoryID = (Integer) queryResults.getFirst().get("revenue_category_id");
+        return revenueCategoryID;
+    }
+
+    // Method to check amount of revenue category id from database
+    private double checkRevenueAmount(int revenue_category_id) {
+        String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = " + revenue_category_id;
+        List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+        double amount = (Double) queryResults.getFirst().get("amount");
+        return amount;
+    }
+
+    // Method to check amount of revenue category id from database
+    private int checkRevenueParent(int revenue_category_id) {
+        String sql = "SELECT parent_id FROM RevenueCategories WHERE revenue_category_id = " + revenue_category_id;
+        List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+        Integer rawParentID = (Integer) queryResults.getFirst().get("parent_id");
+        if (rawParentID == null) {
+            return 0;
+        } else {
+            int parentID = rawParentID;
+            return parentID;
+        }
+    }
+
+    // Return a list of integers containing the revenue category id's of a specific revenue's children
+    // If list is empty revenue has no children
+    private ArrayList<Integer> getRevenueChildren(int revenueCategoryID) {
+        ArrayList<Integer> children = new ArrayList<>();
+
+        String sql = "SELECT revenue_category_id FROM RevenueCategory WHERE parentID = " + revenueCategoryID;
+        List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+
+        for (Map<String, Object> resultRow : queryResults) {
+           Integer childID = (Integer) resultRow.get("revenue_category_id");
+           children.add(childID); 
+        }
+
+        return children;
+    }
+
+    /*
+     * Sets a certain revenue category's children's amounts (while maintaing same weight)
+     * Warning it only sets direct children
+    */
+    private void setRevenueChildren(int revenueCategoryID) {
+        ArrayList<Integer> children = this.getRevenueChildren(revenueCategoryID);
+        int childrenSize = children.size();
+        int iterator = 1;
+        double sum = 0;
+        double amount;
+        Double coef;
+        double parentAmount = this.checkRevenueAmount(revenueCategoryID);
+        String sql;
+
+        for (Integer childCode : children) {
+            if (iterator == childrenSize) {
+                coef = 1 - sum;
+                amount = parentAmount * coef;
+                sql = "UPDATE RevenueCategories SET amount = " + amount + " WHERE revenue_category_id = " + childCode;
+            } else {
+                amount = this.checkRevenueAmount(childCode);
+                coef = amount / parentAmount;
+                amount = amount * coef;
+                sql = "UPDATE RevenueCategories SET amount = " + amount + " WHERE revenue_category_id = " + childCode;
+                sum += coef;
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        System.out.println("Testing the database queries");
-
         BudgetManager budgetManager = new BudgetManager();
-
-        Double revenue2025 =  budgetManager.getTotalRevenue(1);
-
-        System.out.println("Total revenue: " + revenue2025);
-
-        Double expenditure2025 =  budgetManager.getTotalExpenditure(1);
-
-        System.out.println("Total expenditure: " + expenditure2025);
-
-        ArrayList<RevenueCategory> revenues = budgetManager.loadRevenues(1);
-        System.out.println("Revenue_category_id|code|name|amount");
-        for  (RevenueCategory revenueCategory : revenues) {
-            System.out.println(revenueCategory);
-        }
-
-        ArrayList<MinistryExpense> ministryExpenses = budgetManager.loadMinistryExpenses(1);
-        System.out.println("ministry_expense_id | ministry_id | expense_category_id | amount");
-        for (MinistryExpense ministryExpense : ministryExpenses) {
-            System.out.println(ministryExpense);
-        }
+        System.out.println(budgetManager.checkRevenueAmount(1));
+        System.out.println(budgetManager.getRevenueCategoryIDFromCode(11));
     }
 }
