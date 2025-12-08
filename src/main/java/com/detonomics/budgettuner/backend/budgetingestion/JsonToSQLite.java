@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.backend.budgetingestion.database;
+package com.detonomics.budgettuner.backend.budgetingestion;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * A reusable service class to process a budget JSON file and store it in a SQLite database.
  * It can be called from other parts of an application or run as a standalone tool.
  */
-public class BudgetProcessor {
+public class JsonToSQLite {
 
     private static final String DB_FILE_PATH = "data/output/BudgetDB.db";
     private static final String DB_URL = "jdbc:sqlite:" + DB_FILE_PATH;
@@ -37,7 +37,7 @@ public class BudgetProcessor {
         }
         String jsonFilePath = args[0];
 
-        BudgetProcessor processor = new BudgetProcessor();
+        JsonToSQLite processor = new JsonToSQLite();
         try {
             processor.processAndStoreBudget(jsonFilePath);
         } catch (Exception e) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-//TODO: Update DatabaseManager to prevent sql injection statements
+// TODO: Update DatabaseManager to prevent sql injection statements
 
 public class BudgetManager {
     private final DatabaseManager dbManager;

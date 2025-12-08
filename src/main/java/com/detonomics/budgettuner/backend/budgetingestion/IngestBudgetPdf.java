@@ -3,10 +3,6 @@ package com.detonomics.budgettuner.backend.budgetingestion;
 import java.io.File;
 import java.nio.file.Path;
 
-import com.detonomics.budgettuner.backend.budgetingestion.database.BudgetProcessor;
-import com.detonomics.budgettuner.backend.budgetingestion.parser.TextToJson;
-import com.detonomics.budgettuner.backend.budgetingestion.pdf.PdfToText;
-
 public class IngestBudgetPdf {
 
     private static String toTxtName(String pdfPath) {
@@ -43,7 +39,7 @@ public class IngestBudgetPdf {
         System.out.println("STEP 3: Loading JSON into Database...");
         try {
             // Create an instance of our processor
-            BudgetProcessor dbProcessor = new BudgetProcessor();
+            JsonToSQLite dbProcessor = new JsonToSQLite();
             
             // Get the full path of the JSON file we just created
             String jsonFilePath = outJson.toAbsolutePath().toString();

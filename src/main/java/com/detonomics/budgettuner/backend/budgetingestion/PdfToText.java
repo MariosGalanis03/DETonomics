@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.backend.budgetingestion.pdf;
+package com.detonomics.budgettuner.backend.budgetingestion;
 
 import java.io.File;
 import java.io.IOException;
