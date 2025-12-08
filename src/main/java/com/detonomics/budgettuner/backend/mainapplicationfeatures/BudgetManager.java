@@ -37,47 +37,6 @@ public class BudgetManager {
         return years;
     }
 
-    /*
-     * Retrieves the total revenue for a specific year.
-     * @param year The year to query.
-     * @return The total revenue as a Double.
-    */
-    double getTotalRevenue(int budgetID) {
-        String sql = "SELECT SUM(amount) AS totalRev FROM RevenueCategories WHERE budget_id = " + budgetID  + " AND parent_id IS NULL";
-        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
-
-        if (results.isEmpty() || results.getFirst().get("totalRev") == null) {
-            return 0.0;
-        }
-
-        Object rawResult = results.getFirst().get("totalRev");
-
-        if (rawResult instanceof Number) {
-            return ((Number) rawResult).doubleValue();
-        }
-        return 0.0;
-    }
-
-    /*
-     * Retrieves the total expenses for a specific year.
-     * @param year The year to query.
-     * @ return The total expenditure as a Double.
-    */
-    double getTotalExpenditure(int budgetID) {
-        String sql = "SELECT SUM(amount) as totalExpenditure FROM ExpenseCategories WHERE budget_id = " + budgetID;
-        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
-
-        if (results.isEmpty() || results.getFirst().get("totalExpenditure") == null) {
-            return 0.0;
-        }
-
-        Object rawResult = results.getFirst().get("totalExpenditure");
-        if (rawResult instanceof Number) {
-            return ((Number) rawResult).doubleValue();
-        }
-        return 0.0;
-    }
-
     BudgetYear loadBudgetYear(int budgetID) {
         Summary summary = loadSummary(budgetID);
         ArrayList<RevenueCategory> revenues = loadRevenues(budgetID);
