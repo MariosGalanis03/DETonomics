@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class BudgetFormatter {
 
-    public static String formatAmount(long amount) {
+    public static String formatAmount(double amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY); 
         nf.setMaximumFractionDigits(0);
         return nf.format(amount) + " €";

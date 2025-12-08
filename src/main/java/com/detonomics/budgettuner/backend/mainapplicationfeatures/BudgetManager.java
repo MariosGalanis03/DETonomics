@@ -64,12 +64,11 @@ public class BudgetManager {
         String locale = (String) row.get("locale");
         String sourceDate = (String) row.get("source_date");
         int budgetYear = (Integer) row.get("budget_year");
-
-        long totalRevenues = (long) getTotalRevenue(budgetID);
-        long totalExpenses = (long) getTotalExpenditure(budgetID);
-        long budgetResult = totalRevenues - totalExpenses;
+        double totalRevenues = (double) row.get("total_revenue");
+        double totalExpenses = (double) row.get("total_expenses");
+        double budgetResult = totalRevenues - totalExpenses;
         Object covObj = row.get("coverage_with_cash_reserves");
-        long coverageWithCashReserves = (covObj != null) ? ((Number) covObj).longValue() : 0;
+        double coverageWithCashReserves = (covObj != null) ? ((Number) covObj).longValue() : 0;
 
         return new Summary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
     }
