@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Summary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">DETonomics</a> &gt; <a href="index.source.html" class="el_package">com.detonomics.budgettuner.backend.mainapplicationfeatures</a> &gt; <span class="el_source">Summary.java</span></div><h1>Summary.java</h1><pre class="source lang-java linenums">package com.detonomics.budgettuner.backend.mainapplicationfeatures;
+
+class Summary {
+    private String sourceTitle;
+    private String currency;
+    private String locale;
+    private String sourceDate;
+    private int budgetYear;
+    private double totalRevenues;
+    private double totalExpenses;
+    private double budgetResult;
+    private double coverageWithCashReserves;
+
+<span class="fc" id="L14">    Summary(String sourceTitle, String currency, String locale, String sourceDate, int budgetYear, double totalRevenues, double totalExpenses, double budgetResult, double coverageWithCashReserves) {</span>
+<span class="fc" id="L15">        this.sourceTitle = sourceTitle;</span>
+<span class="fc" id="L16">        this.currency = currency;</span>
+<span class="fc" id="L17">        this.locale = locale;</span>
+<span class="fc" id="L18">        this.sourceDate = sourceDate;</span>
+<span class="fc" id="L19">        this.budgetYear = budgetYear;</span>
+<span class="fc" id="L20">        this.totalRevenues = totalRevenues;</span>
+<span class="fc" id="L21">        this.totalExpenses = totalExpenses;</span>
+<span class="fc" id="L22">        this.budgetResult = budgetResult;</span>
+<span class="fc" id="L23">        this.coverageWithCashReserves = coverageWithCashReserves;</span>
+<span class="fc" id="L24">    }</span>
+
+    public String getSourceTitle() {
+<span class="fc" id="L27">        return sourceTitle;</span>
+    }
+
+    public String getCurrency() {
+<span class="fc" id="L31">        return currency;</span>
+    }
+
+    public String getLocale() {
+<span class="fc" id="L35">        return locale;</span>
+    }
+
+    public String getSourceDate() {
+<span class="fc" id="L39">        return sourceDate;</span>
+    }
+
+    public int getBudgetYear() {
+<span class="fc" id="L43">        return budgetYear;</span>
+    }
+
+    public double getTotalRevenues() {
+<span class="fc" id="L47">        return totalRevenues;</span>
+    }
+
+    public double totalExpenses() {
+<span class="fc" id="L51">        return totalExpenses;</span>
+    }
+
+    public double budgetResult() {
+<span class="fc" id="L55">        return budgetResult;</span>
+    }
+
+    public double coverageWithCashReserves() {
+<span class="fc" id="L59">        return coverageWithCashReserves;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L64">        return String.format(&quot;Συνολικά Έσοδα: %s%nΣυνολικά Έξοδα: %s%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %s%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %s&quot;, </span>
+<span class="fc" id="L65">            BudgetFormatter.formatAmount(getTotalRevenues()), </span>
+<span class="fc" id="L66">            BudgetFormatter.formatAmount(totalExpenses()), </span>
+<span class="fc" id="L67">            BudgetFormatter.formatAmount(budgetResult()), </span>
+<span class="fc" id="L68">            BudgetFormatter.formatAmount(coverageWithCashReserves())</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
