@@ -1,0 +1,276 @@
+@startuml classes
+
+' UML for DETonomics Java classes (generated)
+
+package "mainapplicationfeatures" {
+
+class App {
+  +static void main(String[] args)
+}
+
+class BudgetManager {
+  - DatabaseManager dbManager
+  - String dbPath
+  + void insertNewBudgetYear(String pdfPath)
+  + int getBudgetIDByYear(int year)
+  + ArrayList<Integer> loadBudgetYears()
+  + BudgetYear loadBudgetYear(int budgetID)
+  + SqlSequence loadSqliteSequence()
+  - Summary loadSummary(int budgetID)
+  - ArrayList<RevenueCategory> loadRevenues(int budgetID)
+  - ArrayList<ExpenseCategory> loadExpenses(int budgetID)
+  - ArrayList<Ministry> loadMinistries(int budgetID)
+  - ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID)
+  - int setRevenueAmount(long code, double amount)
+  - int updateParentAmounts(int revenueCategoryID, double difference)
+  - int updateChildrenAmounts(int revenueCategoryID, double oldParentAmount, double newParentAmount)
+  - int getRevenueCategoryIDFromCode(long code)
+  - double checkRevenueAmount(int revenue_category_id)
+  - int checkRevenueParent(int revenue_category_id)
+  - ArrayList<Integer> getRevenueChildren(int revenueCategoryID)
+}
+
+class DatabaseManager {
+  + int executeUpdate(String dbPath, String sql)
+  + List<Map<String,Object>> executeQuery(String dbPath, String sql)
+}
+
+class BudgetYear {
+  - Summary summary
+  - ArrayList<RevenueCategory> revenues
+  - ArrayList<ExpenseCategory> expenses
+  - ArrayList<Ministry> ministries
+  - ArrayList<MinistryExpense> ministryExpenses
+  + Summary getSummary()
+  + ArrayList<RevenueCategory> getRevenues()
+  + ArrayList<ExpenseCategory> getExpenses()
+  + ArrayList<Ministry> getMinistries()
+  + ArrayList<MinistryExpense> getMinistryExpenses()
+}
+
+class Summary {
+  - String sourceTitle
+  - String currency
+  - String locale
+  - String sourceDate
+  - int budgetYear
+  - double totalRevenues
+  - double totalExpenses
+  - double budgetResult
+  - double coverageWithCashReserves
+  + String getSourceTitle()
+  + String getCurrency()
+  + String getLocale()
+  + String getSourceDate()
+  + int getBudgetYear()
+  + double getTotalRevenues()
+  + double totalExpenses()
+  + double budgetResult()
+  + double coverageWithCashReserves()
+  + String toString()
+}
+
+class RevenueCategory {
+  - int revenueID
+  - long code
+  - String name
+  - double amount
+  - int parentID
+  + int getRevenueID()
+  + long getCode()
+  + String getName()
+  + double getAmount()
+  + int getParentID()
+  + void setAmount(double amount)
+  + String toString()
+}
+
+class ExpenseCategory {
+  - int expenseID
+  - long code
+  - String name
+  - double amount
+  + int getExpenseID()
+  + long getCode()
+  + String getName()
+  + double getAmount()
+  + void setAmount(double amount)
+  + String toString()
+}
+
+class Ministry {
+  - int ministryID
+  - long code
+  - String name
+  - double regularBudget
+  - double publicInvestmentBudget
+  - double totalBudget
+  + int getMinistryID()
+  + long getCode()
+  + String getName()
+  + double getRegularBudget()
+  + double getPublicInvestmentBudget()
+  + double getTotalBudget()
+  + void setRegularBudget(double regularBudget)
+  + void setPublicInvestmentBudget(double publicInvestmentBudget)
+  + void setTotalBudget(double totalBudget)
+  + String toString()
+}
+
+class MinistryExpense {
+  - int expenseID
+  - int ministryID
+  - int expenseCategoryID
+  - double amount
+  + int getExpenseID()
+  + int getMinistryID()
+  + int getExpenseCategoryID()
+  + double getAmount()
+  + void setAmount(double amount)
+  + String toString()
+}
+
+class BudgetFormatter {
+  + static String formatAmount(double amount)
+  + static String getFormattedRevenues(ArrayList<RevenueCategory> revenues)
+  + static String getFormattedExpenditures(ArrayList<ExpenseCategory> expenditures)
+  + static String getFormattedMinistries(ArrayList<Ministry> ministries)
+  + static String getFormattedMinistryExpenses(ArrayList<Ministry> ministries, ArrayList<ExpenseCategory> expenseCategories, ArrayList<MinistryExpense> ministryExpenses)
+}
+
+class SqlSequence {
+  - int budgets
+  - int revenueCategories
+  - int expenseCategories
+  - int ministries
+  - int ministryExpenses
+  + int getBudgets()
+  + int getRevenueCategories()
+  + int getExpenseCategories()
+  + int getMinistries()
+  + int getMinistryExpenses()
+}
+
+}
+
+package "budgetingestion" {
+
+class IngestBudgetPdf {
+  - static String toTxtName(String pdfPath)
+  - static String toJsonName(String pdfPath)
+  + static void process(String pdfPath)
+  + static void main(String[] args)
+}
+
+class PdfToText {
+  + void extractAndSaveText(String pdfPath)
+  - String extractTextFromFile(String pdfPath)
+  - String getOutputFileName(String pdfPath)
+}
+
+class TextToJson {
+  - static final String PROMPT1
+  + static void textFileToJson(Path inTxt, Path outJson)
+}
+
+class JsonToSQLite {
+  - static final String DB_FILE_PATH
+  - static final String DB_URL
+  + void processAndStoreBudget(String jsonFilePath)
+  + static void main(String[] args)
+  - void createTables()
+  - void insertBudgetData(BudgetFile budgetFile)
+  - long insertBudget(Connection conn, BudgetFile budgetFile)
+  - void insertRevenueCategoriesRecursive(Connection conn, List<RevenueCategory> categories, long budgetId, Integer parentId)
+  - Map<String,Integer> insertExpenseCategories(Connection conn, List<ExpenseCategory> categories, long budgetId)
+  - void insertMinistriesAndExpenses(Connection conn, List<Ministry> ministries, long budgetId, Map<String,Integer> expenseCategoryIds)
+}
+
+class BudgetFile {
+  + Metadata metadata
+  + BudgetSummary budgetSummary
+  + List<RevenueCategory> revenueAnalysis
+  + List<ExpenseCategory> expenseAnalysis
+  + List<Ministry> distributionByMinistry
+}
+
+class Metadata {
+  + String sourceTitle
+  + String sourceDate
+  + int budgetYear
+  + String currency
+  + String locale
+  + List<String> missingFields
+}
+
+class BudgetSummary {
+  + long totalRevenue
+  + long totalExpenses
+  + long stateBudgetBalance
+  + long coverageWwithCashReserves
+}
+
+class RevenueCategory {
+  + String code
+  + String name
+  + long amount
+  + List<RevenueCategory> children
+}
+
+class ExpenseCategory {
+  + String code
+  + String name
+  + long amount
+}
+
+class MinistryData {
+  + String code
+  + String ministryBody
+  + long regularBudget
+  + long publicInvestmentBudget
+  + long total
+  + List<MinistryExpenseItem> totalFromMajorCategories
+}
+
+class MinistryExpenseItem {
+  + String code
+  + String name
+  + long amount
+}
+
+}
+
+' Relationships / associations
+BudgetManager --> DatabaseManager : uses
+BudgetManager "1" o-- "1" BudgetYear : creates
+BudgetYear "1" *-- "1" Summary
+BudgetYear "1" *-- "*" RevenueCategory
+BudgetYear "1" *-- "*" ExpenseCategory
+BudgetYear "1" *-- "*" Ministry
+BudgetYear "1" *-- "*" MinistryExpense
+
+MinistryExpense --> Ministry : references
+MinistryExpense --> ExpenseCategory : references
+RevenueCategory "0..1" --> "0..1" RevenueCategory : parent
+
+BudgetFormatter ..> RevenueCategory : reads
+BudgetFormatter ..> ExpenseCategory : reads
+BudgetManager ..> IngestBudgetPdf : calls
+IngestBudgetPdf ..> PdfToText : uses
+IngestBudgetPdf ..> TextToJson : pipeline
+IngestBudgetPdf ..> JsonToSQLite : pipeline
+PdfToText ..> TextToJson : pipeline
+TextToJson ..> JsonToSQLite : pipeline
+DatabaseManager ..> SqlSequence : fills
+
+JsonToSQLite "1" o-- "1" BudgetFile : parses
+BudgetFile "1" *-- "1" Metadata
+BudgetFile "1" *-- "1" BudgetSummary
+BudgetFile "1" *-- "*" RevenueCategory : revenueAnalysis
+BudgetFile "1" *-- "*" ExpenseCategory : expenseAnalysis
+BudgetFile "1" *-- "*" MinistryData : distributionByMinistry
+MinistryData "1" *-- "*" MinistryExpenseItem
+JsonToSQLite "uses" --> DatabaseManager
+JsonToSQLite "inserts" --> BudgetYear
+
+@enduml
