@@ -11,6 +11,7 @@ This project is a application for reviewing, processing and analyzing the state 
 - Αλλαγές στα έσοδα και έξοδα με αποθήκευση σε νέα SQLite tables στην βάση μας
 - Δημιουργία βασικού παραθύρου γραφικής διεπαφής
 - Ενσωμάτωση κλάσης IngestPudgetPdf στο κεντρικό μενού της εφαρμογής
+- Έναρξη βασικών unit tests και ενσωμάτωση βιβλιοθήκης JaCoCo στο project
 
 #### Μακροχρόνιες
 

@@ -166,7 +166,7 @@ Return only the JSON defined by the schema. No extra information.
 """;
  public static void textFileToJson(Path inTxt, Path outJson) throws Exception {
     Client client = Client.builder()
-        .apiKey("AIzaSyD-MOWwcxvEGmMHuMKiIRFYp0jQQ_E56YY")
+        .apiKey("AIzaSyBFvrrTYaPmp4WgQiaDMzheKDsYlayfwIo")
         .build();
 
     Content systemInstruction = Content.fromParts(Part.fromText(PROMPT1));
