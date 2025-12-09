@@ -184,20 +184,20 @@ public class BudgetManager {
         String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = " + budgetID;
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
 
-       if (results.isEmpty()) {
-           return expenses;
-       }
+        if (results.isEmpty()) {
+            return expenses;
+        }
 
-       for (Map<String, Object> resultRow : results) {
-           Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
-           Integer ministryID = (Integer) resultRow.get("ministry_id");
-           Double amount = (Double) resultRow.get("amount");
-           Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
+        for (Map<String, Object> resultRow : results) {
+            Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
+            Integer ministryID = (Integer) resultRow.get("ministry_id");
+            Double amount = (Double) resultRow.get("amount");
+            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
 
-           MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
-           expenses.add(expense);
-       }
-       return expenses;
+            MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
+            expenses.add(expense);
+        }
+        return expenses;
     }
 
     public SqlSequence loadSqliteSequence() {
@@ -234,7 +234,7 @@ public class BudgetManager {
     /*
      * Setting revenue amount inside database
      * Returns rowsAffected (if 0 then something went wrong)
-    */ 
+     */ 
 
     private int setRevenueAmount(long code, double amount) {
         int rowsAffected = 0;
@@ -255,15 +255,57 @@ public class BudgetManager {
         rowsAffected += check;
 
         // Update parent amounts
-        rowsAffected += updateParentAmounts(revenueCategoryID, difference);
+        rowsAffected += updateRevenueParentAmounts(revenueCategoryID, difference);
 
         // Update children amounts
-        rowsAffected += updateChildrenAmounts(revenueCategoryID, oldAmount, amount);
+        rowsAffected += updateRevenueChildrenAmounts(revenueCategoryID, oldAmount, amount);
         
         return rowsAffected;
-    }    
+    }
+    
+    /*
+     * Sets the amount for a specific MinistryExpense record and updates the corresponding
+     * total amount in the parent ExpenseCategory.
+     * Returns rows affected (0 if no change or error).
+     */
+    public int setMinistryExpenseAmount(int ministryExpenseID, double newAmount) {
+        String selectSql = "SELECT amount, expense_category_id FROM MinistryExpenses WHERE ministry_expense_id = " + ministryExpenseID;
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, selectSql);
 
-    private int updateParentAmounts(int revenueCategoryID, double difference) {
+        if (results.isEmpty()) {
+            // MinistryExpense record not found
+            return 0; 
+        }
+
+        Map<String, Object> row = results.getFirst();
+        double oldAmount = (Double) row.get("amount");
+        int expenseCategoryID = (Integer) row.get("expense_category_id");
+
+        if (oldAmount == newAmount) {
+            return 0; // No change needed
+        }
+
+        double difference = newAmount - oldAmount;
+        int rowsAffected = 0;
+
+        // 2. Update the MinistryExpense record with the new amount
+        // TODO: Replace with prepared statement when dbManager is updated
+        String updateMinistrySql = "UPDATE MinistryExpenses SET amount = " + newAmount + " WHERE ministry_expense_id = " + ministryExpenseID;
+        rowsAffected += dbManager.executeUpdate(dbPath, updateMinistrySql);
+
+        // 3. Update the parent ExpenseCategory amount by adding the difference
+        // TODO: Replace with prepared statement when dbManager is updated
+        String updateExpenseCategorySql = "UPDATE ExpenseCategories SET amount = amount + " + difference + " WHERE expense_category_id = " + expenseCategoryID;
+        rowsAffected += dbManager.executeUpdate(dbPath, updateExpenseCategorySql);
+        
+        // Note: Updating the Ministry's total budget (Ministries table) is assumed to be handled
+        // by a different function or database trigger if required, as it's more complex.
+
+        return rowsAffected;
+    }
+
+
+    private int updateRevenueParentAmounts(int revenueCategoryID, double difference) {
         int rowsAffected = 0;
         
         // Get the parent ID
@@ -280,12 +322,12 @@ public class BudgetManager {
         rowsAffected += check;
         
         // Recursively update the parent's parent
-        rowsAffected += updateParentAmounts(parentID, difference);
+        rowsAffected += updateRevenueParentAmounts(parentID, difference);
         
         return rowsAffected;
     }
 
-    private int updateChildrenAmounts(int revenueCategoryID, double oldParentAmount, double newParentAmount) {
+    private int updateRevenueChildrenAmounts(int revenueCategoryID, double oldParentAmount, double newParentAmount) {
         int rowsAffected = 0;
         
         // Base case: if oldParentAmount is 0, we can't calculate proportions
@@ -319,7 +361,7 @@ public class BudgetManager {
             rowsAffected += check;
             
             // Recursively update this child's children
-            rowsAffected += updateChildrenAmounts(childID, oldChildAmount, newChildAmount);
+            rowsAffected += updateRevenueChildrenAmounts(childID, oldChildAmount, newChildAmount);
         }
         
         return rowsAffected;
@@ -329,13 +371,35 @@ public class BudgetManager {
     private int getRevenueCategoryIDFromCode(long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE code = " + code;
         List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+        if (queryResults.isEmpty()) {
+            // Χειρισμός σφάλματος αν δεν βρεθεί ο κωδικός
+            throw new IllegalArgumentException("Δεν βρέθηκε ο κωδικός " + code);
+        }
         int revenueCategoryID = (Integer) queryResults.getFirst().get("revenue_category_id");
         return revenueCategoryID;
+    }
+
+    private int getExpenseCategoryIDFromCode(long code) {
+        String sql = "SELECT expense_category_id FROM ExpenseCategories WHERE code = " + code;
+        List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+        if (queryResults.isEmpty()) {
+            // Χειρισμός σφάλματος αν δεν βρεθεί ο κωδικός
+            throw new IllegalArgumentException("Δεν βρέθηκε ο κωδικός " + code);
+        }
+        int expenseCategoryID = (Integer) queryResults.getFirst().get("expense_category_id");
+        return expenseCategoryID;
     }
 
     // Method to check amount of revenue category id from database (checked)
     private double checkRevenueAmount(int revenue_category_id) {
         String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = " + revenue_category_id;
+        List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
+        double amount = (Double) queryResults.getFirst().get("amount");
+        return amount;
+    }
+
+    private double checkExpenseAmount(int expense_category_id) {
+        String sql = "SELECT amount FROM ExpenseCategories WHERE expense_category_id = " + expense_category_id;
         List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
         double amount = (Double) queryResults.getFirst().get("amount");
         return amount;
@@ -363,8 +427,8 @@ public class BudgetManager {
         List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql);
 
         for (Map<String, Object> resultRow : queryResults) {
-           Integer childID = (Integer) resultRow.get("revenue_category_id");
-           children.add(childID); 
+            Integer childID = (Integer) resultRow.get("revenue_category_id");
+            children.add(childID); 
         }
 
         return children;
