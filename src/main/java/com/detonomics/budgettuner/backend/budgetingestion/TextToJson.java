@@ -165,17 +165,21 @@ Example: "85.000,50" → 85000.5
 Return only the JSON defined by the schema. No extra information.
 """;
  public static void textFileToJson(Path inTxt, Path outJson) throws Exception {
+    String apiKey = System.getenv("GEMINI_API_KEY");
+
+    if (apiKey == null || apiKey.isBlank()) {
+            throw new IllegalArgumentException("Error: GEMINI_API_KEY environment variable is not set.");
+     }
+
     Client client = Client.builder()
-        .apiKey("AIzaSyD-MOWwcxvEGmMHuMKiIRFYp0jQQ_E56YY")
-        .build();
+            .apiKey(apiKey)
+            .build();
 
     Content systemInstruction = Content.fromParts(Part.fromText(PROMPT1));
 
     GenerateContentConfig cfg = GenerateContentConfig.builder()
-        .systemInstruction(systemInstruction)
-        .build();
-
-   
+            .systemInstruction(systemInstruction)
+            .build();
  
     String raw = Files.readString(inTxt, StandardCharsets.UTF_8);
     
