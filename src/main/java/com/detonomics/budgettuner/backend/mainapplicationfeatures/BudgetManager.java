@@ -4,14 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.detonomics.budgettuner.backend.budgetingestion.IngestBudgetPdf;
+
 // TODO: Update DatabaseManager to prevent sql injection statements
 
 public class BudgetManager {
     private final DatabaseManager dbManager;
-    private final String dbPath = "data/output/BudgetDB_copy.db";
+    private final String dbPath = "data/output/BudgetDB.db";
 
     BudgetManager() {
         this.dbManager = new DatabaseManager();
+    }
+
+    public void insertNewBudgetYear(String pdfPath) throws Exception {
+        IngestBudgetPdf.process(pdfPath);
     }
 
     public int getBudgetIDByYear(int year) {

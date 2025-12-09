@@ -36,8 +36,8 @@ public class App {
                 for (int y : years) {
                     System.out.println("- " + y);
                 }
-                System.out.print("Εισάγετε το έτος προϋπολογισμού (ή 0 για έξοδο): ");
-
+                System.out.print("Εισάγετε το έτος προϋπολογισμού, 0 για έξοδο ή 1 για εισαγωγή έτους: ");
+                
                 while (!scanner.hasNextInt()) {
                     System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
                     scanner.nextLine();
@@ -52,6 +52,22 @@ public class App {
                     System.out.println("Έξοδος από την εφαρμογή...");
                     programrunning = false;
                     menurunning = false;
+                } else if (year == 1) {
+                    System.out.println("Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
+                    System.out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού (ή 0 για ακύρωση εισαγωγής νέου έτους): ");
+                    String pdfPath = scanner.nextLine();
+                    if (pdfPath.equals("0")) {
+                        System.out.println("Ακύρωση εισαγωγής νέου έτους.");
+                        continue;
+                    }
+                    try {
+                        budgetManager.insertNewBudgetYear(pdfPath);
+                        // Ενημέρωση της λίστας ετών μετά την εισαγωγή
+                        years = budgetManager.loadBudgetYears();
+                        System.out.println("Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
+                    } catch (Exception e) {
+                        System.out.println("Σφάλμα κατά την εισαγωγή του προϋπολογισμού: " + e.getMessage());
+                    }
                 } else {
                     System.out.println("Το έτος " + year + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
                 }
