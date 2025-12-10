@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.gui.BudgetController">
+
+    <stylesheets>
+        <URL value="@styles.css" />
+    </stylesheets>
+
+    <top>
+        <VBox spacing="15.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Διαθέσιμοι Προϋπολογισμοί" textFill="#1565c0">
+                    <font>
+                        <Font name="Segoe UI Bold" size="24.0" />
+                    </font>
+                </Label>
+                <HBox spacing="10.0">
+                    <children>
+                        <TextField promptText="Αναζήτηση με έτος..." HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets top="15.0" />
+                     </HBox.margin></TextField>
+                        <Button mnemonicParsing="false" prefHeight="46.0" prefWidth="144.0" styleClass="btn-blue" text="Αναζήτηση">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></Button>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="budgetTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="colYear" prefWidth="100.0" text="Έτος" />
+                <TableColumn fx:id="colStatus" prefWidth="150.0" text="Κατάσταση" />
+                <TableColumn fx:id="colDate" prefWidth="150.0" text="Τελευταία Τροποποίηση" />
+                <TableColumn fx:id="colAmount" prefWidth="150.0" text="Ποσό (€)" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+            <BorderPane.margin>
+                <Insets left="20.0" right="20.0" />
+            </BorderPane.margin>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button mnemonicParsing="false" onAction="#onBackButtonClick" styleClass="btn-white" text="Ακύρωση">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></Button>
+                <Button mnemonicParsing="false" styleClass="btn-blue" text="Άνοιγμα Επιλεγμένου" />
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </HBox>
+    </bottom>
+</BorderPane>
