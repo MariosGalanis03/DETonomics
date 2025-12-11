@@ -342,8 +342,8 @@ public class JsonToSQLite {
         @JsonProperty("ministryBody") public String ministryBody; 
         @JsonProperty("regularBudget") public long regularBudget; 
         @JsonProperty("publicInvestmentBudget") public long publicInvestmentBudget;
-         @JsonProperty("total") public long total; 
-         @JsonProperty("totalFromMajorCategories") public List<MinistryExpenseItem> totalFromMajorCategories; }
+        @JsonProperty("total") public long total; 
+        @JsonProperty("totalFromMajorCategories") public List<MinistryExpenseItem> totalFromMajorCategories; }
 
     public static class MinistryExpenseItem { 
         @JsonProperty("code") public String code; 

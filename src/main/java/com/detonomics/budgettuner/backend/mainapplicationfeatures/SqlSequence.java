@@ -7,7 +7,7 @@ class SqlSequence {
     private int ministries;
     private int ministryExpenses;
 
-    public SqlSequence(int budgets, int revenueCategories, int expenseCategories, int ministries, int ministryExpenses) {
+    SqlSequence(final int budgets, final int revenueCategories, final int expenseCategories, final int ministries, final int ministryExpenses) {
         this.budgets = budgets;
         this.revenueCategories = revenueCategories;
         this.expenseCategories = expenseCategories;
@@ -15,23 +15,23 @@ class SqlSequence {
         this.ministryExpenses = ministryExpenses;
     }
 
-    public int getBudgets() {
+    int getBudgets() {
         return budgets;
     }
 
-    public int getRevenueCategories() {
+    int getRevenueCategories() {
         return revenueCategories;
     }
 
-    public int getExpenseCategories() {
+    int getExpenseCategories() {
         return expenseCategories;
     }
 
-    public int getMinistries() {
+    int getMinistries() {
         return ministries;
     }
 
-    public int getMinistryExpenses() {
+    int getMinistryExpenses() {
         return ministryExpenses;
     }
 }

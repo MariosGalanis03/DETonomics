@@ -3,16 +3,16 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 import java.util.ArrayList;
 
 class BudgetYear {
-    private Summary summary;
-    private ArrayList<RevenueCategory> revenues; 
-    private ArrayList<ExpenseCategory> expenses;
-    private ArrayList<Ministry> ministries;
-    private ArrayList<MinistryExpense> ministryExpenses;
+    private final Summary summary;
+    private final ArrayList<RevenueCategory> revenues;
+    private final ArrayList<ExpenseCategory> expenses;
+    private final ArrayList<Ministry> ministries;
+    private final ArrayList<MinistryExpense> ministryExpenses;
 
     // --- Constructor ---
-    BudgetYear(Summary summary, ArrayList<RevenueCategory> revenues, ArrayList<ExpenseCategory> expenses,
-        ArrayList<Ministry> ministries, ArrayList<MinistryExpense> ministryExpenses) {
-        
+    BudgetYear(final Summary summary, final ArrayList<RevenueCategory> revenues,
+        final ArrayList<ExpenseCategory> expenses, final ArrayList<Ministry> ministries,
+        final ArrayList<MinistryExpense> ministryExpenses) {
         this.summary = summary;
         this.revenues = revenues;
         this.expenses = expenses;
@@ -27,12 +27,12 @@ class BudgetYear {
     }
 
     // Επιστρέφει τη λίστα εσόδων ως αμετάβλητη (immutable) συλλογή.
-    ArrayList<RevenueCategory> getRevenues() { 
+    ArrayList<RevenueCategory> getRevenues() {
         return revenues;
     }
 
     // Επιστρέφει τη λίστα εξόδων ως αμετάβλητη (immutable) συλλογή.
-    ArrayList<ExpenseCategory> getExpenses() { 
+    ArrayList<ExpenseCategory> getExpenses() {
         return expenses;
     }
 

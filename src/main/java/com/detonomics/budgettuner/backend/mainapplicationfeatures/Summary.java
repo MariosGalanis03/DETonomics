@@ -1,17 +1,17 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 class Summary {
-    private String sourceTitle;
-    private String currency;
-    private String locale;
-    private String sourceDate;
-    private int budgetYear;
+    private final String sourceTitle;
+    private final String currency;
+    private final String locale;
+    private final String sourceDate;
+    private final int budgetYear;
     private long totalRevenues;
     private long totalExpenses;
     private long budgetResult;
     private long coverageWithCashReserves;
 
-    Summary(String sourceTitle, String currency, String locale, String sourceDate, int budgetYear, long totalRevenues, long totalExpenses, long budgetResult, long coverageWithCashReserves) {
+    Summary(final String sourceTitle, final String currency, final String locale, final String sourceDate, final int budgetYear, final long totalRevenues, final long totalExpenses, final long budgetResult, final long coverageWithCashReserves) {
         this.sourceTitle = sourceTitle;
         this.currency = currency;
         this.locale = locale;
@@ -23,39 +23,39 @@ class Summary {
         this.coverageWithCashReserves = coverageWithCashReserves;
     }
 
-    public String getSourceTitle() {
+    String getSourceTitle() {
         return sourceTitle;
     }
 
-    public String getCurrency() {
+    String getCurrency() {
         return currency;
     }
 
-    public String getLocale() {
+    String getLocale() {
         return locale;
     }
 
-    public String getSourceDate() {
+    String getSourceDate() {
         return sourceDate;
     }
 
-    public int getBudgetYear() {
+    int getBudgetYear() {
         return budgetYear;
     }
 
-    public long getTotalRevenues() {
+    long getTotalRevenues() {
         return totalRevenues;
     }
 
-    public long totalExpenses() {
+    long totalExpenses() {
         return totalExpenses;
     }
 
-    public long budgetResult() {
+    long budgetResult() {
         return budgetResult;
     }
 
-    public long coverageWithCashReserves() {
+    long coverageWithCashReserves() {
         return coverageWithCashReserves;
     }
 

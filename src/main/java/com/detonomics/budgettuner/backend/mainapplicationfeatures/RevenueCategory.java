@@ -7,7 +7,7 @@ class RevenueCategory {
     private long amount;
     private final int parentID;
 
-    RevenueCategory(int revenueID, long code, String name, long amount, int parentID) {
+    RevenueCategory(final int revenueID, final long code, final String name, final long amount, final int parentID) {
         this.revenueID = revenueID;
         this.code = code;
         this.name = name;
@@ -15,27 +15,27 @@ class RevenueCategory {
         this.parentID = parentID;
     }
 
-    public int getRevenueID() {
+    int getRevenueID() {
         return revenueID;
     }
 
-    public long getCode() {
+    long getCode() {
         return code;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public long getAmount() {
+    long getAmount() {
         return amount;
     }
 
-    public int getParentID() {
+    int getParentID() {
         return parentID;
     }
 
-    public void setAmount(long amount) {
+    void setAmount(long amount) {
         this.amount = amount;
     }
 

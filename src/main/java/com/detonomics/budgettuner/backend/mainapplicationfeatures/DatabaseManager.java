@@ -49,7 +49,7 @@ class DatabaseManager {
      * @return Μια Λίστα (List) όπου κάθε στοιχείο είναι ένας Χάρτης (Map).
      * Κάθε Map αντιπροσωπεύει μια γραμμή, με κλειδιά τα ονόματα των στηλών.
      */
-    public static List<Map<String, Object>> executeQuery(String dbPath, String sql) {
+    public static List<Map<String, Object>> executeQuery(final String dbPath, final String sql) {
         String url = "jdbc:sqlite:" + dbPath;
         List<Map<String, Object>> results = new ArrayList<>();
 
@@ -82,7 +82,7 @@ class DatabaseManager {
     /**
      * Εκτέλεση ενημερωτικής εντολής (INSERT/UPDATE/DELETE) με παραμέτρους (PreparedStatement).
      */
-    public static int executeUpdate(String dbPath, String sql, Object... params) {
+    public static int executeUpdate(final String dbPath, final String sql, final Object... params) {
         String url = "jdbc:sqlite:" + dbPath;
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -99,7 +99,7 @@ class DatabaseManager {
     /**
      * Εκτέλεση ερωτήματος (SELECT) με παραμέτρους (PreparedStatement).
      */
-    public static List<Map<String, Object>> executeQuery(String dbPath, String sql, Object... params) {
+    public static List<Map<String, Object>> executeQuery(final String dbPath, final String sql, final Object... params) {
         String url = "jdbc:sqlite:" + dbPath;
         List<Map<String, Object>> results = new ArrayList<>();
 
@@ -128,7 +128,7 @@ class DatabaseManager {
         return results;
     }
 
-    private static void bindParameters(PreparedStatement ps, Object... params) throws SQLException {
+    private static void bindParameters(final PreparedStatement ps, final Object... params) throws SQLException {
         if (params == null) return;
         for (int i = 0; i < params.length; i++) {
             Object p = params[i];

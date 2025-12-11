@@ -9,11 +9,11 @@ import com.detonomics.budgettuner.backend.budgetingestion.IngestBudgetPdf;
 public class BudgetManager {
     private static final String dbPath = "data/output/BudgetDB.db";
 
-    static void insertNewBudgetYear(String pdfPath) throws Exception {
+    static void insertNewBudgetYear(final String pdfPath) throws Exception {
         IngestBudgetPdf.process(pdfPath);
     }
 
-    static int getBudgetIDByYear(int year) {
+    static int getBudgetIDByYear(final int year) {
         String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
         List<Map<String, Object>> results = DatabaseManager.executeQuery(dbPath, sql, year);
 
@@ -36,7 +36,7 @@ public class BudgetManager {
         return years;
     }
 
-    static BudgetYear loadBudgetYear(int budgetID) {
+    static BudgetYear loadBudgetYear(final int budgetID) {
         Summary summary = loadSummary(budgetID);
         ArrayList<RevenueCategory> revenues = loadRevenues(budgetID);
         ArrayList<ExpenseCategory> expenses = loadExpenses(budgetID);
@@ -48,7 +48,7 @@ public class BudgetManager {
         return budget;
     }
 
-    private static Summary loadSummary(int budgetID) {
+    private static Summary loadSummary(final int budgetID) {
         String sql = "SELECT * FROM Budgets WHERE budget_id = ?";
         List<Map<String, Object>> result = DatabaseManager.executeQuery(dbPath, sql, budgetID);
 
@@ -76,7 +76,7 @@ public class BudgetManager {
      * Loads Revenue Table in an array list for specific year
      * Returns array list of revenue category objects
     */
-    private static ArrayList<RevenueCategory> loadRevenues(int budgetID) {
+    private static ArrayList<RevenueCategory> loadRevenues(final int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
 
         String sql = "SELECT * FROM RevenueCategories WHERE budget_id = ?";
@@ -109,7 +109,7 @@ public class BudgetManager {
      * Loads Expense Table in an array list for specific year
      * Returns array list of expense category objects
     */
-    private static ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
+    private static ArrayList<ExpenseCategory> loadExpenses(final int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
 
         String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = ?";
@@ -137,7 +137,7 @@ public class BudgetManager {
      * Loads Ministries Table in an array list for a specific budget
      * Returns array list of Ministry objects
     */
-    private static ArrayList<Ministry> loadMinistries(int budgetID) {
+    private static ArrayList<Ministry> loadMinistries(final int budgetID) {
         ArrayList<Ministry> ministries = new ArrayList<>();
 
         // Query the Ministries table
@@ -171,7 +171,7 @@ public class BudgetManager {
         return ministries;
     }
 
-    private static ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID) {
+    private static ArrayList<MinistryExpense> loadMinistryExpenses(final int budgetID) {
         ArrayList<MinistryExpense> expenses = new ArrayList<>();
         String sql = "SELECT ME.* FROM MinistryExpenses ME JOIN Ministries MI ON ME.ministry_id = MI.ministry_id WHERE MI.budget_id = ?";
         List<Map<String, Object>> results = DatabaseManager.executeQuery(dbPath, sql, budgetID);
@@ -228,7 +228,7 @@ public class BudgetManager {
      * Returns rowsAffected (if 0 then something went wrong)
      */ 
 
-    private int setRevenueAmount(long code, long amount) {
+    private int setRevenueAmount(final long code, final long amount) {
         int rowsAffected = 0;
 
         // calculating difference so we can update parent amounts
@@ -260,7 +260,7 @@ public class BudgetManager {
      * total amount in the parent ExpenseCategory.
      * Returns rows affected (0 if no change or error).
      */
-    public int setMinistryExpenseAmount(int ministryExpenseID, long newAmount) {
+    public int setMinistryExpenseAmount(final int ministryExpenseID, final long newAmount) {
         String selectSql = "SELECT amount, expense_category_id FROM MinistryExpenses WHERE ministry_expense_id = ?";
         List<Map<String, Object>> results = DatabaseManager.executeQuery(dbPath, selectSql, ministryExpenseID);
 
@@ -295,7 +295,7 @@ public class BudgetManager {
     }
 
 
-    private int updateRevenueParentAmounts(int revenueCategoryID, long difference) {
+    private int updateRevenueParentAmounts(final int revenueCategoryID, final long difference) {
         int rowsAffected = 0;
         
         // Get the parent ID
@@ -317,7 +317,7 @@ public class BudgetManager {
         return rowsAffected;
     }
 
-    private int updateRevenueChildrenAmounts(int revenueCategoryID, long oldParentAmount, long newParentAmount) {
+    private int updateRevenueChildrenAmounts(final int revenueCategoryID, final long oldParentAmount, final long newParentAmount) {
         int rowsAffected = 0;
         
         // Base case: if oldParentAmount is 0, we can't calculate proportions
@@ -357,7 +357,7 @@ public class BudgetManager {
     }
 
     // Method to get revenue category id when user enters code (checked)
-    private int getRevenueCategoryIDFromCode(long code) {
+    private int getRevenueCategoryIDFromCode(final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE code = ?";
         List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, code);
         if (queryResults.isEmpty()) {
@@ -368,7 +368,7 @@ public class BudgetManager {
         return revenueCategoryID;
     }
 
-    private int getExpenseCategoryIDFromCode(long code) {
+    private int getExpenseCategoryIDFromCode(final long code) {
         String sql = "SELECT expense_category_id FROM ExpenseCategories WHERE code = ?";
         List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, code);
         if (queryResults.isEmpty()) {
@@ -380,14 +380,14 @@ public class BudgetManager {
     }
 
     // Method to check amount of revenue category id from database (checked)
-    private long checkRevenueAmount(int revenue_category_id) {
+    private long checkRevenueAmount(final int revenue_category_id) {
         String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, revenue_category_id);
         long amount = ((Number) queryResults.getFirst().get("amount")).longValue();
         return amount;
     }
 
-    private long checkExpenseAmount(int expense_category_id) {
+    private long checkExpenseAmount(final int expense_category_id) {
         String sql = "SELECT amount FROM ExpenseCategories WHERE expense_category_id = ?";
         List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, expense_category_id);
         long amount = ((Number) queryResults.getFirst().get("amount")).longValue();
@@ -395,7 +395,7 @@ public class BudgetManager {
     }
 
     // Method to get direct parent id of a revenue category. (checked)
-    private int checkRevenueParent(int revenue_category_id) {
+    private int checkRevenueParent(final int revenue_category_id) {
         String sql = "SELECT parent_id FROM RevenueCategories WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, revenue_category_id);
         Integer rawParentID = (Integer) queryResults.getFirst().get("parent_id");
@@ -409,7 +409,7 @@ public class BudgetManager {
 
     // Return a list of integers containing the revenue category id's of a specific revenue's children
     // If list is empty revenue has no children (checked)
-    private ArrayList<Integer> getRevenueChildren(int revenueCategoryID) {
+    private ArrayList<Integer> getRevenueChildren(final int revenueCategoryID) {
         ArrayList<Integer> children = new ArrayList<>();
 
         String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE parent_id = ?";

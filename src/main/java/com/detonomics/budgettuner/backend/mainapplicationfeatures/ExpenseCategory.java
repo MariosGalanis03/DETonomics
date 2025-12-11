@@ -6,30 +6,30 @@ class ExpenseCategory {
     private final String name;
     private long amount;
 
-    ExpenseCategory(int expenseID, long code, String name, long amount) {
+    ExpenseCategory(final int expenseID, final long code, final String name, final long amount) {
         this.expenseID = expenseID;
         this.code = code;
         this.name = name;
         this.amount = amount;
     }
 
-    public int getExpenseID() {
+    int getExpenseID() {
         return expenseID;
     }
 
-    public long getCode() {
+    long getCode() {
         return code;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public long getAmount() {
+    long getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    void setAmount(long amount) {
         this.amount = amount;
     }
 

@@ -2,8 +2,10 @@ package com.detonomics.budgettuner.backend.budgetingestion;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -22,29 +24,25 @@ public class PdfToText {
      * @param pdfPath The path to the input PDF file.
      * @throws IOException If any error occurs during file reading or writing.
      */
-    public void extractAndSaveText(String pdfPath) throws IOException {
+    public void extractAndSaveText(final String pdfPath) throws IOException {
 
         Path outputDir = Path.of("data", "processed");
-        // 1. Extract text from the PDF
         String text = this.extractTextFromFile(pdfPath);
-        
-        // 2. Automatically determine the output filename
         String outputFileName = this.getOutputFileName(pdfPath);
 
-        // 3. Write the extracted text to the output file
         Path outputPath = outputDir.resolve(outputFileName);
-        try (PrintWriter out = new PrintWriter(outputPath.toFile())) {
-            out.println(text);
-        }
+        Files.writeString(outputPath, text, StandardCharsets.UTF_8,
+            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+        );
 
-        System.out.println("Text successfully extracted and saved to '" + outputFileName + "'");
+        System.out.println("Text successfully extracted and saved to '"
+            + outputFileName + "'");
     }
 
     /**
      * Extracts all text from a given PDF file.
-     * This method is private as it's a helper for the main public method.
      */
-    private String extractTextFromFile(String pdfPath) throws IOException {
+    private String extractTextFromFile(final String pdfPath) throws IOException {
         File pdfFile = new File(pdfPath);
         try (PDDocument document = PDDocument.load(pdfFile)) {
             PDFTextStripper pdfStripper = new PDFTextStripper();
@@ -54,11 +52,10 @@ public class PdfToText {
 
     /**
      * Creates the output filename by taking the base name of the PDF
-     * and appending "Test.txt".
-     * This method is private as it's an internal utility.
-     * Example: "document.pdf" -> "documentTest.txt"
+     * and appending ".txt".
+     * Example: "document.pdf" -> "document.txt"
      */
-    private String getOutputFileName(String pdfPath) {
+    private String getOutputFileName(final String pdfPath) {
         String baseName = new File(pdfPath).getName();
         int dotIndex = baseName.lastIndexOf('.');
         if (dotIndex > 0) {

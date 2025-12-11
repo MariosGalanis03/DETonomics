@@ -6,30 +6,30 @@ class MinistryExpense {
     private final int expenseCategoryID;
     private long amount;
 
-    MinistryExpense(int expenseID, int ministryID, int expenseCategoryID, long amount) {
+    MinistryExpense(final int expenseID, final int ministryID, final int expenseCategoryID, final long amount) {
         this.expenseID = expenseID;
         this.ministryID = ministryID;
         this.expenseCategoryID = expenseCategoryID;
         this.amount = amount;
     }
 
-    public int getExpenseID() {
+    int getExpenseID() {
         return expenseID;
     }
 
-    public int getMinistryID() {
+    int getMinistryID() {
         return ministryID;
     }
 
-    public int getExpenseCategoryID() {
+    int getExpenseCategoryID() {
         return expenseCategoryID;
     }
 
-    public long getAmount() {
+    long getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    void setAmount(long amount) {
         this.amount = amount;
     }
 

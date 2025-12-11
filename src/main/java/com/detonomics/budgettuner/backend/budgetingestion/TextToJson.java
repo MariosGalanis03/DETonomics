@@ -164,48 +164,45 @@ Example: "85.000,50" → 85000.5
   
 Return only the JSON defined by the schema. No extra information.
 """;
- public static void textFileToJson(Path inTxt, Path outJson) throws Exception {
+  public static void textFileToJson(final Path inTxt, final Path outJson) throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");
 
     if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalArgumentException("Error: GEMINI_API_KEY environment variable is not set.");
-     }
+      throw new IllegalArgumentException("Error: GEMINI_API_KEY environment variable is not set.");
+    }
 
     Client client = Client.builder()
-            .apiKey(apiKey)
-            .build();
+      .apiKey(apiKey)
+      .build();
 
     Content systemInstruction = Content.fromParts(Part.fromText(PROMPT1));
 
     GenerateContentConfig cfg = GenerateContentConfig.builder()
-            .systemInstruction(systemInstruction)
-            .build();
- 
-    String raw = Files.readString(inTxt, StandardCharsets.UTF_8);
-    
+      .systemInstruction(systemInstruction)
+      .build();
 
+    String raw = Files.readString(inTxt, StandardCharsets.UTF_8);
 
     GenerateContentResponse res = client.models.generateContent(
-        "gemini-2.5-flash",
-        raw,
-        cfg
+      "gemini-2.5-flash",
+      raw,
+      cfg
     );
 
     String text = res.text();
 
     if (text == null) {
-        System.err.println("Model returned null text. Check API key, model name, or input size.");
-        System.err.println("Raw response: " + res);
-        return;
+      System.err.println("Model returned null text. Check API key, model name, or input size.");
+      System.err.println("Raw response: " + res);
+      return;
     }
 
     String json = text.trim()
-        .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", ""); // remove markdown fences
+      .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", ""); // remove markdown fences
 
     Files.writeString(outJson, json, StandardCharsets.UTF_8,
-        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+      StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
     System.out.println("Saved to " + outJson.toAbsolutePath());
-
   }
 }

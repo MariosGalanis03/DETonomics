@@ -2,12 +2,13 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
 
 // Η κεντρική κλάση της εφαρμογής
 public class App {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         System.out.println();
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("Καλωσορίσατε στο Budget Tuner!");
