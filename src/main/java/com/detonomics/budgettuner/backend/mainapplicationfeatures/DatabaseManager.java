@@ -23,7 +23,7 @@ class DatabaseManager {
      * @param sql    Η εντολή SQL που θα εκτελεστεί.
      * @return Τον αριθμό των γραμμών που επηρεάστηκαν, ή 0 για εντολές που δεν επιστρέφουν πλήθος (όπως CREATE TABLE).
      */
-    public int executeUpdate(String dbPath, String sql) {
+    public static int executeUpdate(String dbPath, String sql) {
         // Η συμβολοσειρά σύνδεσης για SQLite είναι "jdbc:sqlite:" ακολουθούμενη από τη διαδρομή
         String url = "jdbc:sqlite:" + dbPath;
         int rowsAffected = 0;
@@ -49,7 +49,7 @@ class DatabaseManager {
      * @return Μια Λίστα (List) όπου κάθε στοιχείο είναι ένας Χάρτης (Map).
      * Κάθε Map αντιπροσωπεύει μια γραμμή, με κλειδιά τα ονόματα των στηλών.
      */
-    public List<Map<String, Object>> executeQuery(String dbPath, String sql) {
+    public static List<Map<String, Object>> executeQuery(String dbPath, String sql) {
         String url = "jdbc:sqlite:" + dbPath;
         List<Map<String, Object>> results = new ArrayList<>();
 
@@ -82,7 +82,7 @@ class DatabaseManager {
     /**
      * Εκτέλεση ενημερωτικής εντολής (INSERT/UPDATE/DELETE) με παραμέτρους (PreparedStatement).
      */
-    public int executeUpdate(String dbPath, String sql, Object... params) {
+    public static int executeUpdate(String dbPath, String sql, Object... params) {
         String url = "jdbc:sqlite:" + dbPath;
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -99,7 +99,7 @@ class DatabaseManager {
     /**
      * Εκτέλεση ερωτήματος (SELECT) με παραμέτρους (PreparedStatement).
      */
-    public List<Map<String, Object>> executeQuery(String dbPath, String sql, Object... params) {
+    public static List<Map<String, Object>> executeQuery(String dbPath, String sql, Object... params) {
         String url = "jdbc:sqlite:" + dbPath;
         List<Map<String, Object>> results = new ArrayList<>();
 
@@ -128,7 +128,7 @@ class DatabaseManager {
         return results;
     }
 
-    private void bindParameters(PreparedStatement ps, Object... params) throws SQLException {
+    private static void bindParameters(PreparedStatement ps, Object... params) throws SQLException {
         if (params == null) return;
         for (int i = 0; i < params.length; i++) {
             Object p = params[i];
