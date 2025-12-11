@@ -64,6 +64,6 @@ public class PdfToText {
         if (dotIndex > 0) {
             baseName = baseName.substring(0, dotIndex);
         }
-        return baseName + "Test.txt";
+        return baseName + ".txt";
     }
 }
