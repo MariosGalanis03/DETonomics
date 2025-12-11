@@ -68,11 +68,11 @@ public class BudgetManager {
         String locale = (String) row.get("locale");
         String sourceDate = (String) row.get("source_date");
         int budgetYear = (Integer) row.get("budget_year");
-        double totalRevenues = (double) row.get("total_revenue");
-        double totalExpenses = (double) row.get("total_expenses");
-        double budgetResult = totalRevenues - totalExpenses;
+        long totalRevenues = ((Number) row.get("total_revenue")).longValue();
+        long totalExpenses = ((Number) row.get("total_expenses")).longValue();
+        long budgetResult = totalRevenues - totalExpenses;
         Object covObj = row.get("coverage_with_cash_reserves");
-        double coverageWithCashReserves = (covObj != null) ? ((Number) covObj).longValue() : 0;
+        long coverageWithCashReserves = (covObj != null) ? ((Number) covObj).longValue() : 0;
 
         return new Summary(sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues, totalExpenses, budgetResult, coverageWithCashReserves);
     }
@@ -95,7 +95,7 @@ public class BudgetManager {
             Integer revenueCategoryID = (Integer) resultRow.get("revenue_category_id");
             long code = Long.parseLong((String) resultRow.get("code"));
             String name = (String) resultRow.get("name");
-            Double amount = (Double) resultRow.get("amount");
+            long amount = ((Number) resultRow.get("amount")).longValue();
             Object potentialParentID = resultRow.get("parent_id");
             int parentID;
             if (potentialParentID == null) {
@@ -130,7 +130,7 @@ public class BudgetManager {
             String name = (String) resultRow.get("name");
 
             Object amountObj = resultRow.get("amount");
-            double amount = (amountObj != null) ? ((Number) amountObj).doubleValue() : 0.0;
+            long amount = (amountObj != null) ? ((Number) amountObj).longValue() : 0;
 
             ExpenseCategory expense = new ExpenseCategory(expenseCategoryID, code, name, amount);
             expenses.add(expense);
@@ -158,15 +158,15 @@ public class BudgetManager {
             Integer ministryID = (Integer) resultRow.get("ministry_id");
             long code = Long.parseLong((String) resultRow.get("code"));
             String name = (String) resultRow.get("name");
-            Double regularBudget = (Double) resultRow.get("regular_budget");
-            Double publicInvestmentBudget = (Double) resultRow.get("public_investment_budget");
-            Double totalBudget = (Double) resultRow.get("total_budget");
+            Object rbObj = resultRow.get("regular_budget");
+            Object pibObj = resultRow.get("public_investment_budget");
+            Object tbObj = resultRow.get("total_budget");
 
             // Ensure null checks for budgets, though DB schema implies they are REAL
-            // Using safe defaults in case they are null (e.g., 0.0)
-            double rb = regularBudget != null ? regularBudget : 0.0;
-            double pib = publicInvestmentBudget != null ? publicInvestmentBudget : 0.0;
-            double tb = totalBudget != null ? totalBudget : 0.0;
+            // Using safe defaults in case they are null (e.g., 0)
+            long rb = (rbObj != null) ? ((Number) rbObj).longValue() : 0;
+            long pib = (pibObj != null) ? ((Number) pibObj).longValue() : 0;
+            long tb = (tbObj != null) ? ((Number) tbObj).longValue() : 0;
 
 
             // Ministry constructor: ID, code, name, regularBudget, publicInvestmentBudget, totalBudget
@@ -188,7 +188,7 @@ public class BudgetManager {
         for (Map<String, Object> resultRow : results) {
             Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
             Integer ministryID = (Integer) resultRow.get("ministry_id");
-            Double amount = (Double) resultRow.get("amount");
+            long amount = ((Number) resultRow.get("amount")).longValue();
             Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
 
             MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
@@ -233,18 +233,18 @@ public class BudgetManager {
      * Returns rowsAffected (if 0 then something went wrong)
      */ 
 
-    private int setRevenueAmount(long code, double amount) {
+    private int setRevenueAmount(long code, long amount) {
         int rowsAffected = 0;
 
         // calculating difference so we can update parent amounts
         int revenueCategoryID = this.getRevenueCategoryIDFromCode(code);
-        double oldAmount = this.checkRevenueAmount(revenueCategoryID);
+        long oldAmount = this.checkRevenueAmount(revenueCategoryID);
         
         if (oldAmount == amount) {
             return 0;
         }
 
-        double difference = amount - oldAmount;
+        long difference = amount - oldAmount;
 
         // Updating the database with the new amount
         String sql = "UPDATE RevenueCategories SET amount = ? WHERE revenue_category_id = ?";
@@ -265,7 +265,7 @@ public class BudgetManager {
      * total amount in the parent ExpenseCategory.
      * Returns rows affected (0 if no change or error).
      */
-    public int setMinistryExpenseAmount(int ministryExpenseID, double newAmount) {
+    public int setMinistryExpenseAmount(int ministryExpenseID, long newAmount) {
         String selectSql = "SELECT amount, expense_category_id FROM MinistryExpenses WHERE ministry_expense_id = ?";
         List<Map<String, Object>> results = dbManager.executeQuery(dbPath, selectSql, ministryExpenseID);
 
@@ -275,14 +275,14 @@ public class BudgetManager {
         }
 
         Map<String, Object> row = results.getFirst();
-        double oldAmount = (Double) row.get("amount");
+        long oldAmount = ((Number) row.get("amount")).longValue();
         int expenseCategoryID = (Integer) row.get("expense_category_id");
 
         if (oldAmount == newAmount) {
             return 0; // No change needed
         }
 
-        double difference = newAmount - oldAmount;
+        long difference = newAmount - oldAmount;
         int rowsAffected = 0;
 
         // 2. Update the MinistryExpense record with the new amount
@@ -300,7 +300,7 @@ public class BudgetManager {
     }
 
 
-    private int updateRevenueParentAmounts(int revenueCategoryID, double difference) {
+    private int updateRevenueParentAmounts(int revenueCategoryID, long difference) {
         int rowsAffected = 0;
         
         // Get the parent ID
@@ -322,7 +322,7 @@ public class BudgetManager {
         return rowsAffected;
     }
 
-    private int updateRevenueChildrenAmounts(int revenueCategoryID, double oldParentAmount, double newParentAmount) {
+    private int updateRevenueChildrenAmounts(int revenueCategoryID, long oldParentAmount, long newParentAmount) {
         int rowsAffected = 0;
         
         // Base case: if oldParentAmount is 0, we can't calculate proportions
@@ -339,15 +339,15 @@ public class BudgetManager {
         }
         
         // Calculate the ratio for updating children
-        double ratio = newParentAmount / oldParentAmount;
+        double ratio = (double) newParentAmount / oldParentAmount;
         
         // Update each child
         for (Integer childID : children) {
             // Get the child's current amount
-            double oldChildAmount = this.checkRevenueAmount(childID);
+            long oldChildAmount = this.checkRevenueAmount(childID);
             
             // Calculate the new child amount based on the proportion
-            double newChildAmount = oldChildAmount * ratio;
+            long newChildAmount = Math.round(oldChildAmount * ratio);
             
             // Update the child's amount in the database
             String sql = "UPDATE RevenueCategories SET amount = ? WHERE revenue_category_id = ?";
@@ -385,17 +385,17 @@ public class BudgetManager {
     }
 
     // Method to check amount of revenue category id from database (checked)
-    private double checkRevenueAmount(int revenue_category_id) {
+    private long checkRevenueAmount(int revenue_category_id) {
         String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql, revenue_category_id);
-        double amount = (Double) queryResults.getFirst().get("amount");
+        long amount = ((Number) queryResults.getFirst().get("amount")).longValue();
         return amount;
     }
 
-    private double checkExpenseAmount(int expense_category_id) {
+    private long checkExpenseAmount(int expense_category_id) {
         String sql = "SELECT amount FROM ExpenseCategories WHERE expense_category_id = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(dbPath, sql, expense_category_id);
-        double amount = (Double) queryResults.getFirst().get("amount");
+        long amount = ((Number) queryResults.getFirst().get("amount")).longValue();
         return amount;
     }
 

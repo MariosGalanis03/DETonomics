@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class BudgetFormatter {
 
-    public static String formatAmount(double amount) {
+    public static String formatAmount(long amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY); 
         nf.setMaximumFractionDigits(0);
         return nf.format(amount) + " €";
@@ -24,7 +24,7 @@ public class BudgetFormatter {
             sb.append(String.format("%-15d | %-100s | %20s%n", 
                 r.getCode(), 
                 r.getName(), 
-                formatAmount((long)r.getAmount()) 
+                formatAmount(r.getAmount()) 
             ));
         }
         return sb.toString();
@@ -40,7 +40,7 @@ public class BudgetFormatter {
             sb.append(String.format("%-15d | %-100s | %20s%n", 
                 e.getCode(), 
                 e.getName(), 
-                formatAmount((long)e.getAmount())
+                formatAmount(e.getAmount())
             ));
         }
         return sb.toString();
@@ -57,7 +57,7 @@ public class BudgetFormatter {
             sb.append(String.format("%-15s | %-100s | %20s%n", 
                 m.getCode(), 
                 m.getName(), 
-                formatAmount((long)m.getTotalBudget())
+                formatAmount(m.getTotalBudget())
             ));
         }
         return sb.toString();
@@ -81,7 +81,7 @@ public class BudgetFormatter {
         
         for (MinistryExpense me : ministryExpenses) {
             String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
-            long currentAmount = (long) me.getAmount(); 
+            long currentAmount = me.getAmount(); 
             
             aggregatedExpenses.put(key, aggregatedExpenses.getOrDefault(key, 0L) + currentAmount);
         }

@@ -9,7 +9,7 @@ public class BudgetYearTest {
 
     @Test
     public void constructorAndGetters() {
-        Summary summary = new Summary("src", "€", "el_GR", "2025-01-01", 2025, 1000.0, 800.0, 200.0, 0.0);
+        Summary summary = new Summary("src", "€", "el_GR", "2025-01-01", 2025, 1000L, 800L, 200L, 0L);
         ArrayList<RevenueCategory> revs = new ArrayList<>();
         ArrayList<ExpenseCategory> exps = new ArrayList<>();
         ArrayList<Ministry> mins = new ArrayList<>();

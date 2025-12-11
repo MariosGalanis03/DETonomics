@@ -7,18 +7,18 @@ public class MinistryExpenseTest {
 
     @Test
     public void gettersAndToString() {
-        MinistryExpense me = new MinistryExpense(7, 20, 30, 4500.0);
+        MinistryExpense me = new MinistryExpense(7, 20, 30, 4500L);
         assertEquals(7, me.getExpenseID());
         assertEquals(20, me.getMinistryID());
         assertEquals(30, me.getExpenseCategoryID());
-        assertEquals(4500.0, me.getAmount());
+        assertEquals(4500L, me.getAmount());
         assertTrue(me.toString().contains("4500"));
     }
 
     @Test
     public void setAmountUpdatesValue() {
-        MinistryExpense me = new MinistryExpense(8, 21, 31, 0.0);
-        me.setAmount(123.0);
-        assertEquals(123.0, me.getAmount());
+        MinistryExpense me = new MinistryExpense(8, 21, 31, 0L);
+        me.setAmount(123L);
+        assertEquals(123L, me.getAmount());
     }
 }

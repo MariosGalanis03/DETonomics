@@ -9,14 +9,14 @@ public class BudgetFormatterTest {
 
     @Test
     public void testFormatAmount() {
-        String formatted = BudgetFormatter.formatAmount(1235.00);
+        String formatted = BudgetFormatter.formatAmount(1235L);
         assertEquals("1.235 €", formatted);
     }
 
     @Test
     public void testGetFormattedRevenues_singleEntry() {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
-        revenues.add(new RevenueCategory(1, 1001L, "Test Rev", 5000.0, 0));
+        revenues.add(new RevenueCategory(1, 1001L, "Test Rev", 5000L, 0));
 
         String out = BudgetFormatter.getFormattedRevenues(revenues);
 

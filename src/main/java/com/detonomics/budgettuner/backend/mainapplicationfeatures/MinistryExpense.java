@@ -4,9 +4,9 @@ class MinistryExpense {
     private final int expenseID;
     private final int ministryID;
     private final int expenseCategoryID;
-    private double amount;
+    private long amount;
 
-    MinistryExpense(int expenseID, int ministryID, int expenseCategoryID, double amount) {
+    MinistryExpense(int expenseID, int ministryID, int expenseCategoryID, long amount) {
         this.expenseID = expenseID;
         this.ministryID = ministryID;
         this.expenseCategoryID = expenseCategoryID;
@@ -25,11 +25,11 @@ class MinistryExpense {
         return expenseCategoryID;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

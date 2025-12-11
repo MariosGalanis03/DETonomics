@@ -4,11 +4,11 @@ class Ministry {
     private final int ministryID;
     private final long code;
     private final String name;
-    private double regularBudget;
-    private double publicInvestmentBudget;
-    private double totalBudget;
+    private long regularBudget;
+    private long publicInvestmentBudget;
+    private long totalBudget;
 
-    public Ministry(int ministryID, long code, String name, double regularBudget, double publicInvestmentBudget, double totalBudget) {
+    public Ministry(int ministryID, long code, String name, long regularBudget, long publicInvestmentBudget, long totalBudget) {
         this.ministryID = ministryID;
         this.code = code;
         this.name = name;
@@ -29,27 +29,27 @@ class Ministry {
         return name;
     }
 
-    public double getRegularBudget() {
+    public long getRegularBudget() {
         return regularBudget;
     }
 
-    public double getPublicInvestmentBudget() {
+    public long getPublicInvestmentBudget() {
         return publicInvestmentBudget;
     }
 
-    public double getTotalBudget() {
+    public long getTotalBudget() {
         return totalBudget;
     }
 
-    public void setRegularBudget(double regularBudget) {
+    public void setRegularBudget(long regularBudget) {
         this.regularBudget = regularBudget;
     }
 
-    public void setPublicInvestmentBudget(double publicInvestmentBudget) {
+    public void setPublicInvestmentBudget(long publicInvestmentBudget) {
         this.publicInvestmentBudget = publicInvestmentBudget;
     }
 
-    public void setTotalBudget(double totalBudget) {
+    public void setTotalBudget(long totalBudget) {
         this.totalBudget = totalBudget;
     }
 

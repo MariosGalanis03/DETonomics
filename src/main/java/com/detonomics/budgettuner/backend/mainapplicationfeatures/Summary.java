@@ -6,12 +6,12 @@ class Summary {
     private String locale;
     private String sourceDate;
     private int budgetYear;
-    private double totalRevenues;
-    private double totalExpenses;
-    private double budgetResult;
-    private double coverageWithCashReserves;
+    private long totalRevenues;
+    private long totalExpenses;
+    private long budgetResult;
+    private long coverageWithCashReserves;
 
-    Summary(String sourceTitle, String currency, String locale, String sourceDate, int budgetYear, double totalRevenues, double totalExpenses, double budgetResult, double coverageWithCashReserves) {
+    Summary(String sourceTitle, String currency, String locale, String sourceDate, int budgetYear, long totalRevenues, long totalExpenses, long budgetResult, long coverageWithCashReserves) {
         this.sourceTitle = sourceTitle;
         this.currency = currency;
         this.locale = locale;
@@ -43,19 +43,19 @@ class Summary {
         return budgetYear;
     }
 
-    public double getTotalRevenues() {
+    public long getTotalRevenues() {
         return totalRevenues;
     }
 
-    public double totalExpenses() {
+    public long totalExpenses() {
         return totalExpenses;
     }
 
-    public double budgetResult() {
+    public long budgetResult() {
         return budgetResult;
     }
 
-    public double coverageWithCashReserves() {
+    public long coverageWithCashReserves() {
         return coverageWithCashReserves;
     }
 

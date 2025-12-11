@@ -4,9 +4,9 @@ class ExpenseCategory {
     private final int expenseID;
     private final long code;
     private final String name;
-    private double amount;
+    private long amount;
 
-    ExpenseCategory(int expenseID, long code, String name, double amount) {
+    ExpenseCategory(int expenseID, long code, String name, long amount) {
         this.expenseID = expenseID;
         this.code = code;
         this.name = name;
@@ -25,11 +25,11 @@ class ExpenseCategory {
         return name;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
