@@ -1,4 +1,4 @@
-@startuml classes
+@startuml classes_methods_only
 !theme plain
 skinparam backgroundColor #F2F2F2
 skinparam classBackgroundColor #D9E8F0
@@ -12,7 +12,7 @@ skinparam rectangle {
   BorderThickness 1
 }
 
-' UML for DETonomics Java classes (generated)
+' UML for DETonomics Java classes - Methods Only (generated)
 
 rectangle "DETonomics Architecture" #C5DAEB {
 
@@ -23,8 +23,6 @@ class App {
 }
 
 class BudgetManager {
-  - DatabaseManager dbManager
-  - String dbPath
   + void insertNewBudgetYear(String pdfPath)
   + int getBudgetIDByYear(int year)
   + ArrayList<Integer> loadBudgetYears()
@@ -50,11 +48,6 @@ class DatabaseManager {
 }
 
 class BudgetYear {
-  - Summary summary
-  - ArrayList<RevenueCategory> revenues
-  - ArrayList<ExpenseCategory> expenses
-  - ArrayList<Ministry> ministries
-  - ArrayList<MinistryExpense> ministryExpenses
   + Summary getSummary()
   + ArrayList<RevenueCategory> getRevenues()
   + ArrayList<ExpenseCategory> getExpenses()
@@ -63,15 +56,6 @@ class BudgetYear {
 }
 
 class Summary {
-  - String sourceTitle
-  - String currency
-  - String locale
-  - String sourceDate
-  - int budgetYear
-  - double totalRevenues
-  - double totalExpenses
-  - double budgetResult
-  - double coverageWithCashReserves
   + String getSourceTitle()
   + String getCurrency()
   + String getLocale()
@@ -85,11 +69,6 @@ class Summary {
 }
 
 class RevenueCategory {
-  - int revenueID
-  - long code
-  - String name
-  - double amount
-  - int parentID
   + int getRevenueID()
   + long getCode()
   + String getName()
@@ -100,10 +79,6 @@ class RevenueCategory {
 }
 
 class ExpenseCategory {
-  - int expenseID
-  - long code
-  - String name
-  - double amount
   + int getExpenseID()
   + long getCode()
   + String getName()
@@ -113,12 +88,6 @@ class ExpenseCategory {
 }
 
 class Ministry {
-  - int ministryID
-  - long code
-  - String name
-  - double regularBudget
-  - double publicInvestmentBudget
-  - double totalBudget
   + int getMinistryID()
   + long getCode()
   + String getName()
@@ -132,10 +101,6 @@ class Ministry {
 }
 
 class MinistryExpense {
-  - int expenseID
-  - int ministryID
-  - int expenseCategoryID
-  - double amount
   + int getExpenseID()
   + int getMinistryID()
   + int getExpenseCategoryID()
@@ -153,11 +118,6 @@ class BudgetFormatter {
 }
 
 class SqlSequence {
-  - int budgets
-  - int revenueCategories
-  - int expenseCategories
-  - int ministries
-  - int ministryExpenses
   + int getBudgets()
   + int getRevenueCategories()
   + int getExpenseCategories()
@@ -183,13 +143,10 @@ class PdfToText {
 }
 
 class TextToJson {
-  - static final String PROMPT1
   + static void textFileToJson(Path inTxt, Path outJson)
 }
 
 class JsonToSQLite {
-  - static final String DB_FILE_PATH
-  - static final String DB_URL
   + void processAndStoreBudget(String jsonFilePath)
   + static void main(String[] args)
   - void createTables()
@@ -201,42 +158,18 @@ class JsonToSQLite {
 }
 
 class BudgetFile {
-  + Metadata metadata
-  + BudgetSummary budgetSummary
-  + List<RevenueCategory> revenueAnalysis
-  + List<ExpenseCategory> expenseAnalysis
-  + List<Ministry> distributionByMinistry
 }
 
 class Metadata {
-  + String sourceTitle
-  + String sourceDate
-  + int budgetYear
-  + String currency
-  + String locale
-  + List<String> missingFields
 }
 
 class BudgetSummary {
-  + long totalRevenue
-  + long totalExpenses
-  + long stateBudgetBalance
-  + long coverageWwithCashReserves
 }
 
 class MinistryData {
-  + String code
-  + String ministryBody
-  + long regularBudget
-  + long publicInvestmentBudget
-  + long total
-  + List<MinistryExpenseItem> totalFromMajorCategories
 }
 
 class MinistryExpenseItem {
-  + String code
-  + String name
-  + long amount
 }
 
 }
@@ -268,8 +201,6 @@ DatabaseManager ..> SqlSequence : fills
 JsonToSQLite "1" o-- "1" BudgetFile : parses
 BudgetFile "1" *-- "1" Metadata
 BudgetFile "1" *-- "1" BudgetSummary
-BudgetFile "1" *-- "*" RevenueCategory : revenueAnalysis
-BudgetFile "1" *-- "*" ExpenseCategory : expenseAnalysis
 BudgetFile "1" *-- "*" MinistryData : distributionByMinistry
 MinistryData "1" *-- "*" MinistryExpenseItem
 JsonToSQLite "uses" --> DatabaseManager
