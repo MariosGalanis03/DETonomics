@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class MinistryExpense {
+public class MinistryExpense {
     private final int expenseID;
     private final int ministryID;
     private final int expenseCategoryID;

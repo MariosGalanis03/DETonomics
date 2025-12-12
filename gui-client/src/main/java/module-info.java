@@ -1,4 +1,4 @@
-module com.example.gui {
+module com.detonomics.budgettuner.gui {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -9,7 +9,8 @@ module com.example.gui {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires com.detonomics.budgettuner;
 
-    opens com.example.gui to javafx.fxml;
-    exports com.example.gui;
+    opens com.detonomics.budgettuner.gui to javafx.fxml;
+    exports com.detonomics.budgettuner.gui;
 }

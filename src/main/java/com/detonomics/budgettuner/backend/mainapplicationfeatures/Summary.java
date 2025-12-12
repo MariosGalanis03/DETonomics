@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class Summary {
+public class Summary {
     private String sourceTitle;
     private String currency;
     private String locale;
@@ -56,6 +56,18 @@ class Summary {
     }
 
     public double coverageWithCashReserves() {
+        return coverageWithCashReserves;
+    }
+
+    public double getTotalExpenses() {
+        return totalExpenses;
+    }
+
+    public double getBudgetResult() {
+        return budgetResult;
+    }
+
+    public double getCoverageWithCashReserves() {
         return coverageWithCashReserves;
     }
 

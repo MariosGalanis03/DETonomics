@@ -1,4 +1,4 @@
-package com.example.gui;
+package com.detonomics.budgettuner.gui;
 
 public class Budget {
     private String year;

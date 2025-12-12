@@ -1,6 +1,9 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +13,30 @@ import com.detonomics.budgettuner.backend.budgetingestion.IngestBudgetPdf;
 
 public class BudgetManager {
     private final DatabaseManager dbManager;
-    private final String dbPath = "data/output/BudgetDB.db";
+    private final String dbPath;
 
-    BudgetManager() {
+    public BudgetManager() {
         this.dbManager = new DatabaseManager();
+        this.dbPath = resolveDefaultDbPath();
+    }
+
+    public BudgetManager(String dbPath) {
+        this.dbManager = new DatabaseManager();
+        this.dbPath = (dbPath == null || dbPath.isBlank()) ? resolveDefaultDbPath() : dbPath;
+    }
+
+    private static String resolveDefaultDbPath() {
+        Path inCwd = Path.of("data", "output", "BudgetDB.db");
+        if (Files.exists(inCwd)) {
+            return inCwd.toString();
+        }
+
+        Path inParent = Path.of("..", "data", "output", "BudgetDB.db");
+        if (Files.exists(inParent)) {
+            return inParent.toString();
+        }
+
+        return inCwd.toString();
     }
 
     public void insertNewBudgetYear(String pdfPath) throws Exception {
@@ -43,7 +66,7 @@ public class BudgetManager {
         return years;
     }
 
-    BudgetYear loadBudgetYear(int budgetID) {
+    public BudgetYear loadBudgetYear(int budgetID) {
         Summary summary = loadSummary(budgetID);
         ArrayList<RevenueCategory> revenues = loadRevenues(budgetID);
         ArrayList<ExpenseCategory> expenses = loadExpenses(budgetID);
@@ -53,6 +76,30 @@ public class BudgetManager {
         BudgetYear budget = new BudgetYear(summary, revenues, expenses, ministries, ministryExpenses);
 
         return budget;
+    }
+
+    public BudgetYear loadBudgetYearByYear(int year) {
+        int budgetID = getBudgetIDByYear(year);
+        if (budgetID <= 0) {
+            throw new IllegalArgumentException("No budget found for year: " + year);
+        }
+        return loadBudgetYear(budgetID);
+    }
+
+    public List<BudgetTotals> loadAllBudgetTotals() {
+        String sql = "SELECT budget_year, total_revenue, total_expenses, budget_result FROM Budgets ORDER BY budget_year ASC";
+        List<Map<String, Object>> results = dbManager.executeQuery(dbPath, sql);
+
+        return results.stream()
+            .map(row -> {
+                int year = ((Number) row.get("budget_year")).intValue();
+                double totalRevenues = row.get("total_revenue") == null ? 0.0 : ((Number) row.get("total_revenue")).doubleValue();
+                double totalExpenses = row.get("total_expenses") == null ? 0.0 : ((Number) row.get("total_expenses")).doubleValue();
+                double budgetResult = row.get("budget_result") == null ? (totalRevenues - totalExpenses) : ((Number) row.get("budget_result")).doubleValue();
+                return new BudgetTotals(year, totalRevenues, totalExpenses, budgetResult);
+            })
+            .sorted(Comparator.comparingInt(BudgetTotals::year))
+            .toList();
     }
 
     private Summary loadSummary(int budgetID) {

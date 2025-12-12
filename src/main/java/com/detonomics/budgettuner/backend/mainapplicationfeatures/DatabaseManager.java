@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class DatabaseManager {
+public class DatabaseManager {
 
     /**
      * Εκτελεί μια εντολή SQL που τροποποιεί δεδομένα (INSERT, UPDATE, DELETE, CREATE TABLE).
