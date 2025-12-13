@@ -16,6 +16,10 @@ import java.util.Map;
 
 class DatabaseManager {
 
+    private DatabaseManager() {
+        throw new AssertionError("Utility class");
+    }
+
     /**
      * Εκτελεί μια εντολή SQL που τροποποιεί δεδομένα (INSERT, UPDATE,
      * DELETE, CREATE TABLE).

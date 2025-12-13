@@ -5,6 +5,10 @@ import java.nio.file.Path;
 
 public class IngestBudgetPdf {
 
+    private IngestBudgetPdf() {
+        throw new AssertionError("Utility class");
+    }
+
     private static String toTxtName(final String pdfPath) {
         String baseName = new File(pdfPath).getName();
         int dotIndex = baseName.lastIndexOf('.');

@@ -79,7 +79,7 @@ public class JsonToSQLite {
             BudgetFile budgetData = mapper.readValue(inputStream,
                     BudgetFile.class);
             System.out.println("Successfully parsed JSON for year: "
-                    + budgetData.metadata.budgetYear);
+                    + budgetData.getMetadata().getBudgetYear());
 
             insertBudgetData(budgetData);
         }
@@ -174,10 +174,10 @@ public class JsonToSQLite {
         String checkSql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmtCheck = conn.prepareStatement(checkSql)) {
-            pstmtCheck.setInt(1, budgetFile.metadata.budgetYear);
+            pstmtCheck.setInt(1, budgetFile.getMetadata().getBudgetYear());
             if (pstmtCheck.executeQuery().next()) {
                 System.out.println("Budget for year "
-                        + budgetFile.metadata.budgetYear
+                        + budgetFile.getMetadata().getBudgetYear()
                         + " already exists in the database. "
                         + "Skipping insertion.");
                 return;
@@ -190,16 +190,16 @@ public class JsonToSQLite {
             conn.setAutoCommit(false);
             long budgetId = insertBudget(conn, budgetFile);
             insertRevenueCategoriesRecursive(conn,
-                    budgetFile.revenueAnalysis, budgetId, null);
+                    budgetFile.getRevenueAnalysis(), budgetId, null);
             Map<String, Integer> expenseCategoryIds =
                     insertExpenseCategories(conn,
-                            budgetFile.expenseAnalysis, budgetId);
+                            budgetFile.getExpenseAnalysis(), budgetId);
             insertMinistriesAndExpenses(conn,
-                    budgetFile.distributionByMinistry, budgetId,
+                    budgetFile.getDistributionByMinistry(), budgetId,
                     expenseCategoryIds);
             conn.commit();
             System.out.println("SUCCESS: Data for year "
-                    + budgetFile.metadata.budgetYear
+                    + budgetFile.getMetadata().getBudgetYear()
                     + " has been saved to the database.");
         } catch (SQLException e) {
             System.err.println(
@@ -222,16 +222,16 @@ public class JsonToSQLite {
                 + "total_expenses, budget_result, "
                 + "coverage_with_cash_reserves) VALUES(?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, budgetFile.metadata.sourceTitle);
-            pstmt.setString(2, budgetFile.metadata.sourceDate);
-            pstmt.setInt(3, budgetFile.metadata.budgetYear);
-            pstmt.setString(4, budgetFile.metadata.currency);
-            pstmt.setString(5, budgetFile.metadata.locale);
-            pstmt.setLong(6, budgetFile.budgetSummary.totalRevenue);
-            pstmt.setLong(7, budgetFile.budgetSummary.totalExpenses);
-            pstmt.setLong(8, budgetFile.budgetSummary.stateBudgetBalance);
+            pstmt.setString(1, budgetFile.getMetadata().getSourceTitle());
+            pstmt.setString(2, budgetFile.getMetadata().getSourceDate());
+            pstmt.setInt(3, budgetFile.getMetadata().getBudgetYear());
+            pstmt.setString(4, budgetFile.getMetadata().getCurrency());
+            pstmt.setString(5, budgetFile.getMetadata().getLocale());
+            pstmt.setLong(6, budgetFile.getBudgetSummary().getTotalRevenue());
+            pstmt.setLong(7, budgetFile.getBudgetSummary().getTotalExpenses());
+            pstmt.setLong(8, budgetFile.getBudgetSummary().getStateBudgetBalance());
             pstmt.setLong(9,
-                    budgetFile.budgetSummary.coverageWwithCashReserves);
+                    budgetFile.getBudgetSummary().getCoverageWwithCashReserves());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
@@ -263,9 +263,9 @@ public class JsonToSQLite {
         for (RevenueCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setLong(1, budgetId);
-                pstmt.setString(2, cat.code);
-                pstmt.setString(3, cat.name);
-                pstmt.setLong(4, cat.amount);
+                pstmt.setString(2, cat.getCode());
+                pstmt.setString(3, cat.getName());
+                pstmt.setLong(4, cat.getAmount());
                 if (parentId != null) {
                     pstmt.setInt(5, parentId);
                 } else {
@@ -285,7 +285,7 @@ public class JsonToSQLite {
                                     + "obtained.");
                 }
             }
-            insertRevenueCategoriesRecursive(conn, cat.children, budgetId,
+            insertRevenueCategoriesRecursive(conn, cat.getChildren(), budgetId,
                     (int) currentId);
         }
     }
@@ -300,9 +300,9 @@ public class JsonToSQLite {
         for (ExpenseCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setLong(1, budgetId);
-                pstmt.setString(2, cat.code);
-                pstmt.setString(3, cat.name);
-                pstmt.setLong(4, cat.amount);
+                pstmt.setString(2, cat.getCode());
+                pstmt.setString(3, cat.getName());
+                pstmt.setLong(4, cat.getAmount());
                 pstmt.executeUpdate();
             }
 
@@ -311,7 +311,7 @@ public class JsonToSQLite {
                 ResultSet rs = stmt.executeQuery("SELECT last_insert_rowid()");
                 if (rs.next()) {
                     lastId = rs.getLong(1);
-                    expenseCategoryIds.put(cat.code, (int)lastId);
+                    expenseCategoryIds.put(cat.getCode(), (int) lastId);
                 } else {
                     throw new SQLException(
                             "Creating expense category failed, no ID "
@@ -337,11 +337,11 @@ public class JsonToSQLite {
             try (PreparedStatement pstmtMinistry =
                     conn.prepareStatement(sqlMinistry)) {
                 pstmtMinistry.setLong(1, budgetId);
-                pstmtMinistry.setString(2, ministry.code);
-                pstmtMinistry.setString(3, ministry.ministryBody);
-                pstmtMinistry.setLong(4, ministry.regularBudget);
-                pstmtMinistry.setLong(5, ministry.publicInvestmentBudget);
-                pstmtMinistry.setLong(6, ministry.total);
+                pstmtMinistry.setString(2, ministry.getCode());
+                pstmtMinistry.setString(3, ministry.getMinistryBody());
+                pstmtMinistry.setLong(4, ministry.getRegularBudget());
+                pstmtMinistry.setLong(5, ministry.getPublicInvestmentBudget());
+                pstmtMinistry.setLong(6, ministry.getTotal());
                 pstmtMinistry.executeUpdate();
             }
 
@@ -358,13 +358,13 @@ public class JsonToSQLite {
 
             try (PreparedStatement pstmtMinistryExpense =
                     conn.prepareStatement(sqlMinistryExpense)) {
-                for (MinistryExpenseItem item :
-                        ministry.totalFromMajorCategories) {
-                    Integer expenseCatId = expenseCategoryIds.get(item.code);
+                for (MinistryExpenseItem item
+                        : ministry.getTotalFromMajorCategories()) {
+                    Integer expenseCatId = expenseCategoryIds.get(item.getCode());
                     if (expenseCatId != null) {
                         pstmtMinistryExpense.setLong(1, ministryId);
                         pstmtMinistryExpense.setInt(2, expenseCatId);
-                        pstmtMinistryExpense.setLong(3, item.amount);
+                        pstmtMinistryExpense.setLong(3, item.getAmount());
                         pstmtMinistryExpense.addBatch();
                     }
                 }
@@ -377,84 +377,333 @@ public class JsonToSQLite {
     // (These are identical to the last version)
     public static class BudgetFile {
         @JsonProperty("metadata")
-        public Metadata metadata;
+        private Metadata metadata;
         @JsonProperty("budgetSummary")
-        public BudgetSummary budgetSummary;
+        private BudgetSummary budgetSummary;
         @JsonProperty("revenueAnalysis")
-        public List<RevenueCategory> revenueAnalysis;
+        private List<RevenueCategory> revenueAnalysis;
         @JsonProperty("expenseAnalysis")
-        public List<ExpenseCategory> expenseAnalysis;
+        private List<ExpenseCategory> expenseAnalysis;
         @JsonProperty("distributionByMinistry")
-        public List<Ministry> distributionByMinistry;
+        private List<Ministry> distributionByMinistry;
+
+        public Metadata getMetadata() {
+            return metadata;
+        }
+
+        public void setMetadata(final Metadata metadata) {
+            this.metadata = metadata;
+        }
+
+        public BudgetSummary getBudgetSummary() {
+            return budgetSummary;
+        }
+
+        public void setBudgetSummary(final BudgetSummary budgetSummary) {
+            this.budgetSummary = budgetSummary;
+        }
+
+        public List<RevenueCategory> getRevenueAnalysis() {
+            return revenueAnalysis;
+        }
+
+        public void setRevenueAnalysis(final List<RevenueCategory> revenueAnalysis) {
+            this.revenueAnalysis = revenueAnalysis;
+        }
+
+        public List<ExpenseCategory> getExpenseAnalysis() {
+            return expenseAnalysis;
+        }
+
+        public void setExpenseAnalysis(final List<ExpenseCategory> expenseAnalysis) {
+            this.expenseAnalysis = expenseAnalysis;
+        }
+
+        public List<Ministry> getDistributionByMinistry() {
+            return distributionByMinistry;
+        }
+
+        public void setDistributionByMinistry(final List<Ministry> distributionByMinistry) {
+            this.distributionByMinistry = distributionByMinistry;
+        }
     }
 
     public static class Metadata {
         @JsonProperty("sourceTitle")
-        public String sourceTitle;
+        private String sourceTitle;
         @JsonProperty("sourceDate")
-        public String sourceDate;
+        private String sourceDate;
         @JsonProperty("budgetYear")
-        public int budgetYear;
+        private int budgetYear;
         @JsonProperty("currency")
-        public String currency;
+        private String currency;
         @JsonProperty("locale")
-        public String locale;
+        private String locale;
         @JsonProperty("missingFields")
-        public List<String> missingFields;
+        private List<String> missingFields;
+
+        public String getSourceTitle() {
+            return sourceTitle;
+        }
+
+        public void setSourceTitle(final String sourceTitle) {
+            this.sourceTitle = sourceTitle;
+        }
+
+        public String getSourceDate() {
+            return sourceDate;
+        }
+
+        public void setSourceDate(final String sourceDate) {
+            this.sourceDate = sourceDate;
+        }
+
+        public int getBudgetYear() {
+            return budgetYear;
+        }
+
+        public void setBudgetYear(final int budgetYear) {
+            this.budgetYear = budgetYear;
+        }
+
+        public String getCurrency() {
+            return currency;
+        }
+
+        public void setCurrency(final String currency) {
+            this.currency = currency;
+        }
+
+        public String getLocale() {
+            return locale;
+        }
+
+        public void setLocale(final String locale) {
+            this.locale = locale;
+        }
+
+        public List<String> getMissingFields() {
+            return missingFields;
+        }
+
+        public void setMissingFields(final List<String> missingFields) {
+            this.missingFields = missingFields;
+        }
     }
 
-    public static class BudgetSummary {
+    public static class BudgetSummary
+    {
         @JsonProperty("totalRevenue")
-        public long totalRevenue;
+        private long totalRevenue;
         @JsonProperty("totalExpenses")
-        public long totalExpenses;
+        private long totalExpenses;
         @JsonProperty("stateBudgetBalance")
-        public long stateBudgetBalance;
+        private long stateBudgetBalance;
         @JsonProperty("coverageWwithCashReserves")
-        public long coverageWwithCashReserves;
+        private long coverageWwithCashReserves;
+
+        public long getTotalRevenue() {
+            return totalRevenue;
+        }
+
+        public void setTotalRevenue(final long totalRevenue) {
+            this.totalRevenue = totalRevenue;
+        }
+
+        public long getTotalExpenses() {
+            return totalExpenses;
+        }
+
+        public void setTotalExpenses(final long totalExpenses) {
+            this.totalExpenses = totalExpenses;
+        }
+
+        public long getStateBudgetBalance() {
+            return stateBudgetBalance;
+        }
+
+        public void setStateBudgetBalance(final long stateBudgetBalance) {
+            this.stateBudgetBalance = stateBudgetBalance;
+        }
+
+        public long getCoverageWwithCashReserves() {
+            return coverageWwithCashReserves;
+        }
+
+        public void setCoverageWwithCashReserves(final long coverageWwithCashReserves) {
+            this.coverageWwithCashReserves = coverageWwithCashReserves;
+        }
     }
 
     public static class RevenueCategory {
         @JsonProperty("code")
-        public String code;
+        private String code;
         @JsonProperty("name")
-        public String name;
+        private String name;
         @JsonProperty("amount")
-        public long amount;
+        private long amount;
         @JsonProperty("children")
-        public List<RevenueCategory> children;
+        private List<RevenueCategory> children;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(final String code) {
+            this.code = code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public long getAmount() {
+            return amount;
+        }
+
+        public void setAmount(final long amount) {
+            this.amount = amount;
+        }
+
+        public List<RevenueCategory> getChildren() {
+            return children;
+        }
+
+        public void setChildren(final List<RevenueCategory> children) {
+            this.children = children;
+        }
     }
 
     public static class ExpenseCategory {
         @JsonProperty("code")
-        public String code;
+        private String code;
         @JsonProperty("name")
-        public String name;
+        private String name;
         @JsonProperty("amount")
-        public long amount;
+        private long amount;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(final String code) {
+            this.code = code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public long getAmount() {
+            return amount;
+        }
+
+        public void setAmount(final long amount) {
+            this.amount = amount;
+        }
     }
 
     public static class Ministry {
         @JsonProperty("code")
-        public String code;
+        private String code;
         @JsonProperty("ministryBody")
-        public String ministryBody;
+        private String ministryBody;
         @JsonProperty("regularBudget")
-        public long regularBudget;
+        private long regularBudget;
         @JsonProperty("publicInvestmentBudget")
-        public long publicInvestmentBudget;
+        private long publicInvestmentBudget;
         @JsonProperty("total")
-        public long total;
+        private long total;
         @JsonProperty("totalFromMajorCategories")
-        public List<MinistryExpenseItem> totalFromMajorCategories;
+        private List<MinistryExpenseItem> totalFromMajorCategories;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(final String code) {
+            this.code = code;
+        }
+
+        public String getMinistryBody() {
+            return ministryBody;
+        }
+
+        public void setMinistryBody(final String ministryBody) {
+            this.ministryBody = ministryBody;
+        }
+
+        public long getRegularBudget() {
+            return regularBudget;
+        }
+
+        public void setRegularBudget(final long regularBudget) {
+            this.regularBudget = regularBudget;
+        }
+
+        public long getPublicInvestmentBudget() {
+            return publicInvestmentBudget;
+        }
+
+        public void setPublicInvestmentBudget(final long publicInvestmentBudget) {
+            this.publicInvestmentBudget = publicInvestmentBudget;
+        }
+
+        public long getTotal() {
+            return total;
+        }
+
+        public void setTotal(final long total) {
+            this.total = total;
+        }
+
+        public List<MinistryExpenseItem> getTotalFromMajorCategories() {
+            return totalFromMajorCategories;
+        }
+
+        public void setTotalFromMajorCategories(final List<MinistryExpenseItem> totalFromMajorCategories) {
+            this.totalFromMajorCategories = totalFromMajorCategories;
+        }
     }
 
     public static class MinistryExpenseItem {
         @JsonProperty("code")
-        public String code;
+        private String code;
         @JsonProperty("name")
-        public String name;
+        private String name;
         @JsonProperty("amount")
-        public long amount;
+        private long amount;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(final String code) {
+            this.code = code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public long getAmount() {
+            return amount;
+        }
+
+        public void setAmount(final long amount) {
+            this.amount = amount;
+        }
     }
 }

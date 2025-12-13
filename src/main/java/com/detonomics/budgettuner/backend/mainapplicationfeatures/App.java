@@ -7,6 +7,10 @@ import java.nio.charset.StandardCharsets;
 // Η κεντρική κλάση της εφαρμογής
 public class App {
 
+    private App() {
+        throw new AssertionError("Utility class");
+    }
+
     public static void main(final String[] args) {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         System.out.println();

@@ -8,6 +8,10 @@ import java.util.Map;
 
 public class BudgetFormatter {
 
+    private BudgetFormatter() {
+        throw new AssertionError("Utility class");
+    }
+
     public static String formatAmount(final long amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
         nf.setMaximumFractionDigits(0);

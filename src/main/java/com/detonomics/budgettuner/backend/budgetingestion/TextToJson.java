@@ -13,6 +13,10 @@ import com.google.genai.types.Part;
 
 public class TextToJson {
 
+  private TextToJson() {
+    throw new AssertionError("Utility class");
+  }
+
   private static final String PROMPT1 = """
 **ROLE**
 You are a budget data-extraction agent. You read unstructured text in
