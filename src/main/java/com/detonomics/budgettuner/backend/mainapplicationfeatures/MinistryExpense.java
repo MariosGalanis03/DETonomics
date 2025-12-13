@@ -30,7 +30,7 @@ class MinistryExpense {
         return amount;
     }
 
-    void setAmount(long amount) {
+    void setAmount(final long amount) {
         this.amount = amount;
     }
 

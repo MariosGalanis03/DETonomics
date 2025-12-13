@@ -8,14 +8,14 @@ import java.util.Map;
 
 public class BudgetFormatter {
 
-    public static String formatAmount(long amount) {
-        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY); 
+    public static String formatAmount(final long amount) {
+        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
         nf.setMaximumFractionDigits(0);
         return nf.format(amount) + " €";
     }
 
     public static String getFormattedRevenues(
-            ArrayList<RevenueCategory> revenues) {
+            final ArrayList<RevenueCategory> revenues) {
         if (revenues.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
         }
@@ -29,17 +29,17 @@ public class BudgetFormatter {
                 + "----------------------------------------"
                 + "|----------------------\n");
         for (RevenueCategory r : revenues) {
-            sb.append(String.format("%-15d | %-100s | %20s%n", 
-                r.getCode(), 
-                r.getName(), 
-                formatAmount(r.getAmount()) 
+            sb.append(String.format("%-15d | %-100s | %20s%n",
+                r.getCode(),
+                r.getName(),
+                formatAmount(r.getAmount())
             ));
         }
         return sb.toString();
     }
 
     public static String getFormattedExpenditures(
-            ArrayList<ExpenseCategory> expenditures) {
+            final ArrayList<ExpenseCategory> expenditures) {
         if (expenditures.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένα έξοδα.";
         }
@@ -53,9 +53,9 @@ public class BudgetFormatter {
                 + "----------------------------------------"
                 + "|----------------------\n");
         for (ExpenseCategory e : expenditures) {
-            sb.append(String.format("%-15d | %-100s | %20s%n", 
-                e.getCode(), 
-                e.getName(), 
+            sb.append(String.format("%-15d | %-100s | %20s%n",
+                e.getCode(),
+                e.getName(),
                 formatAmount(e.getAmount())
             ));
         }
@@ -63,7 +63,7 @@ public class BudgetFormatter {
     }
 
     public static String getFormattedMinistries(
-            ArrayList<Ministry> ministries) {
+            final ArrayList<Ministry> ministries) {
         if (ministries.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
         }
@@ -78,20 +78,20 @@ public class BudgetFormatter {
                 + "|----------------------\n");
 
         for (Ministry m : ministries) {
-            sb.append(String.format("%-15s | %-100s | %20s%n", 
-                m.getCode(), 
-                m.getName(), 
+            sb.append(String.format("%-15s | %-100s | %20s%n",
+                m.getCode(),
+                m.getName(),
                 formatAmount(m.getTotalBudget())
             ));
         }
         return sb.toString();
-        
+
     }
-    
+
     public static String getFormattedMinistryExpenses(
-        ArrayList<Ministry> ministries, 
-        ArrayList<ExpenseCategory> expenseCategories, 
-        ArrayList<MinistryExpense> ministryExpenses) {
+            final ArrayList<Ministry> ministries,
+            final ArrayList<ExpenseCategory> expenseCategories,
+            final ArrayList<MinistryExpense> ministryExpenses) {
 
         if (ministryExpenses.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένες δαπάνες φορέων.";
@@ -108,18 +108,18 @@ public class BudgetFormatter {
         }
 
         Map<String, Long> aggregatedExpenses = new HashMap<>();
-        
+
         for (MinistryExpense me : ministryExpenses) {
             String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
-            long currentAmount = me.getAmount(); 
-            
+            long currentAmount = me.getAmount();
+
             aggregatedExpenses.put(key,
                     aggregatedExpenses.getOrDefault(key, 0L) + currentAmount);
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append("--- ΣΥΝΟΛΙΚΕΣ ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (2025) ---\n");
-        
+
         String separator = String.format("%-" + 167 + "s", "")
                 .replace(' ', '-');
 
@@ -128,7 +128,7 @@ public class BudgetFormatter {
                         + "s%n",
                 "ΚΩΔ. ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ",
                 "ΣΥΝΟΛΙΚΟ ΠΟΣΟ"));
-            
+
         sb.append(separator).append("\n");
 
         for (Map.Entry<String, Long> entry : aggregatedExpenses.entrySet()) {
@@ -136,7 +136,7 @@ public class BudgetFormatter {
             int ministryID = Integer.parseInt(ids[0]);
             int categoryID = Integer.parseInt(ids[1]);
             Long totalAmount = entry.getValue();
-            
+
             Ministry ministry = ministryMap.get(ministryID);
             String ministryIDString = String.valueOf(ministryID);
             String ministryName = ministry != null ? ministry.getName()
@@ -149,14 +149,14 @@ public class BudgetFormatter {
 
             sb.append(String.format(
                     "%-" + 10 + "s | %-" + 70 + "s | %-" + 53 + "s | %" + 25
-                            + "s%n", 
+                            + "s%n",
                 ministryIDString,
-                ministryName, 
+                ministryName,
                 categoryName,
                 amountString
             ));
         }
-        
+
         return sb.toString();
     }
 }

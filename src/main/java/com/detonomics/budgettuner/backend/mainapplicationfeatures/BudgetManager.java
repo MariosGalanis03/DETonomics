@@ -236,7 +236,7 @@ public class BudgetManager {
         for (Map<String, Object> resultRow : results) {
             String tableName = (String) resultRow.get("name");
             Integer sequenceValue = ((Number) resultRow.get("seq")).intValue();
-        
+
             if ("Budgets".equals(tableName)) {
                 budgets = sequenceValue;
             } else if ("RevenueCategories".equals(tableName)) {
@@ -257,7 +257,7 @@ public class BudgetManager {
     /*
      * Setting revenue amount inside database
      * Returns rowsAffected (if 0 then something went wrong)
-     */ 
+     */
 
     private int setRevenueAmount(final long code, final long amount) {
         int rowsAffected = 0;
@@ -286,10 +286,10 @@ public class BudgetManager {
         // Update children amounts
         rowsAffected += updateRevenueChildrenAmounts(revenueCategoryID,
                 oldAmount, amount);
-        
+
         return rowsAffected;
     }
-    
+
     /*
      * Sets the amount for a specific MinistryExpense record and updates
      * the corresponding total amount in the parent ExpenseCategory.
@@ -305,7 +305,7 @@ public class BudgetManager {
 
         if (results.isEmpty()) {
             // MinistryExpense record not found
-            return 0; 
+            return 0;
         }
 
         Map<String, Object> row = results.getFirst();
@@ -344,54 +344,54 @@ public class BudgetManager {
     private int updateRevenueParentAmounts(final int revenueCategoryID,
             final long difference) {
         int rowsAffected = 0;
-        
+
         // Get the parent ID
         int parentID = this.checkRevenueParent(revenueCategoryID);
-        
+
         // Base case: no parent (reached the root)
         if (parentID == 0) {
             return 0;
         }
-        
+
         // Update the parent's amount
         String sql = "UPDATE RevenueCategories SET amount = amount + ? "
                 + "WHERE revenue_category_id = ?";
         int check = DatabaseManager.executeUpdate(dbPath, sql, difference,
                 parentID);
         rowsAffected += check;
-        
+
         // Recursively update the parent's parent
         rowsAffected += updateRevenueParentAmounts(parentID, difference);
-        
+
         return rowsAffected;
     }
 
     private int updateRevenueChildrenAmounts(final int revenueCategoryID,
             final long oldParentAmount, final long newParentAmount) {
         int rowsAffected = 0;
-        
+
         // Base case: if oldParentAmount is 0, we can't calculate proportions
         if (oldParentAmount == 0) {
             return 0;
         }
-        
+
         // Get all children of this revenue category
         ArrayList<Integer> children =
                 this.getRevenueChildren(revenueCategoryID);
-        
+
         // Base case: no children to update
         if (children.isEmpty()) {
             return 0;
         }
-        
+
         // Calculate the ratio for updating children
         double ratio = (double) newParentAmount / oldParentAmount;
-        
+
         // Update each child
         for (Integer childID : children) {
             // Get the child's current amount
             long oldChildAmount = this.checkRevenueAmount(childID);
-            
+
             // Calculate the new child amount based on the proportion
             long newChildAmount = Math.round(oldChildAmount * ratio);
 
@@ -401,12 +401,12 @@ public class BudgetManager {
             int check = DatabaseManager.executeUpdate(dbPath, sql,
                     newChildAmount, childID);
             rowsAffected += check;
-            
+
             // Recursively update this child's children
             rowsAffected += updateRevenueChildrenAmounts(childID,
                     oldChildAmount, newChildAmount);
         }
-        
+
         return rowsAffected;
     }
 
@@ -492,15 +492,15 @@ public class BudgetManager {
 
         for (Map<String, Object> resultRow : queryResults) {
             Integer childID = (Integer) resultRow.get("revenue_category_id");
-            children.add(childID); 
+            children.add(childID);
         }
 
         return children;
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         BudgetManager budgetManager = new BudgetManager();
-        System.out.println(budgetManager.checkRevenueAmount(1)); 
+        System.out.println(budgetManager.checkRevenueAmount(1));
         System.out.println(budgetManager.getRevenueCategoryIDFromCode(111));
         System.out.println(budgetManager.checkRevenueParent(2));
         System.out.println(budgetManager.getRevenueChildren(4));

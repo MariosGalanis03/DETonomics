@@ -26,7 +26,7 @@ class DatabaseManager {
      * @return Τον αριθμό των γραμμών που επηρεάστηκαν, ή 0 για εντολές
      *         που δεν επιστρέφουν πλήθος (όπως CREATE TABLE).
      */
-    public static int executeUpdate(String dbPath, String sql) {
+    public static int executeUpdate(final String dbPath, final String sql) {
         // Η συμβολοσειρά σύνδεσης για SQLite είναι "jdbc:sqlite:"
         // ακολουθούμενη από τη διαδρομή
         String url = "jdbc:sqlite:" + dbPath;
@@ -43,7 +43,7 @@ class DatabaseManager {
             System.err.println("Σφάλμα κατά την εκτέλεση update: "
                     + e.getMessage());
         }
-        
+
         return rowsAffected;
     }
 
@@ -86,7 +86,7 @@ class DatabaseManager {
             System.err.println("Σφάλμα κατά την εκτέλεση query: "
                     + e.getMessage());
         }
-        
+
         return results;
     }
 
@@ -148,7 +148,9 @@ class DatabaseManager {
 
     private static void bindParameters(final PreparedStatement ps,
             final Object... params) throws SQLException {
-        if (params == null) return;
+        if (params == null) {
+            return;
+        }
         for (int i = 0; i < params.length; i++) {
             Object p = params[i];
             int idx = i + 1;

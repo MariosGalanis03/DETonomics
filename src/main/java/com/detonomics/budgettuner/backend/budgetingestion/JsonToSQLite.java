@@ -30,7 +30,7 @@ public class JsonToSQLite {
      * Main method to allow running this class as a standalone
      * command-line tool. It simply calls the reusable processing method.
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         if (args.length == 0) {
             System.err.println(
                     "Error: Please provide the path to the JSON file as "
@@ -62,7 +62,8 @@ public class JsonToSQLite {
      * @throws Exception if any error occurs during file reading or database
      *                  insertion.
      */
-    public void processAndStoreBudget(String jsonFilePath) throws Exception {
+    public void processAndStoreBudget(final String jsonFilePath)
+            throws Exception {
         System.out.println("Processing file for database insertion: "
                 + jsonFilePath);
 
@@ -88,7 +89,7 @@ public class JsonToSQLite {
     // All the private helper methods for database interaction remain
     // exactly the same. They are now private as they are implementation
     // details of this class.
-    
+
     private void createTables() throws SQLException {
         // ... (Code is identical to the last version)
         String sqlBudgets = """
@@ -167,7 +168,8 @@ public class JsonToSQLite {
         }
     }
 
-    private void insertBudgetData(BudgetFile budgetFile) throws SQLException {
+    private void insertBudgetData(final BudgetFile budgetFile)
+            throws SQLException {
         // ... (Code is identical to the last version)
         String checkSql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -213,8 +215,8 @@ public class JsonToSQLite {
 
     // ... All other private insert... methods are identical to the last
     // version ...
-    private long insertBudget(Connection conn, BudgetFile budgetFile)
-            throws SQLException {
+    private long insertBudget(final Connection conn,
+            final BudgetFile budgetFile) throws SQLException {
         String sql = "INSERT INTO Budgets(source_title, source_date, "
                 + "budget_year, currency, locale, total_revenue, "
                 + "total_expenses, budget_result, "
@@ -230,7 +232,7 @@ public class JsonToSQLite {
             pstmt.setLong(8, budgetFile.budgetSummary.stateBudgetBalance);
             pstmt.setLong(9,
                     budgetFile.budgetSummary.coverageWwithCashReserves);
-            
+
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException(
@@ -249,23 +251,26 @@ public class JsonToSQLite {
         }
     }
 
-    private void insertRevenueCategoriesRecursive(Connection conn,
-            List<RevenueCategory> categories, long budgetId,
-            Integer parentId) throws SQLException {
+    private void insertRevenueCategoriesRecursive(final Connection conn,
+            final List<RevenueCategory> categories, final long budgetId,
+            final Integer parentId) throws SQLException {
         if (categories == null || categories.isEmpty()) {
             return;
         }
         String sql = "INSERT INTO RevenueCategories(budget_id, code, name, "
                 + "amount, parent_id) VALUES(?,?,?,?,?)";
-        
+
         for (RevenueCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setLong(1, budgetId);
                 pstmt.setString(2, cat.code);
                 pstmt.setString(3, cat.name);
                 pstmt.setLong(4, cat.amount);
-                if (parentId != null) pstmt.setInt(5, parentId);
-                else pstmt.setNull(5, Types.INTEGER);
+                if (parentId != null) {
+                    pstmt.setInt(5, parentId);
+                } else {
+                    pstmt.setNull(5, Types.INTEGER);
+                }
                 pstmt.executeUpdate();
             }
 
@@ -285,13 +290,13 @@ public class JsonToSQLite {
         }
     }
 
-    private Map<String, Integer> insertExpenseCategories(Connection conn,
-            List<ExpenseCategory> categories, long budgetId)
+    private Map<String, Integer> insertExpenseCategories(final Connection conn,
+            final List<ExpenseCategory> categories, final long budgetId)
             throws SQLException {
         Map<String, Integer> expenseCategoryIds = new HashMap<>();
         String sql = "INSERT INTO ExpenseCategories(budget_id, code, name, "
                 + "amount) VALUES(?,?,?,?)";
-        
+
         for (ExpenseCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setLong(1, budgetId);
@@ -317,16 +322,17 @@ public class JsonToSQLite {
         return expenseCategoryIds;
     }
 
-    private void insertMinistriesAndExpenses(Connection conn,
-            List<Ministry> ministries, long budgetId,
-            Map<String, Integer> expenseCategoryIds) throws SQLException {
+    private void insertMinistriesAndExpenses(final Connection conn,
+            final List<Ministry> ministries, final long budgetId,
+            final Map<String, Integer> expenseCategoryIds)
+            throws SQLException {
         String sqlMinistry = "INSERT INTO Ministries(budget_id, code, name, "
                 + "regular_budget, public_investment_budget, total_budget) "
                 + "VALUES(?,?,?,?,?,?)";
         String sqlMinistryExpense =
                 "INSERT INTO MinistryExpenses(ministry_id, "
                         + "expense_category_id, amount) VALUES(?,?,?)";
-        
+
         for (Ministry ministry : ministries) {
             try (PreparedStatement pstmtMinistry =
                     conn.prepareStatement(sqlMinistry)) {

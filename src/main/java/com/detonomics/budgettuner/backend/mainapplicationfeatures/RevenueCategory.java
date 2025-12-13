@@ -36,7 +36,7 @@ class RevenueCategory {
         return parentID;
     }
 
-    void setAmount(long amount) {
+    void setAmount(final long amount) {
         this.amount = amount;
     }
 

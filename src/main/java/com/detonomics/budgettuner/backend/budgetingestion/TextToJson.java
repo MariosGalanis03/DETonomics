@@ -185,7 +185,7 @@ Example: "85.000,50" → 85000.5
     }
   ]
 }
-  
+
 Return only the JSON defined by the schema. No extra information.
 """;
   public static void textFileToJson(final Path inTxt, final Path outJson)
