@@ -15,19 +15,19 @@ class BudgetModifierIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        originalDbPath = BudgetLoader.DB_PATH;
+        originalDbPath = BudgetLoader.getDbPath();
     }
 
     @AfterEach
     void tearDown() {
-        BudgetLoader.DB_PATH = originalDbPath;
+        BudgetLoader.setDbPath(originalDbPath);
     }
 
     @Test
     void testSetRevenueAmountUpdatesParentAndChildren(@TempDir Path tempDir) {
         Path dbFile = tempDir.resolve("test-modifier.db");
         String dbPath = dbFile.toAbsolutePath().toString();
-        BudgetLoader.DB_PATH = dbPath;
+        BudgetLoader.setDbPath(dbPath);
 
         // Create Schema
         String createRevenue = "CREATE TABLE IF NOT EXISTS RevenueCategories (" +

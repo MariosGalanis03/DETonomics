@@ -36,7 +36,8 @@ final class MinistryExpense {
 
     @Override
     public String toString() {
-        return this.getMinistryExpenseID() + " | " + this.getMinistryID() + " | "
-                + this.getExpenseCategoryID() + " | " + this.getAmount();
+        return this.getMinistryExpenseID() + " | " + this.getMinistryID()
+                + " | " + this.getExpenseCategoryID() + " | "
+                + this.getAmount();
     }
 }

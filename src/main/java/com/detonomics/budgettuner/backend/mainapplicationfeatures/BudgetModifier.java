@@ -17,7 +17,8 @@ final class BudgetModifier {
     static int setRevenueAmount(final long code, final long amount) {
         int rowsAffected = 0;
 
-        int revenueCategoryID = BudgetLoader.loadRevenueCategoryIDFromCode(code);
+        int revenueCategoryID =
+                BudgetLoader.loadRevenueCategoryIDFromCode(code);
         long oldAmount = BudgetLoader.loadRevenueAmount(revenueCategoryID);
 
         if (oldAmount == amount) {
@@ -27,20 +28,25 @@ final class BudgetModifier {
         long difference = amount - oldAmount;
 
         // Update the database with the new amount
-        String sql = "UPDATE RevenueCategories SET amount = ? WHERE revenue_category_id = ?";
-        int check = DatabaseManager.executeUpdate(BudgetLoader.DB_PATH, sql, amount, revenueCategoryID);
+        String sql = "UPDATE RevenueCategories SET amount = ? "
+                + "WHERE revenue_category_id = ?";
+        int check = DatabaseManager.executeUpdate(BudgetLoader.getDbPath(),
+                sql, amount, revenueCategoryID);
         rowsAffected += check;
 
         // Update parent amounts
-        rowsAffected += updateRevenueParentAmounts(revenueCategoryID, difference);
+        rowsAffected += updateRevenueParentAmounts(revenueCategoryID,
+                difference);
 
         // Update children amounts
-        rowsAffected += updateRevenueChildrenAmounts(revenueCategoryID, oldAmount, amount);
+        rowsAffected += updateRevenueChildrenAmounts(revenueCategoryID,
+                oldAmount, amount);
 
         return rowsAffected;
     }
 
-    private static int updateRevenueParentAmounts(final int revenueCategoryID, final long difference) {
+    private static int updateRevenueParentAmounts(final int revenueCategoryID,
+                                                  final long difference) {
         int rowsAffected = 0;
         int parentID = BudgetLoader.loadRevenueParentID(revenueCategoryID);
 
@@ -48,24 +54,27 @@ final class BudgetModifier {
             return 0;
         }
 
-        String sql = "UPDATE RevenueCategories SET amount = amount + ? WHERE revenue_category_id = ?";
-        int check = DatabaseManager.executeUpdate(BudgetLoader.DB_PATH, sql, difference, parentID);
+        String sql = "UPDATE RevenueCategories SET amount = amount + ? "
+                + "WHERE revenue_category_id = ?";
+        int check = DatabaseManager.executeUpdate(BudgetLoader.getDbPath(),
+                sql, difference, parentID);
         rowsAffected += check;
 
         rowsAffected += updateRevenueParentAmounts(parentID, difference);
         return rowsAffected;
     }
 
-    private static int updateRevenueChildrenAmounts(final int revenueCategoryID,
-                                                    final long oldParentAmount,
-                                                    final long newParentAmount) {
+    private static int updateRevenueChildrenAmounts(
+            final int revenueCategoryID, final long oldParentAmount,
+            final long newParentAmount) {
         int rowsAffected = 0;
 
         if (oldParentAmount == 0) {
             return 0;
         }
 
-        ArrayList<Integer> children = BudgetLoader.loadRevenueChildren(revenueCategoryID);
+        ArrayList<Integer> children =
+                BudgetLoader.loadRevenueChildren(revenueCategoryID);
         if (children.isEmpty()) {
             return 0;
         }
@@ -76,11 +85,14 @@ final class BudgetModifier {
             long oldChildAmount = BudgetLoader.loadRevenueAmount(childID);
             long newChildAmount = Math.round(oldChildAmount * ratio);
 
-            String sql = "UPDATE RevenueCategories SET amount = ? WHERE revenue_category_id = ?";
-            int check = DatabaseManager.executeUpdate(BudgetLoader.DB_PATH, sql, newChildAmount, childID);
+            String sql = "UPDATE RevenueCategories SET amount = ? "
+                    + "WHERE revenue_category_id = ?";
+            int check = DatabaseManager.executeUpdate(BudgetLoader.getDbPath(),
+                    sql, newChildAmount, childID);
             rowsAffected += check;
 
-            rowsAffected += updateRevenueChildrenAmounts(childID, oldChildAmount, newChildAmount);
+            rowsAffected += updateRevenueChildrenAmounts(childID,
+                    oldChildAmount, newChildAmount);
         }
 
         return rowsAffected;

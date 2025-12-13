@@ -16,19 +16,19 @@ class BudgetLoaderIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        originalDbPath = BudgetLoader.DB_PATH;
+        originalDbPath = BudgetLoader.getDbPath();
     }
 
     @AfterEach
     void tearDown() {
-        BudgetLoader.DB_PATH = originalDbPath;
+        BudgetLoader.setDbPath(originalDbPath);
     }
 
     @Test
     void testLoadBudgetYearsAndSqlSequence(@TempDir Path tempDir) {
         Path dbFile = tempDir.resolve("test-loader.db");
         String dbPath = dbFile.toAbsolutePath().toString();
-        BudgetLoader.DB_PATH = dbPath;
+        BudgetLoader.setDbPath(dbPath);
 
         // Create minimal schema
         String createBudgets = "CREATE TABLE IF NOT EXISTS Budgets (" +
@@ -63,7 +63,7 @@ class BudgetLoaderIntegrationTest {
     void testLoadBudgetIDByYear(@TempDir Path tempDir) {
         Path dbFile = tempDir.resolve("test-loader-id.db");
         String dbPath = dbFile.toAbsolutePath().toString();
-        BudgetLoader.DB_PATH = dbPath;
+        BudgetLoader.setDbPath(dbPath);
 
         String createBudgets = "CREATE TABLE IF NOT EXISTS Budgets (" +
                 "budget_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
