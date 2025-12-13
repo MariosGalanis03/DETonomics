@@ -1,0 +1,252 @@
+package com.detonomics.budgettuner.backend.mainapplicationfeatures;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+final class BudgetLoader {
+    static String DB_PATH = "data/output/BudgetDB.db";
+
+    private BudgetLoader() {
+        throw new AssertionError("Utility class");
+    }
+
+    static int loadBudgetIDByYear(final int year) {
+        String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql, year);
+
+        if (results.isEmpty()) {
+            return -1;
+        }
+
+        return (Integer) results.getFirst().get("budget_id");
+    }
+
+    static ArrayList<Integer> loadBudgetYearsList() {
+        String sql = "SELECT budget_year FROM Budgets";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql);
+        ArrayList<Integer> years = new ArrayList<>();
+
+        for (Map<String, Object> resultRow : results) {
+            Integer year = (Integer) resultRow.get("budget_year");
+            years.add(year);
+        }
+        return years;
+    }
+
+    static BudgetYear loadBudgetYear(final int budgetID) {
+        Summary summary = loadSummary(budgetID);
+        ArrayList<RevenueCategory> revenues = loadRevenues(budgetID);
+        ArrayList<ExpenseCategory> expenses = loadExpenses(budgetID);
+        ArrayList<Ministry> ministries = loadMinistries(budgetID);
+        ArrayList<MinistryExpense> ministryExpenses =
+                loadMinistryExpenses(budgetID);
+
+        return new BudgetYear(summary, revenues, expenses,
+                ministries, ministryExpenses);
+    }
+
+    private static Summary loadSummary(final int budgetID) {
+        String sql = "SELECT * FROM Budgets WHERE budget_id = ?";
+        List<Map<String, Object>> result =
+                DatabaseManager.executeQuery(DB_PATH, sql, budgetID);
+
+        if (result.isEmpty()) {
+            return null;
+        }
+
+        Map<String, Object> row = result.getFirst();
+
+        String sourceTitle = (String) row.get("source_title");
+        String currency = (String) row.get("currency");
+        String locale = (String) row.get("locale");
+        String sourceDate = (String) row.get("source_date");
+        int budgetYear = (Integer) row.get("budget_year");
+        long totalRevenues =
+                ((Number) row.get("total_revenue")).longValue();
+        long totalExpenses =
+                ((Number) row.get("total_expenses")).longValue();
+        long budgetResult = totalRevenues - totalExpenses;
+        Object covObj = row.get("coverage_with_cash_reserves");
+        long coverageWithCashReserves =
+                (covObj != null) ? ((Number) covObj).longValue() : 0;
+
+        return new Summary(sourceTitle, currency, locale, sourceDate,
+                budgetYear, totalRevenues, totalExpenses, budgetResult,
+                coverageWithCashReserves);
+    }
+
+    private static ArrayList<RevenueCategory> loadRevenues(final int budgetID) {
+        ArrayList<RevenueCategory> revenues = new ArrayList<>();
+
+        String sql = "SELECT * FROM RevenueCategories WHERE budget_id = ?";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql, budgetID);
+
+        if (results.isEmpty()) {
+            return revenues;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            Integer revenueCategoryID =
+                    (Integer) resultRow.get("revenue_category_id");
+            long code = Long.parseLong((String) resultRow.get("code"));
+            String name = (String) resultRow.get("name");
+            long amount =
+                    ((Number) resultRow.get("amount")).longValue();
+            Object potentialParentID = resultRow.get("parent_id");
+            int parentID = (potentialParentID == null) ? 0
+                    : (Integer) potentialParentID;
+
+            RevenueCategory revenue = new RevenueCategory(revenueCategoryID,
+                    code, name, amount, parentID);
+            revenues.add(revenue);
+        }
+        return revenues;
+    }
+
+    private static ArrayList<ExpenseCategory> loadExpenses(final int budgetID) {
+        ArrayList<ExpenseCategory> expenses = new ArrayList<>();
+
+        String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = ?";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql, budgetID);
+
+        if (results.isEmpty()) {
+            return expenses;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            Integer expenseCategoryID =
+                    (Integer) resultRow.get("expense_category_id");
+            long code = Long.parseLong((String) resultRow.get("code"));
+            String name = (String) resultRow.get("name");
+
+            Object amountObj = resultRow.get("amount");
+            long amount = (amountObj != null)
+                    ? ((Number) amountObj).longValue() : 0;
+
+            ExpenseCategory expense = new ExpenseCategory(expenseCategoryID,
+                    code, name, amount);
+            expenses.add(expense);
+        }
+        return expenses;
+    }
+
+    private static ArrayList<Ministry> loadMinistries(final int budgetID) {
+        ArrayList<Ministry> ministries = new ArrayList<>();
+        String sql = "SELECT * FROM Ministries WHERE budget_id = ?";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql, budgetID);
+
+        if (results.isEmpty()) {
+            return ministries;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            Integer ministryID = (Integer) resultRow.get("ministry_id");
+            long code = Long.parseLong((String) resultRow.get("code"));
+            String name = (String) resultRow.get("name");
+            Object rbObj = resultRow.get("regular_budget");
+            Object pibObj = resultRow.get("public_investment_budget");
+            Object tbObj = resultRow.get("total_budget");
+
+            long rb = (rbObj != null) ? ((Number) rbObj).longValue() : 0;
+            long pib = (pibObj != null) ? ((Number) pibObj).longValue() : 0;
+            long tb = (tbObj != null) ? ((Number) tbObj).longValue() : 0;
+
+            Ministry ministry = new Ministry(ministryID, code, name, rb, pib,
+                    tb);
+            ministries.add(ministry);
+        }
+        return ministries;
+    }
+
+    private static ArrayList<MinistryExpense> loadMinistryExpenses(
+            final int budgetID) {
+        ArrayList<MinistryExpense> expenses = new ArrayList<>();
+        String sql = "SELECT ME.* FROM MinistryExpenses ME "
+                + "JOIN Ministries MI ON ME.ministry_id = MI.ministry_id "
+                + "WHERE MI.budget_id = ?";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql, budgetID);
+
+        if (results.isEmpty()) {
+            return expenses;
+        }
+
+        for (Map<String, Object> resultRow : results) {
+            Integer ministryExpenseID =
+                    (Integer) resultRow.get("ministry_expense_id");
+            Integer ministryID = (Integer) resultRow.get("ministry_id");
+            long amount = ((Number) resultRow.get("amount")).longValue();
+            Integer expenseCategoryID =
+                    (Integer) resultRow.get("expense_category_id");
+
+            MinistryExpense expense = new MinistryExpense(ministryExpenseID,
+                    ministryID, expenseCategoryID, amount);
+            expenses.add(expense);
+        }
+        return expenses;
+    }
+
+    static SqlSequence loadSqliteSequence() {
+        String sql = "SELECT name, seq FROM sqlite_sequence";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(DB_PATH, sql);
+
+        int budgets = 0, revenueCategories = 0, expenseCategories = 0;
+        int ministries = 0, ministryExpenses = 0;
+
+        for (Map<String, Object> resultRow : results) {
+            String tableName = (String) resultRow.get("name");
+            Integer sequenceValue = ((Number) resultRow.get("seq")).intValue();
+
+            if ("Budgets".equals(tableName)) budgets = sequenceValue;
+            else if ("RevenueCategories".equals(tableName)) revenueCategories = sequenceValue;
+            else if ("ExpenseCategories".equals(tableName)) expenseCategories = sequenceValue;
+            else if ("Ministries".equals(tableName)) ministries = sequenceValue;
+            else if ("MinistryExpenses".equals(tableName)) ministryExpenses = sequenceValue;
+        }
+        return new SqlSequence(budgets, revenueCategories, expenseCategories,
+                ministries, ministryExpenses);
+    }
+
+    // Helpers exposed for BudgetModifier
+    static int loadRevenueCategoryIDFromCode(final long code) {
+        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE code = ?";
+        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DB_PATH, sql, code);
+        if (queryResults.isEmpty()) {
+            throw new IllegalArgumentException("Δεν βρέθηκε ο κωδικός " + code);
+        }
+        return (Integer) queryResults.getFirst().get("revenue_category_id");
+    }
+
+    static long loadRevenueAmount(final int revenueCategoryId) {
+        String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = ?";
+        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DB_PATH, sql, revenueCategoryId);
+        if (queryResults.isEmpty()) {
+            throw new IllegalArgumentException("Revenue Category ID not found: " + revenueCategoryId);
+        }
+        return ((Number) queryResults.getFirst().get("amount")).longValue();
+    }
+
+    static int loadRevenueParentID(final int revenueCategoryId) {
+        String sql = "SELECT parent_id FROM RevenueCategories WHERE revenue_category_id = ?";
+        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DB_PATH, sql, revenueCategoryId);
+        Integer rawParentID = (Integer) queryResults.getFirst().get("parent_id");
+        return (rawParentID == null) ? 0 : rawParentID;
+    }
+
+    static ArrayList<Integer> loadRevenueChildren(final int revenueCategoryID) {
+        ArrayList<Integer> children = new ArrayList<>();
+        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE parent_id = ?";
+        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DB_PATH, sql, revenueCategoryID);
+        for (Map<String, Object> resultRow : queryResults) {
+            children.add((Integer) resultRow.get("revenue_category_id"));
+        }
+        return children;
+    }
+}
