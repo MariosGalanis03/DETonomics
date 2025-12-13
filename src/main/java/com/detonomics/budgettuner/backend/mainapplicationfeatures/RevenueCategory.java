@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class RevenueCategory {
+final class RevenueCategory {
     private final int revenueID;
     private final long code;
     private final String name;

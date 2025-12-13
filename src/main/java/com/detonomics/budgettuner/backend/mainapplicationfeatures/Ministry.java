@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class Ministry {
+final class Ministry {
     private final int ministryID;
     private final long code;
     private final String name;

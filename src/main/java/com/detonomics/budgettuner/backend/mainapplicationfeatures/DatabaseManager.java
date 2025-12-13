@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class DatabaseManager {
+final class DatabaseManager {
 
     private DatabaseManager() {
         throw new AssertionError("Utility class");

@@ -43,7 +43,7 @@ public class BudgetManagerIntegrationTest {
         // Insert also another budget year (2025)
         DatabaseManager.executeUpdate(dbPath, "INSERT INTO Budgets (source_title, currency, locale, source_date, budget_year, total_revenue, total_expenses, coverage_with_cash_reserves) VALUES ('src2','€','el','2025-01-01',2025,2000.0,1800.0,100.0)");
 
-        Field dbPathField = BudgetManager.class.getDeclaredField("dbPath");
+        Field dbPathField = BudgetManager.class.getDeclaredField("DB_PATH");
         dbPathField.setAccessible(true);
 
         // Verify loadBudgetYears returns rows (may contain nulls if column name casing differs)

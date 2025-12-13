@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.detonomics.budgettuner.backend.budgetingestion.IngestBudgetPdf;
 
-public class BudgetManager {
+final class BudgetManager {
     private static final String DB_PATH = "data/output/BudgetDB.db";
 
     static void insertNewBudgetYear(final String pdfPath) throws Exception {
@@ -322,8 +322,8 @@ public class BudgetManager {
         // 2. Update the MinistryExpense record with the new amount
         String updateMinistrySql = "UPDATE MinistryExpenses SET amount = ? "
                 + "WHERE ministry_expense_id = ?";
-        rowsAffected += DatabaseManager.executeUpdate(DB_PATH, updateMinistrySql,
-                newAmount, ministryExpenseID);
+        rowsAffected += DatabaseManager.executeUpdate(DB_PATH,
+                updateMinistrySql, newAmount, ministryExpenseID);
 
         // 3. Update the parent ExpenseCategory amount by adding the
         // difference

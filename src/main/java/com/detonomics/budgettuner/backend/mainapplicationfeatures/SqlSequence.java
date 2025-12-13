@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class SqlSequence {
+final class SqlSequence {
     private int budgets;
     private int revenueCategories;
     private int expenseCategories;

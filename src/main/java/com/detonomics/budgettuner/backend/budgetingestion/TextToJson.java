@@ -11,7 +11,7 @@ import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 
-public class TextToJson {
+final class TextToJson {
 
   private TextToJson() {
     throw new AssertionError("Utility class");

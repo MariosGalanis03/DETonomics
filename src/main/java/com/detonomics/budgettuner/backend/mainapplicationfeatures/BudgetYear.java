@@ -2,7 +2,7 @@ package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
 import java.util.ArrayList;
 
-class BudgetYear {
+final class BudgetYear {
     private final Summary summary;
     private final ArrayList<RevenueCategory> revenues;
     private final ArrayList<ExpenseCategory> expenses;

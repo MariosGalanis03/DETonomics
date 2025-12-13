@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class BudgetFormatter {
+final class BudgetFormatter {
 
     private BudgetFormatter() {
         throw new AssertionError("Utility class");

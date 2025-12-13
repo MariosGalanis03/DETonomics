@@ -1,6 +1,6 @@
 package com.detonomics.budgettuner.backend.mainapplicationfeatures;
 
-class Summary {
+final class Summary {
     private final String sourceTitle;
     private final String currency;
     private final String locale;

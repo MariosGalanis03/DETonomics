@@ -6,8 +6,9 @@
 <!--
 
   Checkstyle configuration based on Sun/Oracle conventions, but with
-  all Javadoc requirements and the Magic Number rule removed for a more
-  relaxed environment.
+  all Javadoc requirements, Hidden Field check and the Magic Number rule removed for a more
+  relaxed environment. Also, Method Length max is set to 200 lines (default: 150)
+  and Parameter Number max is set to 10 parameters (default: 7).
 
 -->
 
@@ -74,7 +75,7 @@
 
   <module name="TreeWalker">
 
-    <!-- Javadoc checks removed per user request. -->
+    <!-- Javadoc checks removed. -->
 
     <!-- Checks for Naming Conventions.                       -->
     <!-- See https://checkstyle.org/checks/naming/index.html -->
@@ -99,8 +100,12 @@
 
     <!-- Checks for Size Violations.                          -->
     <!-- See https://checkstyle.org/checks/sizes/index.html -->
-    <module name="MethodLength"/>
-    <module name="ParameterNumber"/>
+    <module name="MethodLength">
+      <property name="max" value="200"/>
+    </module>
+    <module name="ParameterNumber">
+      <property name="max" value="10"/>
+    </module>
 
     <!-- Checks for whitespace                               -->
     <!-- See https://checkstyle.org/checks/whitespace/index.html -->
@@ -132,10 +137,10 @@
     <!-- See https://checkstyle.org/checks/coding/index.html -->
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
-    <module name="HiddenField"/>
+    <!-- HiddenField check removed. -->
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>
-    <!-- MagicNumber check removed per user request. -->
+    <!-- MagicNumber check removed. -->
     <module name="MissingSwitchDefault"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="SimplifyBooleanExpression"/>

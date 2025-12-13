@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
 
 // Η κεντρική κλάση της εφαρμογής
-public class App {
+final class App {
 
     private App() {
         throw new AssertionError("Utility class");

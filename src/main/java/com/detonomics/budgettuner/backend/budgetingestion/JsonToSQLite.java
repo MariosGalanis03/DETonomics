@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * a SQLite database. It can be called from other parts of an application
  * or run as a standalone tool.
  */
-public class JsonToSQLite {
+final class JsonToSQLite {
 
     private static final String DB_FILE_PATH = "data/output/BudgetDB.db";
     private static final String DB_URL = "jdbc:sqlite:" + DB_FILE_PATH;
@@ -58,9 +60,9 @@ public class JsonToSQLite {
      * IngestBudgetPdf). This method contains the entire logic for
      * processing one JSON file.
      * @param jsonFilePath The absolute path to the JSON file to be
-     *                     processed.
+     * processed.
      * @throws Exception if any error occurs during file reading or database
-     *                  insertion.
+     * insertion.
      */
     public void processAndStoreBudget(final String jsonFilePath)
             throws Exception {
@@ -73,8 +75,7 @@ public class JsonToSQLite {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(
                     com.fasterxml.jackson.databind.DeserializationFeature
-                            .FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
+                            .FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             BudgetFile budgetData = mapper.readValue(inputStream,
                     BudgetFile.class);
@@ -85,10 +86,6 @@ public class JsonToSQLite {
         }
         // Let exceptions propagate to the caller (IngestBudgetPdf)
     }
-
-    // All the private helper methods for database interaction remain
-    // exactly the same. They are now private as they are implementation
-    // details of this class.
 
     private void createTables() throws SQLException {
         // ... (Code is identical to the last version)
@@ -209,12 +206,12 @@ public class JsonToSQLite {
             }
             throw e; // Re-throw the exception
         } finally {
-            if (conn != null) { conn.close(); }
+            if (conn != null) {
+                conn.close();
+            }
         }
     }
 
-    // ... All other private insert... methods are identical to the last
-    // version ...
     private long insertBudget(final Connection conn,
             final BudgetFile budgetFile) throws SQLException {
         String sql = "INSERT INTO Budgets(source_title, source_date, "
@@ -229,9 +226,10 @@ public class JsonToSQLite {
             pstmt.setString(5, budgetFile.getMetadata().getLocale());
             pstmt.setLong(6, budgetFile.getBudgetSummary().getTotalRevenue());
             pstmt.setLong(7, budgetFile.getBudgetSummary().getTotalExpenses());
-            pstmt.setLong(8, budgetFile.getBudgetSummary().getStateBudgetBalance());
-            pstmt.setLong(9,
-                    budgetFile.getBudgetSummary().getCoverageWwithCashReserves());
+            pstmt.setLong(8, budgetFile.getBudgetSummary()
+                    .getStateBudgetBalance());
+            pstmt.setLong(9, budgetFile.getBudgetSummary()
+                    .getCoverageWwithCashReserves());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
@@ -358,9 +356,10 @@ public class JsonToSQLite {
 
             try (PreparedStatement pstmtMinistryExpense =
                     conn.prepareStatement(sqlMinistryExpense)) {
-                for (MinistryExpenseItem item
-                        : ministry.getTotalFromMajorCategories()) {
-                    Integer expenseCatId = expenseCategoryIds.get(item.getCode());
+                for (MinistryExpenseItem item : ministry
+                        .getTotalFromMajorCategories()) {
+                    Integer expenseCatId = expenseCategoryIds
+                            .get(item.getCode());
                     if (expenseCatId != null) {
                         pstmtMinistryExpense.setLong(1, ministryId);
                         pstmtMinistryExpense.setInt(2, expenseCatId);
@@ -374,8 +373,7 @@ public class JsonToSQLite {
     }
 
     // --- Inner POJO classes to map the JSON structure ---
-    // (These are identical to the last version)
-    public static class BudgetFile {
+    public static final class BudgetFile {
         @JsonProperty("metadata")
         private Metadata metadata;
         @JsonProperty("budgetSummary")
@@ -388,47 +386,62 @@ public class JsonToSQLite {
         private List<Ministry> distributionByMinistry;
 
         public Metadata getMetadata() {
-            return metadata;
+            return new Metadata(metadata);
         }
 
         public void setMetadata(final Metadata metadata) {
-            this.metadata = metadata;
+            this.metadata = new Metadata(metadata);
         }
 
         public BudgetSummary getBudgetSummary() {
-            return budgetSummary;
+            return new BudgetSummary(budgetSummary);
         }
 
         public void setBudgetSummary(final BudgetSummary budgetSummary) {
-            this.budgetSummary = budgetSummary;
+            this.budgetSummary = new BudgetSummary(budgetSummary);
         }
 
         public List<RevenueCategory> getRevenueAnalysis() {
-            return revenueAnalysis;
+            return revenueAnalysis == null
+                ? Collections.emptyList()
+                : new ArrayList<>(revenueAnalysis);
         }
 
-        public void setRevenueAnalysis(final List<RevenueCategory> revenueAnalysis) {
-            this.revenueAnalysis = revenueAnalysis;
+        public void setRevenueAnalysis(
+                final List<RevenueCategory> revenueAnalysis) {
+            this.revenueAnalysis = revenueAnalysis == null
+                ? null
+                : new ArrayList<>(revenueAnalysis);
         }
 
         public List<ExpenseCategory> getExpenseAnalysis() {
-            return expenseAnalysis;
+            return expenseAnalysis == null
+                ? Collections.emptyList()
+                : new ArrayList<>(expenseAnalysis);
         }
 
-        public void setExpenseAnalysis(final List<ExpenseCategory> expenseAnalysis) {
-            this.expenseAnalysis = expenseAnalysis;
+        public void setExpenseAnalysis(
+                final List<ExpenseCategory> expenseAnalysis) {
+            this.expenseAnalysis = expenseAnalysis == null
+                ? null
+                : new ArrayList<>(expenseAnalysis);
         }
 
         public List<Ministry> getDistributionByMinistry() {
-            return distributionByMinistry;
+            return distributionByMinistry == null
+                ? Collections.emptyList()
+                : new ArrayList<>(distributionByMinistry);
         }
 
-        public void setDistributionByMinistry(final List<Ministry> distributionByMinistry) {
-            this.distributionByMinistry = distributionByMinistry;
+        public void setDistributionByMinistry(
+                final List<Ministry> distributionByMinistry) {
+            this.distributionByMinistry = distributionByMinistry == null
+                ? null
+                : new ArrayList<>(distributionByMinistry);
         }
     }
 
-    public static class Metadata {
+    public static final class Metadata {
         @JsonProperty("sourceTitle")
         private String sourceTitle;
         @JsonProperty("sourceDate")
@@ -441,6 +454,19 @@ public class JsonToSQLite {
         private String locale;
         @JsonProperty("missingFields")
         private List<String> missingFields;
+
+        Metadata() {
+            // Default constructor required for Jackson deserialization
+        }
+
+        Metadata(final Metadata other) {
+            this.sourceTitle = other.sourceTitle;
+            this.sourceDate = other.sourceDate;
+            this.budgetYear = other.budgetYear;
+            this.currency = other.currency;
+            this.locale = other.locale;
+            this.missingFields = other.getMissingFields();
+        }
 
         public String getSourceTitle() {
             return sourceTitle;
@@ -483,16 +509,19 @@ public class JsonToSQLite {
         }
 
         public List<String> getMissingFields() {
-            return missingFields;
+            return missingFields == null
+                ? Collections.emptyList()
+                : new ArrayList<>(missingFields);
         }
 
         public void setMissingFields(final List<String> missingFields) {
-            this.missingFields = missingFields;
+            this.missingFields = missingFields == null
+                ? null
+                : new ArrayList<>(missingFields);
         }
     }
 
-    public static class BudgetSummary
-    {
+    public static final class BudgetSummary {
         @JsonProperty("totalRevenue")
         private long totalRevenue;
         @JsonProperty("totalExpenses")
@@ -501,6 +530,17 @@ public class JsonToSQLite {
         private long stateBudgetBalance;
         @JsonProperty("coverageWwithCashReserves")
         private long coverageWwithCashReserves;
+
+        BudgetSummary() {
+            // Default constructor required for Jackson deserialization
+        }
+
+        BudgetSummary(final BudgetSummary other) {
+            this.totalRevenue = other.totalRevenue;
+            this.totalExpenses = other.totalExpenses;
+            this.stateBudgetBalance = other.stateBudgetBalance;
+            this.coverageWwithCashReserves = other.coverageWwithCashReserves;
+        }
 
         public long getTotalRevenue() {
             return totalRevenue;
@@ -530,12 +570,13 @@ public class JsonToSQLite {
             return coverageWwithCashReserves;
         }
 
-        public void setCoverageWwithCashReserves(final long coverageWwithCashReserves) {
+        public void setCoverageWwithCashReserves(
+                final long coverageWwithCashReserves) {
             this.coverageWwithCashReserves = coverageWwithCashReserves;
         }
     }
 
-    public static class RevenueCategory {
+    public static final class RevenueCategory {
         @JsonProperty("code")
         private String code;
         @JsonProperty("name")
@@ -570,15 +611,19 @@ public class JsonToSQLite {
         }
 
         public List<RevenueCategory> getChildren() {
-            return children;
+            return children == null
+                ? Collections.emptyList()
+                : new ArrayList<>(children);
         }
 
         public void setChildren(final List<RevenueCategory> children) {
-            this.children = children;
+            this.children = children == null
+                ? null
+                : new ArrayList<>(children);
         }
     }
 
-    public static class ExpenseCategory {
+    public static final class ExpenseCategory {
         @JsonProperty("code")
         private String code;
         @JsonProperty("name")
@@ -611,7 +656,7 @@ public class JsonToSQLite {
         }
     }
 
-    public static class Ministry {
+    public static final class Ministry {
         @JsonProperty("code")
         private String code;
         @JsonProperty("ministryBody")
@@ -653,7 +698,8 @@ public class JsonToSQLite {
             return publicInvestmentBudget;
         }
 
-        public void setPublicInvestmentBudget(final long publicInvestmentBudget) {
+        public void setPublicInvestmentBudget(
+                final long publicInvestmentBudget) {
             this.publicInvestmentBudget = publicInvestmentBudget;
         }
 
@@ -666,15 +712,20 @@ public class JsonToSQLite {
         }
 
         public List<MinistryExpenseItem> getTotalFromMajorCategories() {
-            return totalFromMajorCategories;
+            return totalFromMajorCategories == null
+                ? Collections.emptyList()
+                : new ArrayList<>(totalFromMajorCategories);
         }
 
-        public void setTotalFromMajorCategories(final List<MinistryExpenseItem> totalFromMajorCategories) {
-            this.totalFromMajorCategories = totalFromMajorCategories;
+        public void setTotalFromMajorCategories(
+                final List<MinistryExpenseItem> totalFromMajorCategories) {
+            this.totalFromMajorCategories = totalFromMajorCategories == null
+                ? null
+                : new ArrayList<>(totalFromMajorCategories);
         }
     }
 
-    public static class MinistryExpenseItem {
+    public static final class MinistryExpenseItem {
         @JsonProperty("code")
         private String code;
         @JsonProperty("name")

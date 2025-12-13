@@ -3,8 +3,7 @@ package com.detonomics.budgettuner.backend.budgetingestion;
 import java.io.File;
 import java.nio.file.Path;
 
-public class IngestBudgetPdf {
-
+public final class IngestBudgetPdf {
     private IngestBudgetPdf() {
         throw new AssertionError("Utility class");
     }
