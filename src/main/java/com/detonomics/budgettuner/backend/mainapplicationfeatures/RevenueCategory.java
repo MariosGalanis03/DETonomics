@@ -40,6 +40,7 @@ final class RevenueCategory {
         this.amount = amount;
     }
 
+    @Override
     public String toString() {
         return (this.revenueID + "|" + this.code + "|" + this.name + "|"
                 + this.amount);
