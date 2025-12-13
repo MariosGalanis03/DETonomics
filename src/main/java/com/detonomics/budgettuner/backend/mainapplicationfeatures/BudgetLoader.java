@@ -19,18 +19,6 @@ final class BudgetLoader {
         dbPath = path;
     }
 
-    static int loadBudgetIDByYear(final int year) {
-        String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
-        List<Map<String, Object>> results =
-                DatabaseManager.executeQuery(dbPath, sql, year);
-
-        if (results.isEmpty()) {
-            return -1;
-        }
-
-        return (Integer) results.getFirst().get("budget_id");
-    }
-
     static ArrayList<Integer> loadBudgetYearsList() {
         String sql = "SELECT budget_year FROM Budgets";
         List<Map<String, Object>> results =
@@ -42,6 +30,18 @@ final class BudgetLoader {
             years.add(year);
         }
         return years;
+    }
+
+    static int loadBudgetIDByYear(final int year) {
+        String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
+        List<Map<String, Object>> results =
+                DatabaseManager.executeQuery(dbPath, sql, year);
+
+        if (results.isEmpty()) {
+            return -1;
+        }
+
+        return (Integer) results.getFirst().get("budget_id");
     }
 
     static BudgetYear loadBudgetYear(final int budgetID) {
@@ -261,6 +261,9 @@ final class BudgetLoader {
                 + "WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults =
                 DatabaseManager.executeQuery(dbPath, sql, revenueCategoryId);
+        if (queryResults.isEmpty()) {
+            return 0;
+        }
         Integer rawParentID =
                 (Integer) queryResults.getFirst().get("parent_id");
         return (rawParentID == null) ? 0 : rawParentID;
