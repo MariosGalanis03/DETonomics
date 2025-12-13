@@ -258,13 +258,12 @@ final class BudgetManager {
      * Setting revenue amount inside database
      * Returns rowsAffected (if 0 then something went wrong)
      */
-
     private int setRevenueAmount(final long code, final long amount) {
         int rowsAffected = 0;
 
         // calculating difference so we can update parent amounts
-        int revenueCategoryID = this.getRevenueCategoryIDFromCode(code);
-        long oldAmount = this.checkRevenueAmount(revenueCategoryID);
+        int revenueCategoryID = this.loadRevenueCategoryIDFromCode(code);
+        long oldAmount = this.loadRevenueAmount(revenueCategoryID);
 
         if (oldAmount == amount) {
             return 0;
@@ -295,58 +294,13 @@ final class BudgetManager {
      * the corresponding total amount in the parent ExpenseCategory.
      * Returns rows affected (0 if no change or error).
      */
-    public int setMinistryExpenseAmount(final int ministryExpenseID,
-            final long newAmount) {
-        String selectSql = "SELECT amount, expense_category_id "
-                + "FROM MinistryExpenses WHERE ministry_expense_id = ?";
-        List<Map<String, Object>> results =
-                DatabaseManager.executeQuery(DB_PATH, selectSql,
-                        ministryExpenseID);
-
-        if (results.isEmpty()) {
-            // MinistryExpense record not found
-            return 0;
-        }
-
-        Map<String, Object> row = results.getFirst();
-        long oldAmount = ((Number) row.get("amount")).longValue();
-        int expenseCategoryID = (Integer) row.get("expense_category_id");
-
-        if (oldAmount == newAmount) {
-            return 0; // No change needed
-        }
-
-        long difference = newAmount - oldAmount;
-        int rowsAffected = 0;
-
-        // 2. Update the MinistryExpense record with the new amount
-        String updateMinistrySql = "UPDATE MinistryExpenses SET amount = ? "
-                + "WHERE ministry_expense_id = ?";
-        rowsAffected += DatabaseManager.executeUpdate(DB_PATH,
-                updateMinistrySql, newAmount, ministryExpenseID);
-
-        // 3. Update the parent ExpenseCategory amount by adding the
-        // difference
-        String updateExpenseCategorySql =
-                "UPDATE ExpenseCategories SET amount = amount + ? "
-                        + "WHERE expense_category_id = ?";
-        rowsAffected += DatabaseManager.executeUpdate(DB_PATH,
-                updateExpenseCategorySql, difference, expenseCategoryID);
-
-        // Note: Updating the Ministry's total budget (Ministries table) is
-        // assumed to be handled by a different function or database trigger
-        // if required, as it's more complex.
-
-        return rowsAffected;
-    }
-
 
     private int updateRevenueParentAmounts(final int revenueCategoryID,
             final long difference) {
         int rowsAffected = 0;
 
         // Get the parent ID
-        int parentID = this.checkRevenueParent(revenueCategoryID);
+        int parentID = this.loadRevenueParentID(revenueCategoryID);
 
         // Base case: no parent (reached the root)
         if (parentID == 0) {
@@ -377,7 +331,7 @@ final class BudgetManager {
 
         // Get all children of this revenue category
         ArrayList<Integer> children =
-                this.getRevenueChildren(revenueCategoryID);
+                this.loadRevenueChildren(revenueCategoryID);
 
         // Base case: no children to update
         if (children.isEmpty()) {
@@ -390,7 +344,7 @@ final class BudgetManager {
         // Update each child
         for (Integer childID : children) {
             // Get the child's current amount
-            long oldChildAmount = this.checkRevenueAmount(childID);
+            long oldChildAmount = this.loadRevenueAmount(childID);
 
             // Calculate the new child amount based on the proportion
             long newChildAmount = Math.round(oldChildAmount * ratio);
@@ -411,7 +365,7 @@ final class BudgetManager {
     }
 
     // Method to get revenue category id when user enters code (checked)
-    private int getRevenueCategoryIDFromCode(final long code) {
+    private int loadRevenueCategoryIDFromCode(final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories "
                 + "WHERE code = ?";
         List<Map<String, Object>> queryResults =
@@ -426,44 +380,23 @@ final class BudgetManager {
         return revenueCategoryID;
     }
 
-    private int getExpenseCategoryIDFromCode(final long code) {
-        String sql = "SELECT expense_category_id FROM ExpenseCategories "
-                + "WHERE code = ?";
-        List<Map<String, Object>> queryResults =
-                DatabaseManager.executeQuery(DB_PATH, sql, code);
-        if (queryResults.isEmpty()) {
-            // Χειρισμός σφάλματος αν δεν βρεθεί ο κωδικός
-            throw new IllegalArgumentException("Δεν βρέθηκε ο κωδικός "
-                    + code);
-        }
-        int expenseCategoryID =
-                (Integer) queryResults.getFirst().get("expense_category_id");
-        return expenseCategoryID;
-    }
-
-    // Method to check amount of revenue category id from database (checked)
-    private long checkRevenueAmount(final int revenueCategoryId) {
+    // Method to load amount of revenue category id from database
+    private long loadRevenueAmount(final int revenueCategoryId) {
         String sql = "SELECT amount FROM RevenueCategories "
                 + "WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults =
                 DatabaseManager.executeQuery(DB_PATH, sql, revenueCategoryId);
+        if (queryResults.isEmpty()) {
+            throw new IllegalArgumentException("Revenue Category ID not found: "
+                    + revenueCategoryId);
+        }
         long amount =
                 ((Number) queryResults.getFirst().get("amount")).longValue();
         return amount;
     }
 
-    private long checkExpenseAmount(final int expenseCategoryId) {
-        String sql = "SELECT amount FROM ExpenseCategories "
-                + "WHERE expense_category_id = ?";
-        List<Map<String, Object>> queryResults =
-                DatabaseManager.executeQuery(DB_PATH, sql, expenseCategoryId);
-        long amount =
-                ((Number) queryResults.getFirst().get("amount")).longValue();
-        return amount;
-    }
-
-    // Method to get direct parent id of a revenue category. (checked)
-    private int checkRevenueParent(final int revenueCategoryId) {
+    // Method to load direct parent id of a revenue category.
+    private int loadRevenueParentID(final int revenueCategoryId) {
         String sql = "SELECT parent_id FROM RevenueCategories "
                 + "WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults =
@@ -481,7 +414,7 @@ final class BudgetManager {
     // Return a list of integers containing the revenue category id's of a
     // specific revenue's children
     // If list is empty revenue has no children (checked)
-    private ArrayList<Integer> getRevenueChildren(
+    private ArrayList<Integer> loadRevenueChildren(
             final int revenueCategoryID) {
         ArrayList<Integer> children = new ArrayList<>();
 
@@ -500,10 +433,10 @@ final class BudgetManager {
 
     public static void main(final String[] args) {
         BudgetManager budgetManager = new BudgetManager();
-        System.out.println(budgetManager.checkRevenueAmount(1));
-        System.out.println(budgetManager.getRevenueCategoryIDFromCode(111));
-        System.out.println(budgetManager.checkRevenueParent(2));
-        System.out.println(budgetManager.getRevenueChildren(4));
+        System.out.println(budgetManager.loadRevenueAmount(1));
+        System.out.println(budgetManager.loadRevenueCategoryIDFromCode(111));
+        System.out.println(budgetManager.loadRevenueParentID(2));
+        System.out.println(budgetManager.loadRevenueChildren(4));
         System.out.println(budgetManager.setRevenueAmount(111, 10));
     }
 }
