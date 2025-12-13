@@ -9,7 +9,8 @@ class Ministry {
     private long totalBudget;
 
     Ministry(final int ministryID, final long code, final String name,
-        final long regularBudget, final long publicInvestmentBudget, final long totalBudget) {
+            final long regularBudget, final long publicInvestmentBudget,
+            final long totalBudget) {
         this.ministryID = ministryID;
         this.code = code;
         this.name = name;
@@ -56,6 +57,7 @@ class Ministry {
 
     @Override
     public String toString() {
-        return (this.ministryID + "|" + this.code + "|" + this.name + "|" + this.totalBudget);
+        return (this.ministryID + "|" + this.code + "|" + this.name + "|"
+                + this.totalBudget);
     }
 }

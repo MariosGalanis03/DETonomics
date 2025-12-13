@@ -7,7 +7,8 @@ class RevenueCategory {
     private long amount;
     private final int parentID;
 
-    RevenueCategory(final int revenueID, final long code, final String name, final long amount, final int parentID) {
+    RevenueCategory(final int revenueID, final long code, final String name,
+            final long amount, final int parentID) {
         this.revenueID = revenueID;
         this.code = code;
         this.name = name;
@@ -40,6 +41,7 @@ class RevenueCategory {
     }
 
     public String toString() {
-        return (this.revenueID + "|" +  this.code + "|" + this.name + "|" + this.amount);
+        return (this.revenueID + "|" + this.code + "|" + this.name + "|"
+                + this.amount);
     }
 }

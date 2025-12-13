@@ -10,9 +10,11 @@ class BudgetYear {
     private final ArrayList<MinistryExpense> ministryExpenses;
 
     // --- Constructor ---
-    BudgetYear(final Summary summary, final ArrayList<RevenueCategory> revenues,
-        final ArrayList<ExpenseCategory> expenses, final ArrayList<Ministry> ministries,
-        final ArrayList<MinistryExpense> ministryExpenses) {
+    BudgetYear(final Summary summary,
+            final ArrayList<RevenueCategory> revenues,
+            final ArrayList<ExpenseCategory> expenses,
+            final ArrayList<Ministry> ministries,
+            final ArrayList<MinistryExpense> ministryExpenses) {
         this.summary = summary;
         this.revenues = revenues;
         this.expenses = expenses;

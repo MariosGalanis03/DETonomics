@@ -15,21 +15,33 @@ public class TextToJson {
 
   private static final String PROMPT1 = """
 **ROLE**
-You are a budget data-extraction agent. You read unstructured text in Greek or English and return valid JSON only, following the schema below. No prose.
+You are a budget data-extraction agent. You read unstructured text in
+Greek or English and return valid JSON only, following the schema below.
+No prose.
 
 **GOAL**
-Extract clean numeric euro values from budget documents, reconstruct hierarchical data based on codes, apply consistency checks, and work across different countries/table formats.
+Extract clean numeric euro values from budget documents, reconstruct
+hierarchical data based on codes, apply consistency checks, and work
+across different countries/table formats.
 
 **EXTRACTION RULES**
 -Return JSON only. No comments, no preface.
--All amounts as numbers in euros, no symbols, no thousand separators, decimals only if present. Example: "1.304.827.000.000" → 1304827000000.
--Field language: Greek as defined in the schema. Category/Ministry names exactly as in source.
--If a field is missing, set null and record the reason in metadata.missing_fields.
--Normalize separators: remove thousand dots/commas, treat comma as decimal. Ignore €, EUR.
--Hierarchy Reconstruction: For revenue analysis, reconstruct the hierarchy based on classification codes. A code is a child of the longest preceding code that is a prefix of it (e.g., 111 is a child of 11).
--Compute derived fields and verify equalities. If they do not match, populate checks with deltas.
+-All amounts as numbers in euros, no symbols, no thousand separators,
+decimals only if present. Example: "1.304.827.000.000" → 1304827000000.
+-Field language: Greek as defined in the schema. Category/Ministry names
+exactly as in source.
+-If a field is missing, set null and record the reason in
+metadata.missing_fields.
+-Normalize separators: remove thousand dots/commas, treat comma as decimal.
+Ignore €, EUR.
+-Hierarchy Reconstruction: For revenue analysis, reconstruct the hierarchy
+based on classification codes. A code is a child of the longest preceding
+code that is a prefix of it (e.g., 111 is a child of 11).
+-Compute derived fields and verify equalities. If they do not match,
+populate checks with deltas.
 -For tables, preserve source order.
--If multiple versions or years appear, take the most recent or the one explicitly stated.
+-If multiple versions or years appear, take the most recent or the one
+explicitly stated.
 -Do not alter capitalization/accents in source category titles.
 
 **OUTPUT JSON SCHEMA**
@@ -73,18 +85,29 @@ Extract clean numeric euro values from budget documents, reconstruct hierarchica
     }
   ],
   "checks": {
-    "sumOfRevenueEqualsTotal": { "expected": 0, "calculated": 0, "ok": true, "difference": 0 },
-    "sumOfExpensesEqualsTotal": { "expected": 0, "calculated": 0, "ok": true, "difference": 0 },
-    "balanceEqualsRevenueMinusExpenses": { "expected": 0, "calculated": 0, "ok": true, "difference": 0 }
+    "sumOfRevenueEqualsTotal": { "expected": 0, "calculated": 0, "ok": true,
+"difference": 0 },
+    "sumOfExpensesEqualsTotal": { "expected": 0, "calculated": 0, "ok": true,
+"difference": 0 },
+    "balanceEqualsRevenueMinusExpenses": { "expected": 0, "calculated": 0,
+"ok": true, "difference": 0 }
   }
 }
 
 **EXTRACTION STEPS**
 1.Locate the summary section and extract the four main budget values.
-2.Scan for both summary and detailed revenue tables. Build a nested array for ανάλυση_εσόδων, identifying parent-child relationships from the codes.
-3.Locate the expense table by economic category (titled "ΠΙΣΤΩΣΕΙΣ ΚΑΤΑ ΜΕΙΖΟΝΑ ΚΑΤΗΓΟΡΙΑ ΔΑΠΑΝΗΣ"). Extract each category into the ανάλυση_εξόδων array as a flat list.
-4.Locate the three expense tables broken down by Ministry/Agency (titled "ΠΙΣΤΩΣΕΙΣ ΣΥΝΟΛΙΚΑ ΚΑΤΑ ΦΟΡΕΑ"). These correspond to the Total State Budget, the Regular Budget, and the Public Investment Budget.
-5.Consolidate the ministry data. For each ministry, create one object in the κατανομή_ανά_υπουργείο array. Populate the σύνολο, τακτικός_προϋπολογισμός, and προϋπολογισμός_δημοσίων_επενδύσεων fields by matching the ministry's name and code across the three respective tables.
+2.Scan for both summary and detailed revenue tables. Build a nested array
+for ανάλυση_εσόδων, identifying parent-child relationships from the codes.
+3.Locate the expense table by economic category (titled "ΠΙΣΤΩΣΕΙΣ ΚΑΤΑ
+ΜΕΙΖΟΝΑ ΚΑΤΗΓΟΡΙΑ ΔΑΠΑΝΗΣ"). Extract each category into the
+ανάλυση_εξόδων array as a flat list.
+4.Locate the three expense tables broken down by Ministry/Agency (titled
+"ΠΙΣΤΩΣΕΙΣ ΣΥΝΟΛΙΚΑ ΚΑΤΑ ΦΟΡΕΑ"). These correspond to the Total State
+Budget, the Regular Budget, and the Public Investment Budget.
+5.Consolidate the ministry data. For each ministry, create one object in
+the κατανομή_ανά_υπουργείο array. Populate the σύνολο,
+τακτικός_προϋπολογισμός, and προϋπολογισμός_δημοσίων_επενδύσεων fields by
+matching the ministry's name and code across the three respective tables.
 6.Convert all monetary values to numeric euros.
 7.Fill metadata with any available title/date/year details.
 8.Compute checks; if any fail, set ok: false and include the delta.
@@ -153,7 +176,8 @@ Example: "85.000,50" → 85000.5
       "ministryBody": "ΠΡΟΕΔΡΙΑ ΤΗΣ ΔΗΜΟΚΡΑΤΙΑΣ",
       "totalFromMajorCategories": [
         { "code": "21", "name": "Παροχές σε εργαζομένους", "amount": 3532000 },
-        { "code": "24", "name": "Αγορές αγαθών και υπηρεσιών", "amount": 850000 }
+        { "code": "24", "name": "Αγορές αγαθών και υπηρεσιών",
+"amount": 850000 }
       ],
       "regularBudget": 4638000,
       "publicInvestment_budget": 0,
@@ -164,11 +188,13 @@ Example: "85.000,50" → 85000.5
   
 Return only the JSON defined by the schema. No extra information.
 """;
-  public static void textFileToJson(final Path inTxt, final Path outJson) throws Exception {
+  public static void textFileToJson(final Path inTxt, final Path outJson)
+          throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");
 
     if (apiKey == null || apiKey.isBlank()) {
-      throw new IllegalArgumentException("Error: GEMINI_API_KEY environment variable is not set.");
+      throw new IllegalArgumentException(
+              "Error: GEMINI_API_KEY environment variable is not set.");
     }
 
     Client client = Client.builder()
@@ -192,13 +218,16 @@ Return only the JSON defined by the schema. No extra information.
     String text = res.text();
 
     if (text == null) {
-      System.err.println("Model returned null text. Check API key, model name, or input size.");
+      System.err.println(
+              "Model returned null text. Check API key, model name, or "
+                      + "input size.");
       System.err.println("Raw response: " + res);
       return;
     }
 
     String json = text.trim()
-      .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", ""); // remove markdown fences
+            .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "");
+    // remove markdown fences
 
     Files.writeString(outJson, json, StandardCharsets.UTF_8,
       StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);

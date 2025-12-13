@@ -11,7 +11,10 @@ class Summary {
     private long budgetResult;
     private long coverageWithCashReserves;
 
-    Summary(final String sourceTitle, final String currency, final String locale, final String sourceDate, final int budgetYear, final long totalRevenues, final long totalExpenses, final long budgetResult, final long coverageWithCashReserves) {
+    Summary(final String sourceTitle, final String currency,
+            final String locale, final String sourceDate, final int budgetYear,
+            final long totalRevenues, final long totalExpenses,
+            final long budgetResult, final long coverageWithCashReserves) {
         this.sourceTitle = sourceTitle;
         this.currency = currency;
         this.locale = locale;
@@ -61,11 +64,13 @@ class Summary {
 
     @Override
     public String toString() {
-        return String.format("Συνολικά Έσοδα: %s%nΣυνολικά Έξοδα: %s%nΑποτέλεσμα Κρατικού Προϋπολογισμού: %s%nΚάλυψη με χρήση ταμειακών διαθεσίμων: %s", 
-            BudgetFormatter.formatAmount(getTotalRevenues()), 
-            BudgetFormatter.formatAmount(totalExpenses()), 
-            BudgetFormatter.formatAmount(budgetResult()), 
-            BudgetFormatter.formatAmount(coverageWithCashReserves())
-        );
+        return String.format(
+                "Συνολικά Έσοδα: %s%nΣυνολικά Έξοδα: %s%n"
+                        + "Αποτέλεσμα Κρατικού Προϋπολογισμού: %s%n"
+                        + "Κάλυψη με χρήση ταμειακών διαθεσίμων: %s",
+                BudgetFormatter.formatAmount(getTotalRevenues()),
+                BudgetFormatter.formatAmount(totalExpenses()),
+                BudgetFormatter.formatAmount(budgetResult()),
+                BudgetFormatter.formatAmount(coverageWithCashReserves()));
     }
 }

@@ -42,7 +42,8 @@ public class PdfToText {
     /**
      * Extracts all text from a given PDF file.
      */
-    private String extractTextFromFile(final String pdfPath) throws IOException {
+    private String extractTextFromFile(final String pdfPath)
+            throws IOException {
         File pdfFile = new File(pdfPath);
         try (PDDocument document = PDDocument.load(pdfFile)) {
             PDFTextStripper pdfStripper = new PDFTextStripper();

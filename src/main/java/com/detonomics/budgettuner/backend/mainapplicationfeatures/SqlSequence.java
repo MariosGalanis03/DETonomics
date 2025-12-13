@@ -7,7 +7,9 @@ class SqlSequence {
     private int ministries;
     private int ministryExpenses;
 
-    SqlSequence(final int budgets, final int revenueCategories, final int expenseCategories, final int ministries, final int ministryExpenses) {
+    SqlSequence(final int budgets, final int revenueCategories,
+            final int expenseCategories, final int ministries,
+            final int ministryExpenses) {
         this.budgets = budgets;
         this.revenueCategories = revenueCategories;
         this.expenseCategories = expenseCategories;

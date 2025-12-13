@@ -17,8 +17,13 @@ public class App {
 
         System.out.println("Σύνολο αποθηκευμένων στοιχείων στη Βάση:");
         SqlSequence statistics = BudgetManager.loadSqliteSequence();
-        System.out.printf("- Προϋπολογισμοί: %d%n- Κατηγορίες Εσόδων: %d%n- Κατηγορίες Εξόδων: %d%n- Υπουργεία: %d%n- Έξοδα Υπουργείων: %d%n",
-        statistics.getBudgets(), statistics.getRevenueCategories(), statistics.getExpenseCategories(), statistics.getMinistries(), statistics.getMinistryExpenses());
+        System.out.printf(
+                "- Προϋπολογισμοί: %d%n- Κατηγορίες Εσόδων: %d%n"
+                        + "- Κατηγορίες Εξόδων: %d%n- Υπουργεία: %d%n"
+                        + "- Έξοδα Υπουργείων: %d%n",
+                statistics.getBudgets(), statistics.getRevenueCategories(),
+                statistics.getExpenseCategories(), statistics.getMinistries(),
+                statistics.getMinistryExpenses());
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         // Φόρτωση λίστας ετών προϋπολογισμού
@@ -35,10 +40,14 @@ public class App {
                 for (int y : years) {
                     System.out.println("- " + y);
                 }
-                System.out.print("Εισάγετε το έτος προϋπολογισμού, 0 για έξοδο ή 1 για εισαγωγή έτους: ");
-                
+                System.out.print(
+                        "Εισάγετε το έτος προϋπολογισμού, 0 για έξοδο "
+                                + "ή 1 για εισαγωγή έτους: ");
+
                 while (!scanner.hasNextInt()) {
-                    System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
+                    System.out.println(
+                            "Άκυρη είσοδος. Παρακαλώ εισάγετε έναν "
+                                    + "έγκυρο αριθμό έτους.");
                     scanner.nextLine();
                 }
 
@@ -46,14 +55,19 @@ public class App {
                 scanner.nextLine();
 
                 if (years.contains(year)) {
-                    System.out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
-                } else if  (year == 0) {
+                    System.out.println("Φορτώνεται ο προϋπολογισμός για το "
+                            + "έτος " + year + "...");
+                } else if (year == 0) {
                     System.out.println("Έξοδος από την εφαρμογή...");
                     programrunning = false;
                     menurunning = false;
                 } else if (year == 1) {
-                    System.out.println("Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
-                    System.out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού (ή 0 για ακύρωση εισαγωγής νέου έτους): ");
+                    System.out.println(
+                            "Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
+                    System.out.print(
+                            "Εισάγετε τη διαδρομή του αρχείου PDF "
+                                    + "προϋπολογισμού (ή 0 για ακύρωση "
+                                    + "εισαγωγής νέου έτους): ");
                     String pdfPath = scanner.nextLine();
                     if (pdfPath.equals("0")) {
                         System.out.println("Ακύρωση εισαγωγής νέου έτους.");
@@ -63,12 +77,17 @@ public class App {
                         BudgetManager.insertNewBudgetYear(pdfPath);
                         // Ενημέρωση της λίστας ετών μετά την εισαγωγή
                         years = BudgetManager.loadBudgetYearsList();
-                        System.out.println("Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
+                        System.out.println(
+                                "Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
                     } catch (Exception e) {
-                        System.out.println("Σφάλμα κατά την εισαγωγή του προϋπολογισμού: " + e.getMessage());
+                        System.out.println(
+                                "Σφάλμα κατά την εισαγωγή του "
+                                        + "προϋπολογισμού: " + e.getMessage());
                     }
                 } else {
-                    System.out.println("Το έτος " + year + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
+                    System.out.println("Το έτος " + year
+                            + " δεν βρέθηκε στη βάση δεδομένων. "
+                            + "Παρακαλώ εισάγετε ένα άλλο έτος.");
                 }
             } while (!years.contains(year) && programrunning);
 
@@ -97,31 +116,48 @@ public class App {
                     choice = scanner.nextInt();
                     scanner.nextLine();
                 } else {
-                    System.out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
+                    System.out.println(
+                            "\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν "
+                                    + "αριθμό.");
                     scanner.nextLine();
                     choice = -1;
                 }
 
                 switch (choice) {
                     case 1:
-                            System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                            System.out.println(budget.getSummary());
+                        System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ ("
+                                + year + ") ---");
+                        System.out.println(budget.getSummary());
                         break;
                     case 2:
-                        System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedRevenues(budget.getRevenues()));
+                        System.out.println("\n--- ΕΣΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ ("
+                                + year + ") ---");
+                        System.out.println(BudgetFormatter
+                                .getFormattedRevenues(budget.getRevenues()));
                         break;
                     case 3:
-                        System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedExpenditures(budget.getExpenses()));
+                        System.out.println("\n--- ΕΞΟΔΑ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ ("
+                                + year + ") ---");
+                        System.out.println(BudgetFormatter
+                                .getFormattedExpenditures(
+                                        budget.getExpenses()));
                         break;
                     case 4:
-                        System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedMinistries(budget.getMinistries()));
+                        System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ ("
+                                + year + ") ---");
+                        System.out.println(BudgetFormatter
+                                .getFormattedMinistries(
+                                        budget.getMinistries()));
                         break;
                     case 5:
-                        System.out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                        System.out.println(BudgetFormatter.getFormattedMinistryExpenses(budget.getMinistries(), budget.getExpenses(), budget.getMinistryExpenses()));
+                        System.out.println(
+                                "\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ ("
+                                        + year + ") ---");
+                        System.out.println(BudgetFormatter
+                                .getFormattedMinistryExpenses(
+                                        budget.getMinistries(),
+                                        budget.getExpenses(),
+                                        budget.getMinistryExpenses()));
                         break;
                     case 6:
                         System.out.println("Αλλαγή έτους προϋπολογισμού...");

@@ -6,7 +6,8 @@ class MinistryExpense {
     private final int expenseCategoryID;
     private long amount;
 
-    MinistryExpense(final int expenseID, final int ministryID, final int expenseCategoryID, final long amount) {
+    MinistryExpense(final int expenseID, final int ministryID,
+            final int expenseCategoryID, final long amount) {
         this.expenseID = expenseID;
         this.ministryID = ministryID;
         this.expenseCategoryID = expenseCategoryID;
@@ -35,6 +36,7 @@ class MinistryExpense {
 
     @Override
     public String toString() {
-        return this.getExpenseID() + " | "  + this.getMinistryID() + " | " + this.getExpenseCategoryID() + " | " + this.getAmount();
+        return this.getExpenseID() + " | " + this.getMinistryID() + " | "
+                + this.getExpenseCategoryID() + " | " + this.getAmount();
     }
 }
