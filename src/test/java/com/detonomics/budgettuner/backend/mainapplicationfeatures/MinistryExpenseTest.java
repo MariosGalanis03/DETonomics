@@ -8,7 +8,7 @@ public class MinistryExpenseTest {
     @Test
     public void gettersAndToString() {
         MinistryExpense me = new MinistryExpense(7, 20, 30, 4500L);
-        assertEquals(7, me.getExpenseID());
+        assertEquals(7, me.getMinistryExpenseID());
         assertEquals(20, me.getMinistryID());
         assertEquals(30, me.getExpenseCategoryID());
         assertEquals(4500L, me.getAmount());

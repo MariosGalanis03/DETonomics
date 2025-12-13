@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
 
 // Η κεντρική κλάση της εφαρμογής
-final class App {
+public final class App {
 
     private App() {
         throw new AssertionError("Utility class");
@@ -20,7 +20,7 @@ final class App {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         System.out.println("Σύνολο αποθηκευμένων στοιχείων στη Βάση:");
-        SqlSequence statistics = BudgetManager.loadSqliteSequence();
+        SqlSequence statistics = BudgetLoader.loadSqliteSequence();
         System.out.printf(
                 "- Προϋπολογισμοί: %d%n- Κατηγορίες Εσόδων: %d%n"
                         + "- Κατηγορίες Εξόδων: %d%n- Υπουργεία: %d%n"
@@ -31,7 +31,7 @@ final class App {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         // Φόρτωση λίστας ετών προϋπολογισμού
-        ArrayList<Integer> years = BudgetManager.loadBudgetYearsList();
+        ArrayList<Integer> years = BudgetLoader.loadBudgetYearsList();
         boolean programrunning = true;
         boolean menurunning = true;
         int year;
@@ -78,9 +78,9 @@ final class App {
                         continue;
                     }
                     try {
-                        BudgetManager.insertNewBudgetYear(pdfPath);
+                        BudgetModifier.insertNewBudgetYear(pdfPath);
                         // Ενημέρωση της λίστας ετών μετά την εισαγωγή
-                        years = BudgetManager.loadBudgetYearsList();
+                        years = BudgetLoader.loadBudgetYearsList();
                         System.out.println(
                                 "Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
                     } catch (Exception e) {
@@ -96,8 +96,8 @@ final class App {
             } while (!years.contains(year) && programrunning);
 
             // Βρισκει το ID για το συγκεκριμένο έτος
-            int budgetID = BudgetManager.getBudgetIDByYear(year);
-            BudgetYear budget = BudgetManager.loadBudgetYear(budgetID);
+            int budgetID = BudgetLoader.loadBudgetIDByYear(year);
+            BudgetYear budget = BudgetLoader.loadBudgetYear(budgetID);
 
             // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
             if (!programrunning) {
