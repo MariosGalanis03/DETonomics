@@ -16,10 +16,10 @@ public final class BudgetYear {
             final ArrayList<Ministry> ministries,
             final ArrayList<MinistryExpense> ministryExpenses) {
         this.summary = summary;
-        this.revenues = revenues;
-        this.expenses = expenses;
-        this.ministries = ministries;
-        this.ministryExpenses = ministryExpenses;
+        this.revenues = new ArrayList<>(revenues);
+        this.expenses = new ArrayList<>(expenses);
+        this.ministries = new ArrayList<>(ministries);
+        this.ministryExpenses = new ArrayList<>(ministryExpenses);
     }
 
     // --- Getters ---
@@ -30,21 +30,21 @@ public final class BudgetYear {
 
     // Επιστρέφει τη λίστα εσόδων ως αμετάβλητη (immutable) συλλογή.
     public ArrayList<RevenueCategory> getRevenues() {
-        return revenues;
+        return new ArrayList<>(revenues);
     }
 
     // Επιστρέφει τη λίστα εξόδων ως αμετάβλητη (immutable) συλλογή.
     public ArrayList<ExpenseCategory> getExpenses() {
-        return expenses;
+        return new ArrayList<>(expenses);
     }
 
     // Επιστρέφει τη λίστα φορέων ως αμετάβλητη (immutable) συλλογή.
     public ArrayList<Ministry> getMinistries() {
-        return ministries;
+        return new ArrayList<>(ministries);
     }
 
     // Επιστρέφει τη λίστα εξόδων φορέων ως αμετάβλητη (immutable) συλλογή.
     public ArrayList<MinistryExpense> getMinistryExpenses() {
-        return ministryExpenses;
+        return new ArrayList<>(ministryExpenses);
     }
 }

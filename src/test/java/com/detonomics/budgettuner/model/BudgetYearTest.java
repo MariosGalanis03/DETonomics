@@ -17,9 +17,9 @@ public class BudgetYearTest {
 
         BudgetYear by = new BudgetYear(summary, revs, exps, mins, mes);
         assertSame(summary, by.getSummary());
-        assertSame(revs, by.getRevenues());
-        assertSame(exps, by.getExpenses());
-        assertSame(mins, by.getMinistries());
-        assertSame(mes, by.getMinistryExpenses());
+        assertEquals(revs, by.getRevenues());
+        assertEquals(exps, by.getExpenses());
+        assertEquals(mins, by.getMinistries());
+        assertEquals(mes, by.getMinistryExpenses());
     }
 }
