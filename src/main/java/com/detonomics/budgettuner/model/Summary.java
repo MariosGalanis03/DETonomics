@@ -34,7 +34,8 @@ public final class Summary {
      * @param totalRevenues            Total projected revenues.
      * @param totalExpenses            Total projected expenses.
      * @param budgetResult             The net result (Revenues - Expenses).
-     * @param coverageWithCashReserves The coverage capability using cash reserves.
+     * @param coverageWithCashReserves The coverage capability using cash
+     *                                 reserves.
      */
     public Summary(final String sourceTitle, final String currency,
             final String locale, final String sourceDate, final int budgetYear,
@@ -51,38 +52,83 @@ public final class Summary {
         this.coverageWithCashReserves = coverageWithCashReserves;
     }
 
+    /**
+     * Gets the source title.
+     *
+     * @return The source title.
+     */
     public String getSourceTitle() {
         return sourceTitle;
     }
 
+    /**
+     * Gets the currency.
+     *
+     * @return The currency.
+     */
     public String getCurrency() {
         return currency;
     }
 
+    /**
+     * Gets the locale.
+     *
+     * @return The locale.
+     */
     public String getLocale() {
         return locale;
     }
 
+    /**
+     * Gets the source date.
+     *
+     * @return The source date.
+     */
     public String getSourceDate() {
         return sourceDate;
     }
 
+    /**
+     * Gets the budget year.
+     *
+     * @return The budget year.
+     */
     public int getBudgetYear() {
         return budgetYear;
     }
 
+    /**
+     * Gets the total revenues.
+     *
+     * @return The total revenues.
+     */
     public long getTotalRevenues() {
         return totalRevenues;
     }
 
+    /**
+     * Gets the total expenses.
+     *
+     * @return The total expenses.
+     */
     public long totalExpenses() {
         return totalExpenses;
     }
 
+    /**
+     * Gets the budget result (balance).
+     *
+     * @return The budget result.
+     */
     public long budgetResult() {
         return budgetResult;
     }
 
+    /**
+     * Gets the coverage with cash reserves.
+     *
+     * @return The coverage amount.
+     */
     public long coverageWithCashReserves() {
         return coverageWithCashReserves;
     }

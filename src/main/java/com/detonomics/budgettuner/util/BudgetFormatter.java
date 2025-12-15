@@ -11,18 +11,33 @@ import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.RevenueCategory;
 
+/**
+ * Utility class for formatting budget data into readable strings.
+ */
 public final class BudgetFormatter {
 
     private BudgetFormatter() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * Formats a long amount into a currency string (EUR).
+     *
+     * @param amount The amount to format.
+     * @return The formatted string.
+     */
     public static String formatAmount(final long amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
         nf.setMaximumFractionDigits(0);
         return nf.format(amount) + " €";
     }
 
+    /**
+     * Formats a list of revenue categories into a table string.
+     *
+     * @param revenues The list of revenue categories.
+     * @return The formatted table string.
+     */
     public static String getFormattedRevenues(
             final ArrayList<RevenueCategory> revenues) {
         if (revenues.isEmpty()) {
@@ -46,6 +61,12 @@ public final class BudgetFormatter {
         return sb.toString();
     }
 
+    /**
+     * Formats a list of expense categories into a table string.
+     *
+     * @param expenditures The list of expense categories.
+     * @return The formatted table string.
+     */
     public static String getFormattedExpenditures(
             final ArrayList<ExpenseCategory> expenditures) {
         if (expenditures.isEmpty()) {
@@ -69,6 +90,12 @@ public final class BudgetFormatter {
         return sb.toString();
     }
 
+    /**
+     * Formats a list of ministries into a table string.
+     *
+     * @param ministries The list of ministries.
+     * @return The formatted table string.
+     */
     public static String getFormattedMinistries(
             final ArrayList<Ministry> ministries) {
         if (ministries.isEmpty()) {
@@ -91,9 +118,16 @@ public final class BudgetFormatter {
                     formatAmount(m.getTotalBudget())));
         }
         return sb.toString();
-
     }
 
+    /**
+     * Formats ministry expenses into a detailed table.
+     *
+     * @param ministries The list of ministries.
+     * @param expenseCategories The list of expense categories.
+     * @param ministryExpenses The list of ministry expenses.
+     * @return The formatted table string.
+     */
     public static String getFormattedMinistryExpenses(
             final ArrayList<Ministry> ministries,
             final ArrayList<ExpenseCategory> expenseCategories,
@@ -116,11 +150,13 @@ public final class BudgetFormatter {
         Map<String, Long> aggregatedExpenses = new HashMap<>();
 
         for (MinistryExpense me : ministryExpenses) {
-            String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
+            String key = me.getMinistryID() + "|"
+                    + me.getExpenseCategoryID();
             long currentAmount = me.getAmount();
 
             aggregatedExpenses.put(key,
-                    aggregatedExpenses.getOrDefault(key, 0L) + currentAmount);
+                    aggregatedExpenses.getOrDefault(key,
+                            0L) + currentAmount);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -145,16 +181,19 @@ public final class BudgetFormatter {
 
             Ministry ministry = ministryMap.get(ministryID);
             String ministryIDString = String.valueOf(ministryID);
-            String ministryName = ministry != null ? ministry.getName()
+            String ministryName = ministry != null
+                    ? ministry.getName()
                     : "Άγνωστος Φορέας (" + ministryID + ")";
-            String categoryName = categoryMap.getOrDefault(categoryID,
+            String categoryName = categoryMap.getOrDefault(
+                    categoryID,
                     "Άγνωστη Κατηγορία (" + categoryID + ")");
 
-            String amountString = String.format("%,d \u20ac", totalAmount)
-                    .replace(',', '.');
+            String amountString = String.format("%,d \u20ac",
+                    totalAmount).replace(',', '.');
 
             sb.append(String.format(
-                    "%-" + 10 + "s | %-" + 70 + "s | %-" + 53 + "s | %" + 25
+                    "%-" + 10 + "s | %-" + 70
+                            + "s | %-" + 53 + "s | %" + 25
                             + "s%n",
                     ministryIDString,
                     ministryName,

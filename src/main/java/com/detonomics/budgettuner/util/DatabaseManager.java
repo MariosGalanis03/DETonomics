@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class for database operations.
+ */
 public final class DatabaseManager {
 
     private DatabaseManager() {
@@ -22,6 +25,14 @@ public final class DatabaseManager {
     /**
      * Εκτέλεση ενημερωτικής εντολής (INSERT/UPDATE/DELETE) με παραμέτρους
      * (PreparedStatement).
+     */
+    /**
+     * Executes an update (INSERT/UPDATE/DELETE) statement.
+     *
+     * @param dbPath The database path.
+     * @param sql    The SQL statement.
+     * @param params The parameters for the statement.
+     * @return The number of rows affected.
      */
     public static int executeUpdate(final String dbPath, final String sql,
             final Object... params) {
@@ -42,6 +53,14 @@ public final class DatabaseManager {
 
     /**
      * Εκτέλεση ερωτήματος (SELECT) με παραμέτρους (PreparedStatement).
+     */
+    /**
+     * Executes a query (SELECT) statement.
+     *
+     * @param dbPath The database path.
+     * @param sql    The SQL statement.
+     * @param params The parameters for the statement.
+     * @return A list of maps representing the result rows.
      */
     public static List<Map<String, Object>> executeQuery(final String dbPath,
             final String sql, final Object... params) {

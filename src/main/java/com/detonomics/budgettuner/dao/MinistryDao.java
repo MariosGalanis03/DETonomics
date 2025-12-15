@@ -7,16 +7,26 @@ import java.util.Map;
 import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
+/**
+ * Data Access Object for Ministry.
+ */
 public final class MinistryDao {
 
     private MinistryDao() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * Loads ministries for a given budget ID.
+     *
+     * @param budgetID The ID of the budget.
+     * @return A list of Ministry objects.
+     */
     public static ArrayList<Ministry> loadMinistries(final int budgetID) {
         ArrayList<Ministry> ministries = new ArrayList<>();
         String sql = "SELECT * FROM Ministries WHERE budget_id = ?";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, budgetID);
+        List<Map<String, Object>> results = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, budgetID);
 
         if (results.isEmpty()) {
             return ministries;

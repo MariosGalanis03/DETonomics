@@ -7,24 +7,35 @@ import java.util.Map;
 import com.detonomics.budgettuner.model.RevenueCategory;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
+/**
+ * Data Access Object for RevenueCategory.
+ */
 public final class RevenueCategoryDao {
 
     private RevenueCategoryDao() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * Loads revenue categories for a given budget ID.
+     *
+     * @param budgetID The ID of the budget.
+     * @return A list of RevenueCategory objects.
+     */
     public static ArrayList<RevenueCategory> loadRevenues(final int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
 
         String sql = "SELECT * FROM RevenueCategories WHERE budget_id = ?";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, budgetID);
+        List<Map<String, Object>> results = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, budgetID);
 
         if (results.isEmpty()) {
             return revenues;
         }
 
         for (Map<String, Object> resultRow : results) {
-            Integer revenueCategoryID = (Integer) resultRow.get("revenue_category_id");
+            Integer revenueCategoryID = (Integer) resultRow
+                    .get("revenue_category_id");
             long code = Long.parseLong((String) resultRow.get("code"));
             String name = (String) resultRow.get("name");
             long amount = ((Number) resultRow.get("amount")).longValue();
@@ -39,10 +50,17 @@ public final class RevenueCategoryDao {
         return revenues;
     }
 
+    /**
+     * Loads the revenue category ID for a given code.
+     *
+     * @param code The code of the revenue category.
+     * @return The ID of the revenue category.
+     */
     public static int loadRevenueCategoryIDFromCode(final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories "
                 + "WHERE code = ?";
-        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, code);
+        List<Map<String, Object>> queryResults = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, code);
         if (queryResults.isEmpty()) {
             throw new IllegalArgumentException(
                     "Δεν βρέθηκε ο κωδικός " + code);
@@ -50,11 +68,17 @@ public final class RevenueCategoryDao {
         return (Integer) queryResults.getFirst().get("revenue_category_id");
     }
 
+    /**
+     * Loads the revenue amount for a given category ID.
+     *
+     * @param revenueCategoryId The ID of the revenue category.
+     * @return The amount of the revenue category.
+     */
     public static long loadRevenueAmount(final int revenueCategoryId) {
         String sql = "SELECT amount FROM RevenueCategories "
                 + "WHERE revenue_category_id = ?";
-        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql,
-                revenueCategoryId);
+        List<Map<String, Object>> queryResults = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, revenueCategoryId);
         if (queryResults.isEmpty()) {
             throw new IllegalArgumentException(
                     "Revenue Category ID not found: " + revenueCategoryId);
@@ -62,30 +86,51 @@ public final class RevenueCategoryDao {
         return ((Number) queryResults.getFirst().get("amount")).longValue();
     }
 
+    /**
+     * Loads the parent ID for a given revenue category ID.
+     *
+     * @param revenueCategoryId The ID of the revenue category.
+     * @return The parent ID of the revenue category.
+     */
     public static int loadRevenueParentID(final int revenueCategoryId) {
         String sql = "SELECT parent_id FROM RevenueCategories "
                 + "WHERE revenue_category_id = ?";
-        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql,
-                revenueCategoryId);
+        List<Map<String, Object>> queryResults = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, revenueCategoryId);
         if (queryResults.isEmpty()) {
             return 0;
         }
-        Integer rawParentID = (Integer) queryResults.getFirst().get("parent_id");
+        Integer rawParentID = (Integer) queryResults.getFirst()
+                .get("parent_id");
         return (rawParentID == null) ? 0 : rawParentID;
     }
 
-    public static ArrayList<Integer> loadRevenueChildren(final int revenueCategoryID) {
+    /**
+     * Loads the children IDs for a given revenue category ID.
+     *
+     * @param revenueCategoryID The ID of the revenue category.
+     * @return A list of children IDs.
+     */
+    public static ArrayList<Integer> loadRevenueChildren(
+            final int revenueCategoryID) {
         ArrayList<Integer> children = new ArrayList<>();
         String sql = "SELECT revenue_category_id FROM RevenueCategories "
                 + "WHERE parent_id = ?";
-        List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql,
-                revenueCategoryID);
+        List<Map<String, Object>> queryResults = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, revenueCategoryID);
         for (Map<String, Object> resultRow : queryResults) {
             children.add((Integer) resultRow.get("revenue_category_id"));
         }
         return children;
     }
 
+    /**
+     * Sets the amount for a revenue category.
+     *
+     * @param code The code of the revenue category.
+     * @param amount The new amount.
+     * @return The number of rows affected.
+     */
     public static int setRevenueAmount(final long code, final long amount) {
         int rowsAffected = 0;
 

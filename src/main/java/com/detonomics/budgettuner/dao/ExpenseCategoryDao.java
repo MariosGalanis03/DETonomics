@@ -7,24 +7,35 @@ import java.util.Map;
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
+/**
+ * Data Access Object for ExpenseCategory.
+ */
 public final class ExpenseCategoryDao {
 
     private ExpenseCategoryDao() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * Loads expense categories for a given budget ID.
+     *
+     * @param budgetID The ID of the budget.
+     * @return A list of ExpenseCategory objects.
+     */
     public static ArrayList<ExpenseCategory> loadExpenses(final int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
 
         String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = ?";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, budgetID);
+        List<Map<String, Object>> results = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql, budgetID);
 
         if (results.isEmpty()) {
             return expenses;
         }
 
         for (Map<String, Object> resultRow : results) {
-            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
+            Integer expenseCategoryID = (Integer) resultRow
+                    .get("expense_category_id");
             long code = Long.parseLong((String) resultRow.get("code"));
             String name = (String) resultRow.get("name");
 

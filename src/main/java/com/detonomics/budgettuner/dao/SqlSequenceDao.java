@@ -6,15 +6,24 @@ import java.util.Map;
 import com.detonomics.budgettuner.model.SqlSequence;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
+/**
+ * Data Access Object for SqlSequence.
+ */
 public final class SqlSequenceDao {
 
     private SqlSequenceDao() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * Loads the SQLite sequence values.
+     *
+     * @return A SqlSequence object containing sequence values.
+     */
     public static SqlSequence loadSqliteSequence() {
         String sql = "SELECT name, seq FROM sqlite_sequence";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql);
+        List<Map<String, Object>> results = DatabaseManager
+                .executeQuery(DaoConfig.getDbPath(), sql);
 
         int budgets = 0;
         int revenueCategories = 0;

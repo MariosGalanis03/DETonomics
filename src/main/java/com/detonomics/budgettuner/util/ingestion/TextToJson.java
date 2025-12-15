@@ -11,6 +11,9 @@ import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 
+/**
+ * Utility class to convert text to JSON using Google GenAI.
+ */
 public final class TextToJson {
 
   private TextToJson() {
@@ -36,8 +39,8 @@ public final class TextToJson {
       exactly as in source.
       -If a field is missing, set null and record the reason in
       metadata.missing_fields.
-      -Normalize separators: remove thousand dots/commas, treat comma as decimal.
-      Ignore €, EUR.
+      -Normalize separators: remove thousand dots/commas, treat comma as
+      decimal. Ignore €, EUR.
       -Hierarchy Reconstruction: For revenue analysis, reconstruct the hierarchy
       based on classification codes. A code is a child of the longest preceding
       code that is a prefix of it (e.g., 111 is a child of 11).
@@ -89,12 +92,12 @@ public final class TextToJson {
           }
         ],
         "checks": {
-          "sumOfRevenueEqualsTotal": { "expected": 0, "calculated": 0, "ok": true,
-      "difference": 0 },
-          "sumOfExpensesEqualsTotal": { "expected": 0, "calculated": 0, "ok": true,
-      "difference": 0 },
-          "balanceEqualsRevenueMinusExpenses": { "expected": 0, "calculated": 0,
-      "ok": true, "difference": 0 }
+          "sumOfRevenueEqualsTotal": { "expected": 0, "calculated": 0,
+      "ok": true, "difference": 0 },
+          "sumOfExpensesEqualsTotal": { "expected": 0, "calculated": 0,
+      "ok": true, "difference": 0 },
+          "balanceEqualsRevenueMinusExpenses": { "expected": 0,
+      "calculated": 0, "ok": true, "difference": 0 }
         }
       }
 
@@ -138,7 +141,8 @@ public final class TextToJson {
                 "children": [
                   {
                     "code": "11101",
-                    "name": "Φόροι προστιθέμενης αξίας που εισπράττονται μέσω Δ.Ο.Υ",
+                    "name": "Φόροι προστιθέμενης αξίας που εισπράττονται "
+                            + "μέσω Δ.Ο.Υ",
                     "amount": 14635000000,
                     "children": [
                       {
@@ -164,7 +168,8 @@ public final class TextToJson {
       **EXAMPLE 2: "expenseAnalysis"**
       {
         "expenseAnalysis": [
-          { "code": "21", "name": "Παροχές σε εργαζομένους", "amount": 14889199000 },
+          { "code": "21", "name": "Παροχές σε εργαζομένους",
+      "amount": 14889199000 },
           { "code": "22", "name": "Κοινωνικές παροχές", "amount": 425136000 },
           { "code": "23", "name": "Μεταβιβάσεις", "amount": 34741365000 },
           { "code": "26", "name": "Τόκοι", "amount": 7701101000 }
@@ -179,7 +184,8 @@ public final class TextToJson {
             "code": "1001",
             "ministryBody": "ΠΡΟΕΔΡΙΑ ΤΗΣ ΔΗΜΟΚΡΑΤΙΑΣ",
             "totalFromMajorCategories": [
-              { "code": "21", "name": "Παροχές σε εργαζομένους", "amount": 3532000 },
+              { "code": "21", "name": "Παροχές σε εργαζομένους",
+      "amount": 3532000 },
               { "code": "24", "name": "Αγορές αγαθών και υπηρεσιών",
       "amount": 850000 }
             ],
@@ -193,6 +199,13 @@ public final class TextToJson {
       Return only the JSON defined by the schema. No extra information.
       """;
 
+  /**
+   * Converts a text file to a JSON file using the Gemini API.
+   *
+   * @param inTxt   The path to the input text file.
+   * @param outJson The path to the output JSON file.
+   * @throws Exception If an error occurs during API call or file operations.
+   */
   public static void textFileToJson(final Path inTxt, final Path outJson)
       throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");

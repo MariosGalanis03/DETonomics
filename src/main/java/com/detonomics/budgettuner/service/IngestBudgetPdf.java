@@ -89,6 +89,11 @@ public final class IngestBudgetPdf {
         }
     }
 
+    /**
+     * Main method to ingest the budget PDF.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(final String[] args) {
         if (args.length != 1) {
             System.err.println("usage: IngestBudgetPdf <pdfPath>");
