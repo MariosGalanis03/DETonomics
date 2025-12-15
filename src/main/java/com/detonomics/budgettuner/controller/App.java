@@ -11,12 +11,30 @@ import com.detonomics.budgettuner.dao.BudgetModifier;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 
 // Η κεντρική κλάση της εφαρμογής
+/**
+ * The main entry point for the Budget Tuner application.
+ * <p>
+ * This class handles the command-line interface (CLI) interactions, allowing
+ * users
+ * to view budget statistics, import new budgets from PDF files, and navigate
+ * through various data visualization options.
+ * </p>
+ */
 public final class App {
 
     private App() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * The main method that starts the application.
+     * <p>
+     * Initializes the scanner, loads existing budget statistics, and enters the
+     * main interactive loop where the user can select years and view reports.
+     * </p>
+     *
+     * @param args Command line arguments (not currently used).
+     */
     public static void main(final String[] args) {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         System.out.println();

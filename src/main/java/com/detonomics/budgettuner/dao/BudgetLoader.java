@@ -225,7 +225,7 @@ public final class BudgetLoader {
         }
 
         // Helpers exposed for BudgetModifier
-        public static int loadRevenueCategoryIDFromCode(final long code) {
+        static int loadRevenueCategoryIDFromCode(final long code) {
                 String sql = "SELECT revenue_category_id FROM RevenueCategories "
                                 + "WHERE code = ?";
                 List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, code);
@@ -236,7 +236,7 @@ public final class BudgetLoader {
                 return (Integer) queryResults.getFirst().get("revenue_category_id");
         }
 
-        public static long loadRevenueAmount(final int revenueCategoryId) {
+        static long loadRevenueAmount(final int revenueCategoryId) {
                 String sql = "SELECT amount FROM RevenueCategories "
                                 + "WHERE revenue_category_id = ?";
                 List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, revenueCategoryId);
@@ -247,7 +247,7 @@ public final class BudgetLoader {
                 return ((Number) queryResults.getFirst().get("amount")).longValue();
         }
 
-        public static int loadRevenueParentID(final int revenueCategoryId) {
+        static int loadRevenueParentID(final int revenueCategoryId) {
                 String sql = "SELECT parent_id FROM RevenueCategories "
                                 + "WHERE revenue_category_id = ?";
                 List<Map<String, Object>> queryResults = DatabaseManager.executeQuery(dbPath, sql, revenueCategoryId);
@@ -258,7 +258,7 @@ public final class BudgetLoader {
                 return (rawParentID == null) ? 0 : rawParentID;
         }
 
-        public static ArrayList<Integer> loadRevenueChildren(final int revenueCategoryID) {
+        static ArrayList<Integer> loadRevenueChildren(final int revenueCategoryID) {
                 ArrayList<Integer> children = new ArrayList<>();
                 String sql = "SELECT revenue_category_id FROM RevenueCategories "
                                 + "WHERE parent_id = ?";
