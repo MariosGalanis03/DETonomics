@@ -1,5 +1,7 @@
 # Πρωθυπουργός για μια μέρα - A State Budget Analysis and Modification Tool
 
+![Java CI with Maven](https://github.com/MariosGalanis03/DETonomics/actions/workflows/maven.yml/badge.svg)
+
 This project is a application for reviewing, processing and analyzing the state budget. It allows a user to view/change budget data, introduce hypothetical changes, and see the impact of those changes.
 
 # Οδηγίες για την υπόλοιπη ομάδα
@@ -26,22 +28,33 @@ This project is a application for reviewing, processing and analyzing the state 
 ## Οδηγίες για νέο project structure
 
 ### Controller package
+
 Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`App.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
 
+### Entry Point (Main)
+
+Το σημείο εισόδου της εφαρμογής είναι η κλάση `com.detonomics.budgettuner.controller.App`.
+Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn exec:java`) όπως περιγράφεται παρακάτω.
+
 ### Dao package
+
 Στο πακέτο αυτό συμπεριλαμβάνονται τα Data Access Objects της εφαρμογής. Αποκτούν πρόσβαση στο database της εφαρμογής και επιστρέφουν τα δεδομένα στα service classes.
 
 ### Service package
+
 Στο πακέτο αυτό συμπεριλαμβάνονται τα Service classes της εφαρμογής. Οι κλάσεις αυτές είναι οι βασικές λειτουργίες και η υποδομή της εφαρμογής.
 
 ### Model package
+
 Αποτελείται από κλάσεις που είναι "εικόνες" των δεδομένων της εφαρμογής.
 
 ### Util package
+
 Αποτελείται από κλάσεις που παρέχουν χρήσιμες εργαλεία για την εφαρμογή. Εκτελούν πολύ συγκεκριμένες λειτουργίες
 
 
 ## Χρήση GitHub
+
 Για να διασφαλιστεί η ομαλή συνεργασία και να αποφευχθούν συγκρούσεις κώδικα (merge conflicts), η ομάδα πρέπει να υιοθετήσει ένα σταθερό "GitHub Flow", ξεκινώντας με την απομόνωση της εργασίας. Κάθε μέλος οφείλει να ξεκινά πάντα ενημερώνοντας τον κύριο κλάδο (`main`) με την εντολή `git pull` και αμέσως μετά να δημιουργεί έναν νέο κλάδο εργασίας, ο οποίος πρέπει να είναι περιγραφικός της εκτελούμενης εργασίας (π.χ., `feature/login` ή `bugfix/css-header`). Αυτή η πρακτική διασφαλίζει ότι η ανάπτυξη κάθε νέας λειτουργίας ή διόρθωσης λαμβάνει χώρα σε ένα ασφαλές, απομονωμένο περιβάλλον, χωρίς να επηρεάζει τον σταθερό κώδικα του `main`.
 
 ```bash
@@ -123,3 +136,13 @@ git checkout -b "Μέσα στα εισαγωγικά το όνομα του π�
     ```
 
 Η εφαρμογή θα ξεκινήσει και θα εμφανίσει το διαδραστικό μενού στην κονσόλα.
+
+## Τεκμηρίωση Κώδικα (Javadoc)
+
+Για να δημιουργήσετε την τεκμηρίωση του κώδικα (Javadoc), εκτελέστε:
+
+```bash
+mvn javadoc:javadoc
+```
+
+Τα αρχεία τεκμηρίωσης θα δημιουργηθούν στον φάκελο `target/site/apidocs/`. Μπορείτε να ανοίξετε το `index.html` με τον browser σας.
