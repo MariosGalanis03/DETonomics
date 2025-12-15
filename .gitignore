@@ -3,9 +3,9 @@ target/
 pom.xml.tag
 pom.xml.versionsBackup
 dependency-reduced-pom.xml
-# Individual vs code config
+# Individual code config
 .vscode
-# Individual IntellijIdea config
+.cursor
 .idea
 # BudgetPDFs
 data/input/
