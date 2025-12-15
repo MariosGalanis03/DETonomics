@@ -2,6 +2,16 @@ package com.detonomics.budgettuner.model;
 
 import com.detonomics.budgettuner.util.BudgetFormatter;
 
+/**
+ * Represents the high-level summary of a state budget.
+ * <p>
+ * This immutable model class holds aggregate figures such as total revenue,
+ * total expenses,
+ * the final budget result (surplus/deficit), and coverage metrics. It
+ * corresponds to
+ * the {@code Budgets} table in the database.
+ * </p>
+ */
 public final class Summary {
     private final String sourceTitle;
     private final String currency;
@@ -13,6 +23,19 @@ public final class Summary {
     private long budgetResult;
     private long coverageWithCashReserves;
 
+    /**
+     * Constructs a new Summary instance with the specified budget details.
+     *
+     * @param sourceTitle              Title of the budget source document.
+     * @param currency                 Currency code (e.g., "EUR").
+     * @param locale                   Locale string (e.g., "el_GR").
+     * @param sourceDate               Date of the source document.
+     * @param budgetYear               The fiscal year of the budget.
+     * @param totalRevenues            Total projected revenues.
+     * @param totalExpenses            Total projected expenses.
+     * @param budgetResult             The net result (Revenues - Expenses).
+     * @param coverageWithCashReserves The coverage capability using cash reserves.
+     */
     public Summary(final String sourceTitle, final String currency,
             final String locale, final String sourceDate, final int budgetYear,
             final long totalRevenues, final long totalExpenses,

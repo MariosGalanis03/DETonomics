@@ -7,6 +7,14 @@ import com.detonomics.budgettuner.util.ingestion.PdfToText;
 import com.detonomics.budgettuner.util.ingestion.TextToJson;
 import com.detonomics.budgettuner.util.ingestion.JsonToSQLite;
 
+/**
+ * Service class responsible for the end-to-end ingestion of budget data.
+ * <p>
+ * This class orchestrates the pipeline that converts a PDF budget file into
+ * structured text, then into JSON, and finally persists it into the SQLite
+ * database.
+ * </p>
+ */
 public final class IngestBudgetPdf {
     private IngestBudgetPdf() {
         throw new AssertionError("Utility class");
@@ -30,6 +38,17 @@ public final class IngestBudgetPdf {
         return baseName + ".json";
     }
 
+    /**
+     * Executes the full ingestion pipeline for a given PDF file.
+     * <ol>
+     * <li>Converts PDF to Text.</li>
+     * <li>Parses Text to JSON.</li>
+     * <li>Loads JSON data into the Database.</li>
+     * </ol>
+     *
+     * @param pdfPath Absolute or relative path to the PDF file.
+     * @throws Exception If any step in the pipeline fails (I/O, Parsing, SQL).
+     */
     public static void process(final String pdfPath) throws Exception {
         // --- Step 1: PDF to Text (remains the same) ---
         System.out.println("STEP 1: Converting PDF to TEXT...");

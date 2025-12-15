@@ -78,6 +78,9 @@
             <goals>
               <goal>report</goal>
             </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+            </configuration>
           </execution>
           <execution>
             <id>jacoco-check</id>
@@ -117,7 +120,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.3.0</version>
+          <version>4.9.8.2</version>
           <executions>
             <execution>
               <id>check</id>
@@ -136,9 +139,18 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
           <show>private</show>
           <nohelp>true</nohelp>
+          <failOnError>false</failOnError>
         </configuration>
       </plugin>
     </plugins>

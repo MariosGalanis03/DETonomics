@@ -87,10 +87,11 @@ git pull                     # Ενημέρωση του τοπικού main μ�
 git branch -d feature/my-new-feature # Διαγραφή του τοπικού κλάδου
 ```
 
-## Χρήση Maven
-
-Τα προγράμματα java πρέπει να γράφονται μέσα στον φάκελο src/main/java/com/detonomics/budgettuner/backend. Μετά τα προγράμματα χωρίζονται για τώρα σε δύο υποκατηγορίες φακέλων. Τα mainapplicationfeatures όπου γράφεται το σώμα της εφαρμογής που ο χρήστης θα χρησιμοποιήσει ενώ στο budgetingestion γίνονται οι διεργασίες για την εξαγωγή δεδομένων από τα PDF. Στην αρχή κάθε java αρχείου ξεκινάτε με package ακολουθούμενο από το file path στο οποίο βρίσκεται ο νέος φάκελος π.χ. package com.detonomics.budgettuner.backend.
-mainapplicationfeatures; Αυτή η γραμμή είναι απαραίτητη.
+## Πως τρέχω την εφαρμογή
+Αφού κατεβάσετε το αποθετήριο τρέξτε απευθείας:
+- mvn clean install 
+- mvn exec:java -Dexec.mainClass="com.detonomics.budgettuner.controller.App"
+Η πρώτη εντολή κατεβάζει τα dependencies και τον κώδικα της εφαρμογής. Η δεύτερη εντολή τρέχει την εφαρμογή.
 
 ### Εισαγωγή ξένων πακέτων
 

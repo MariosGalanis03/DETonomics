@@ -11,12 +11,22 @@ import com.detonomics.budgettuner.dao.SqlSequenceDao;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 
 // Η κεντρική κλάση της εφαρμογής
+// Η κεντρική κλάση της εφαρμογής
 public final class BudgetTunerCLI {
 
     private BudgetTunerCLI() {
         throw new AssertionError("Utility class");
     }
 
+    /**
+     * The main method that starts the application.
+     * <p>
+     * Initializes the scanner, loads existing budget statistics, and enters the
+     * main interactive loop where the user can select years and view reports.
+     * </p>
+     *
+     * @param args Command line arguments (not currently used).
+     */
     public static void main(final String[] args) {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         System.out.println();

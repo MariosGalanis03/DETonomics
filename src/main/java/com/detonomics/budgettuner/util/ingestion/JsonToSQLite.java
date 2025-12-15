@@ -38,8 +38,8 @@ public final class JsonToSQLite {
                     "Error: Please provide the path to the JSON file as "
                             + "an argument.");
             System.err.println(
-                    "Usage Example: java com.example.BudgetProcessor "
-                            + "\"C:\\data\\BudgetGreece2025.json\"");
+                    "Usage Example: java com.detonomics.budgettuner.util.ingestion.JsonToSQLite "
+                            + "\"data/BudgetGreece2025.json\"");
             return;
         }
         String jsonFilePath = args[0];
