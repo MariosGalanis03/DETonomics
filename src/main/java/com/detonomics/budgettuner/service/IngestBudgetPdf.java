@@ -18,7 +18,7 @@ public final class IngestBudgetPdf {
         if (dotIndex > 0) {
             baseName = baseName.substring(0, dotIndex);
         }
-        return baseName + "Test.txt";
+        return baseName + ".txt";
     }
 
     private static String toJsonName(final String pdfPath) {

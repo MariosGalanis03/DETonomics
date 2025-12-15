@@ -113,8 +113,7 @@ public final class JsonToSQLite {
                     amount REAL,
                     parent_id INTEGER,
                     FOREIGN KEY (budget_id) REFERENCES Budgets (budget_id),
-                    FOREIGN KEY (parent_id) REFERENCES RevenueCategories "
-                            + "(revenue_category_id)
+                    FOREIGN KEY (parent_id) REFERENCES RevenueCategories (revenue_category_id)
                 );
                 """;
 
@@ -149,8 +148,7 @@ public final class JsonToSQLite {
                     expense_category_id INTEGER,
                     amount REAL,
                     FOREIGN KEY (ministry_id) REFERENCES Ministries (ministry_id),
-                    FOREIGN KEY (expense_category_id) "
-                            + "REFERENCES ExpenseCategories (expense_category_id)
+                    FOREIGN KEY (expense_category_id) REFERENCES ExpenseCategories (expense_category_id)
                 );
                 """;
 
