@@ -26,7 +26,7 @@ This project is a application for reviewing, processing and analyzing the state 
 ## Οδηγίες για νέο project structure
 
 ### Controller package
-Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`App.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
+Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`App.java`) η οποία είναι το σημείο εισόδου της εφαρμογής.
 
 ### Dao package
 Στο πακέτο αυτό συμπεριλαμβάνονται τα Data Access Objects της εφαρμογής. Αποκτούν πρόσβαση στο database της εφαρμογής και επιστρέφουν τα δεδομένα στα service classes.
