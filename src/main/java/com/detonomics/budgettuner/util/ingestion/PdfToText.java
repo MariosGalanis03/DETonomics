@@ -14,17 +14,24 @@ import org.apache.pdfbox.text.PDFTextStripper;
  * A class that handles the entire process of extracting text from a PDF
  * and saving it to a corresponding .txt file.
  */
-final public class PdfToText {
+public final class PdfToText {
 
-    // Keep strong references to avoid garbage collection of logger configuration
-    private static final java.util.logging.Logger PDFBOX_LOGGER = java.util.logging.Logger
-            .getLogger("org.apache.pdfbox");
-    private static final java.util.logging.Logger FONT_LOGGER = java.util.logging.Logger
+    // Keep strong references to avoid GC of logger configuration
+    private static final java.util.logging.Logger PDFBOX_LOGGER =
+            java.util.logging.Logger.getLogger("org.apache.pdfbox");
+    private static final java.util.logging.Logger FONT_LOGGER =
+            java.util.logging.Logger
             .getLogger("org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
 
     static {
         PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
         FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
+    }
+
+    /**
+     * Default constructor.
+     */
+    public PdfToText() {
     }
 
     /**
@@ -44,7 +51,8 @@ final public class PdfToText {
         Path outputPath = outputDir.resolve(outputFileName);
         Files.createDirectories(outputDir);
         Files.writeString(outputPath, text, StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
 
         System.out.println("Text successfully extracted and saved to '"
                 + outputFileName + "'");

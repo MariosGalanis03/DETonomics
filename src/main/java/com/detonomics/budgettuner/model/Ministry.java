@@ -1,5 +1,8 @@
 package com.detonomics.budgettuner.model;
 
+/**
+ * Represents a Ministry entity.
+ */
 public final class Ministry {
     private final int ministryID;
     private final long code;
@@ -8,6 +11,16 @@ public final class Ministry {
     private long publicInvestmentBudget;
     private long totalBudget;
 
+    /**
+     * Constructs a new Ministry.
+     *
+     * @param ministryID             The ID of the ministry.
+     * @param code                   The code of the ministry.
+     * @param name                   The name of the ministry.
+     * @param regularBudget          The regular budget amount.
+     * @param publicInvestmentBudget The public investment budget amount.
+     * @param totalBudget            The total budget amount.
+     */
     public Ministry(final int ministryID, final long code, final String name,
             final long regularBudget, final long publicInvestmentBudget,
             final long totalBudget) {
@@ -19,14 +32,29 @@ public final class Ministry {
         this.totalBudget = totalBudget;
     }
 
+    /**
+     * Gets the ministry ID.
+     *
+     * @return The ministry ID.
+     */
     public int getMinistryID() {
         return ministryID;
     }
 
+    /**
+     * Gets the ministry code.
+     *
+     * @return The code.
+     */
     public long getCode() {
         return code;
     }
 
+    /**
+     * Gets the ministry name.
+     *
+     * @return The name.
+     */
     public String getName() {
         return name;
     }
@@ -39,6 +67,11 @@ public final class Ministry {
         return publicInvestmentBudget;
     }
 
+    /**
+     * Gets the total budget.
+     *
+     * @return The total budget.
+     */
     public long getTotalBudget() {
         return totalBudget;
     }

@@ -12,6 +12,9 @@ import com.detonomics.budgettuner.util.BudgetFormatter;
 
 // Η κεντρική κλάση της εφαρμογής
 // Η κεντρική κλάση της εφαρμογής
+/**
+ * The main entry point for the Budget Tuner command-line interface.
+ */
 public final class BudgetTunerCLI {
 
     private BudgetTunerCLI() {
