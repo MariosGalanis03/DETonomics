@@ -10,7 +10,6 @@ This project is a application for reviewing, processing and analyzing the state 
 
 ### Επείγοντες
 
-- Σπάσιμο dao ανά model κλάση.
 - Αξιοποίηση agentic feedback από κύριο Σπινέλλη.
 - Επέκταση unit tests για υψηλότερο ποσοστό κάλυψης από JaCoCo.
 - Ανάπτυξη παραθύρου Γραφικής Διεπαφής με τις λειτουργίες που εκτελεί ήδη η εφαρμογή γραμμής εντολών.
@@ -29,11 +28,11 @@ This project is a application for reviewing, processing and analyzing the state 
 
 ### Controller package
 
-Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`App.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
+Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`BudgetTunerCLI.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
 
 ### Entry Point (Main)
 
-Το σημείο εισόδου της εφαρμογής είναι η κλάση `com.detonomics.budgettuner.controller.App`.
+Το σημείο εισόδου της εφαρμογής είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
 Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn exec:java`) όπως περιγράφεται παρακάτω.
 
 ### Dao package
@@ -129,7 +128,7 @@ git checkout -b "Μέσα στα εισαγωγικά το όνομα του π�
     ```
 
 4.  **Εκτέλεση της Εφαρμογής:**
-    Εκτελέστε την κύρια κλάση (`App.java`) χρησιμοποιώντας το `exec-maven-plugin`.
+    Εκτελέστε την κύρια κλάση (`BudgetTunerCLI.java`) χρησιμοποιώντας το `exec-maven-plugin`.
 
     ```bash
     mvn exec:java
