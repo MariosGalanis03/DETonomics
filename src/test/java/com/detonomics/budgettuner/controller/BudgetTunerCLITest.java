@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-public class AppTest {
+public class BudgetTunerCLITest {
 
     @Test
     void testMainExitsImmediatelyOnZeroInput() throws Exception {
@@ -22,7 +22,7 @@ public class AppTest {
             System.setOut(new PrintStream(outContent));
 
             // Run the main; should read the '0' and exit without blocking
-            App.main(new String[0]);
+            BudgetTunerCLI.main(new String[0]);
 
             String output = outContent.toString();
             assertTrue(output.contains("Καλωσορίσατε"), "Should print welcome message");

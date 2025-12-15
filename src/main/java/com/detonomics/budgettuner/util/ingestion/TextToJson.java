@@ -233,6 +233,11 @@ public final class TextToJson {
         .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "");
     // remove markdown fences
 
+    Path parent = outJson.getParent();
+    if (parent != null) {
+      Files.createDirectories(parent);
+    }
+
     Files.writeString(outJson, json, StandardCharsets.UTF_8,
         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 

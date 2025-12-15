@@ -48,7 +48,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>
         <configuration>
-          <mainClass>com.detonomics.budgettuner.controller.App</mainClass>
+          <mainClass>com.detonomics.budgettuner.controller.BudgetTunerCLI</mainClass>
           <arguments>
             <argument>-Dfile.encoding=UTF-8</argument>
           </arguments>
@@ -148,6 +148,8 @@
           </execution>
         </executions>
         <configuration>
+          <show>private</show>
+          <nohelp>true</nohelp>
           <failOnError>false</failOnError>
         </configuration>
       </plugin>

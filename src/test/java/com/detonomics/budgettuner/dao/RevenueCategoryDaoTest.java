@@ -11,25 +11,25 @@ import com.detonomics.budgettuner.util.DatabaseManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BudgetModifierIntegrationTest {
+class RevenueCategoryDaoTest {
 
     private String originalDbPath;
 
     @BeforeEach
     void setUp() {
-        originalDbPath = BudgetLoader.getDbPath();
+        originalDbPath = DaoConfig.getDbPath();
     }
 
     @AfterEach
     void tearDown() {
-        BudgetLoader.setDbPath(originalDbPath);
+        DaoConfig.setDbPath(originalDbPath);
     }
 
     @Test
     void testSetRevenueAmountUpdatesParentAndChildren(@TempDir Path tempDir) {
         Path dbFile = tempDir.resolve("test-modifier.db");
         String dbPath = dbFile.toAbsolutePath().toString();
-        BudgetLoader.setDbPath(dbPath);
+        DaoConfig.setDbPath(dbPath);
 
         // Create Schema
         String createRevenue = "CREATE TABLE IF NOT EXISTS RevenueCategories (" +
@@ -49,26 +49,21 @@ class BudgetModifierIntegrationTest {
         // This should trigger:
         // 1. Child update: 100 -> 200 (+100 diff)
         // 2. Parent update: 100 + 100 = 200.
-        int rows = BudgetModifier.setRevenueAmount(1001L, 200L);
+        int rows = RevenueCategoryDao.setRevenueAmount(1001L, 200L);
 
         assertTrue(rows > 0, "Should affect rows");
 
         // Verify Child
-        long childAmount = BudgetLoader.loadRevenueAmount(2);
+        long childAmount = RevenueCategoryDao.loadRevenueAmount(2);
         assertEquals(200L, childAmount, "Child amount should be updated");
 
         // Verify Parent
-        long parentAmount = BudgetLoader.loadRevenueAmount(1);
+        long parentAmount = RevenueCategoryDao.loadRevenueAmount(1);
         assertEquals(200L, parentAmount, "Parent amount should be updated recursively");
     }
 
     @Test
-    void testSetRevenueAmountNoChange(@TempDir Path tempDir) {
-        // If amount is same, returns 0
-        // We need to mock or setup DB to return a value first.
-        // Since we are using integration test, we rely on DB state.
-        // This test is simpler if we just trust the logic, but let's skip complex setup
-        // for now
-        // as the previous test covers the main logic.
+    void testSetRevenueAmountNoChange() {
+        // Placeholder for consistency
     }
 }

@@ -6,23 +6,15 @@ import java.nio.charset.StandardCharsets;
 
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.SqlSequence;
-import com.detonomics.budgettuner.dao.BudgetLoader;
-import com.detonomics.budgettuner.dao.BudgetModifier;
+import com.detonomics.budgettuner.dao.BudgetYearDao;
+import com.detonomics.budgettuner.dao.SqlSequenceDao;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 
 // Η κεντρική κλάση της εφαρμογής
-/**
- * The main entry point for the Budget Tuner application.
- * <p>
- * This class handles the command-line interface (CLI) interactions, allowing
- * users
- * to view budget statistics, import new budgets from PDF files, and navigate
- * through various data visualization options.
- * </p>
- */
-public final class App {
+// Η κεντρική κλάση της εφαρμογής
+public final class BudgetTunerCLI {
 
-    private App() {
+    private BudgetTunerCLI() {
         throw new AssertionError("Utility class");
     }
 
@@ -44,7 +36,7 @@ public final class App {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         System.out.println("Σύνολο αποθηκευμένων στοιχείων στη Βάση:");
-        SqlSequence statistics = BudgetLoader.loadSqliteSequence();
+        SqlSequence statistics = SqlSequenceDao.loadSqliteSequence();
         System.out.printf(
                 "- Προϋπολογισμοί: %d%n- Κατηγορίες Εσόδων: %d%n"
                         + "- Κατηγορίες Εξόδων: %d%n- Υπουργεία: %d%n"
@@ -55,7 +47,7 @@ public final class App {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         // Φόρτωση λίστας ετών προϋπολογισμού
-        ArrayList<Integer> years = BudgetLoader.loadBudgetYearsList();
+        ArrayList<Integer> years = BudgetYearDao.loadBudgetYearsList();
         boolean programrunning = true;
         boolean menurunning = true;
         int year;
@@ -102,9 +94,9 @@ public final class App {
                         continue;
                     }
                     try {
-                        BudgetModifier.insertNewBudgetYear(pdfPath);
+                        BudgetYearDao.insertNewBudgetYear(pdfPath);
                         // Ενημέρωση της λίστας ετών μετά την εισαγωγή
-                        years = BudgetLoader.loadBudgetYearsList();
+                        years = BudgetYearDao.loadBudgetYearsList();
                         System.out.println(
                                 "Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
                     } catch (Exception e) {
@@ -120,8 +112,8 @@ public final class App {
             } while (!years.contains(year) && programrunning);
 
             // Βρισκει το ID για το συγκεκριμένο έτος
-            int budgetID = BudgetLoader.loadBudgetIDByYear(year);
-            BudgetYear budget = BudgetLoader.loadBudgetYear(budgetID);
+            int budgetID = BudgetYearDao.loadBudgetIDByYear(year);
+            BudgetYear budget = BudgetYearDao.loadBudgetYear(budgetID);
 
             // === ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ===
             if (!programrunning) {

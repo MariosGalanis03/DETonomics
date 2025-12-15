@@ -113,8 +113,7 @@ public final class JsonToSQLite {
                     amount REAL,
                     parent_id INTEGER,
                     FOREIGN KEY (budget_id) REFERENCES Budgets (budget_id),
-                    FOREIGN KEY (parent_id) REFERENCES RevenueCategories "
-                            + "(revenue_category_id)
+                    FOREIGN KEY (parent_id) REFERENCES RevenueCategories (revenue_category_id)
                 );
                 """;
 
@@ -149,8 +148,7 @@ public final class JsonToSQLite {
                     expense_category_id INTEGER,
                     amount REAL,
                     FOREIGN KEY (ministry_id) REFERENCES Ministries (ministry_id),
-                    FOREIGN KEY (expense_category_id) "
-                            + "REFERENCES ExpenseCategories (expense_category_id)
+                    FOREIGN KEY (expense_category_id) REFERENCES ExpenseCategories (expense_category_id)
                 );
                 """;
 
@@ -228,7 +226,7 @@ public final class JsonToSQLite {
             pstmt.setLong(8, budgetFile.getBudgetSummary()
                     .getStateBudgetBalance());
             pstmt.setLong(9, budgetFile.getBudgetSummary()
-                    .getCoverageWwithCashReserves());
+                    .getCoverageWithCashReserves());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
@@ -524,8 +522,8 @@ public final class JsonToSQLite {
         private long totalExpenses;
         @JsonProperty("stateBudgetBalance")
         private long stateBudgetBalance;
-        @JsonProperty("coverageWwithCashReserves")
-        private long coverageWwithCashReserves;
+        @JsonProperty("coverageWithCashReserves")
+        private long coverageWithCashReserves;
 
         BudgetSummary() {
             // Default constructor required for Jackson deserialization
@@ -535,7 +533,7 @@ public final class JsonToSQLite {
             this.totalRevenue = other.totalRevenue;
             this.totalExpenses = other.totalExpenses;
             this.stateBudgetBalance = other.stateBudgetBalance;
-            this.coverageWwithCashReserves = other.coverageWwithCashReserves;
+            this.coverageWithCashReserves = other.coverageWithCashReserves;
         }
 
         public long getTotalRevenue() {
@@ -562,13 +560,13 @@ public final class JsonToSQLite {
             this.stateBudgetBalance = stateBudgetBalance;
         }
 
-        public long getCoverageWwithCashReserves() {
-            return coverageWwithCashReserves;
+        public long getCoverageWithCashReserves() {
+            return coverageWithCashReserves;
         }
 
-        public void setCoverageWwithCashReserves(
-                final long coverageWwithCashReserves) {
-            this.coverageWwithCashReserves = coverageWwithCashReserves;
+        public void setCoverageWithCashReserves(
+                final long coverageWithCashReserves) {
+            this.coverageWithCashReserves = coverageWithCashReserves;
         }
     }
 

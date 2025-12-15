@@ -16,6 +16,17 @@ import org.apache.pdfbox.text.PDFTextStripper;
  */
 final public class PdfToText {
 
+    // Keep strong references to avoid garbage collection of logger configuration
+    private static final java.util.logging.Logger PDFBOX_LOGGER = java.util.logging.Logger
+            .getLogger("org.apache.pdfbox");
+    private static final java.util.logging.Logger FONT_LOGGER = java.util.logging.Logger
+            .getLogger("org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
+
+    static {
+        PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
+        FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
+    }
+
     /**
      * Public method to orchestrate the extraction and saving process.
      * It reads a PDF, determines the output file name automatically,
@@ -31,6 +42,7 @@ final public class PdfToText {
         String outputFileName = this.getOutputFileName(pdfPath);
 
         Path outputPath = outputDir.resolve(outputFileName);
+        Files.createDirectories(outputDir);
         Files.writeString(outputPath, text, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
