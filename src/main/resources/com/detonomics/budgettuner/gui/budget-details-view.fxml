@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.gui.BudgetDetailsController">
+
+    <stylesheets>
+        <URL value="@styles.css" />
+    </stylesheets>
+
+    <BorderPane>
+        <top>
+            <BorderPane styleClass="details-topbar">
+                <left>
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <children>
+                            <Button fx:id="menuButton" mnemonicParsing="false" onAction="#onMenuButtonClick" styleClass="menu-button" text="☰" />
+                            <Label text="Budget Tuner" styleClass="app-name" />
+                        </children>
+                    </HBox>
+                </left>
+                <center>
+                    <Label fx:id="titleLabel" text="Προϋπολογισμός" styleClass="details-title">
+                        <font>
+                            <Font name="Segoe UI Bold" size="28.0" />
+                        </font>
+                    </Label>
+                </center>
+                <padding>
+                    <Insets bottom="14.0" left="14.0" right="18.0" top="14.0" />
+                </padding>
+            </BorderPane>
+        </top>
+
+        <center>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="details-scroll">
+                <content>
+                    <VBox fx:id="contentBox" alignment="TOP_CENTER" spacing="22.0">
+                        <padding>
+                            <Insets bottom="30.0" left="24.0" right="24.0" top="10.0" />
+                        </padding>
+
+                        <HBox spacing="18.0" VBox.vgrow="NEVER" styleClass="cards-row">
+                            <children>
+                                <VBox spacing="8.0" styleClass="card metric-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Σύνολο Εσόδων" styleClass="metric-label" />
+                                        <Label fx:id="revenuesValue" text="-" styleClass="metric-value" />
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="card metric-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Σύνολο Εξόδων" styleClass="metric-label" />
+                                        <Label fx:id="expensesValue" text="-" styleClass="metric-value" />
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="card metric-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Αποτέλεσμα Κρατικού Προϋπολογισμού" wrapText="true" styleClass="metric-label" />
+                                        <Label fx:id="resultValue" text="-" styleClass="metric-value" />
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="60.0" alignment="CENTER">
+                            <children>
+                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                    <children>
+                                        <Label text="Μεταβολη Εσοδων-Εξοδων" styleClass="section-title" />
+                                        <LineChart fx:id="totalsChart" animated="true" createSymbols="true" legendVisible="true" prefHeight="520.0">
+                                            <xAxis>
+                                                <CategoryAxis fx:id="yearsAxis" label="Έτος" />
+                                            </xAxis>
+                                            <yAxis>
+                                                <NumberAxis fx:id="amountAxis" label="Ποσό (€)" />
+                                            </yAxis>
+                                        </LineChart>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+
+                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                    <children>
+                                        <Label text="Μεταβολή Αποτέλεσμα Κρατικού Προϋπολογισμού" styleClass="section-title" />
+                                        <LineChart fx:id="resultChart" animated="true" createSymbols="true" legendVisible="false" prefHeight="520.0">
+                                            <xAxis>
+                                                <CategoryAxis fx:id="resultYearsAxis" label="Έτος" />
+                                            </xAxis>
+                                            <yAxis>
+                                                <NumberAxis fx:id="resultAmountAxis" label="Ποσό (€)" />
+                                            </yAxis>
+                                        </LineChart>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="18.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Μεγαλύτερες Πηγές Εσόδων" styleClass="list-section-title" />
+                                        <VBox fx:id="topRevenuesBox" spacing="8.0" />
+                                        <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εσόδων" />
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+
+                                <VBox spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Μεγαλύτερες Πηγές Εξόδων" styleClass="list-section-title" />
+                                        <VBox fx:id="topExpensesBox" spacing="8.0" />
+                                        <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εξόδων" />
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                    </padding>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="10.0" styleClass="card">
+                            <children>
+                                <Label text="Υπουργεια με τη μεγαλυτερη δημοσιονομικη επιβαρυνση" styleClass="list-section-title" />
+                                <VBox fx:id="topMinistriesBox" spacing="8.0" />
+                                <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Υπουργείων" />
+                            </children>
+                            <padding>
+                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                            </padding>
+                        </VBox>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+
+    <Pane fx:id="menuOverlay" onMouseClicked="#onMenuOverlayClick" styleClass="menu-overlay" visible="false" />
+
+    <VBox fx:id="menuDrawer" styleClass="menu-drawer" translateX="-320.0" maxWidth="320.0" prefWidth="320.0" visible="false" StackPane.alignment="CENTER_LEFT">
+        <children>
+            <Label text="Μενού" styleClass="menu-title" />
+            <Button mnemonicParsing="false" styleClass="menu-item" text="Αποθηκευση" />
+            <Button mnemonicParsing="false" onAction="#onMenuSelectBudgetClick" styleClass="menu-item" text="Επιλογη Προυπολογισμου" />
+            <Button mnemonicParsing="false" styleClass="menu-item" text="Συγκριση Προυπολογισμων" />
+            <Button mnemonicParsing="false" onAction="#onMenuExitClick" styleClass="menu-item" text="Εξοδος" />
+        </children>
+        <padding>
+            <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />
+        </padding>
+        <spacing>12.0</spacing>
+    </VBox>
+</StackPane>
+

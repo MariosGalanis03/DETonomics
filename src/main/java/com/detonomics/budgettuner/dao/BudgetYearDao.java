@@ -78,6 +78,14 @@ public final class BudgetYearDao {
                 ministries, ministryExpenses);
     }
 
+    public static BudgetYear loadBudgetYearByYear(final int year) {
+        int budgetId = loadBudgetIDByYear(year);
+        if (budgetId <= 0) {
+            throw new IllegalArgumentException("No budget found for year: " + year);
+        }
+        return loadBudgetYear(budgetId);
+    }
+
     /**
      * Inserts a new budget year from a PDF file.
      *
