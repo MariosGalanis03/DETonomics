@@ -66,7 +66,7 @@ public final class TextToJson {
           "totalRevenue": 0,
           "totalExpenses": 0,
           "stateBudgetBalance": 0,
-          "coverageWwithCashReserves": 0
+          "coverageWithCashReserves": 0
         },
         "revenueAnalysis": [
           {
