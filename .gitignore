@@ -7,6 +7,5 @@ dependency-reduced-pom.xml
 .vscode
 .cursor
 .idea
-# BudgetPDFs
-data/input/
-data/processed/
+# Data folder
+data/

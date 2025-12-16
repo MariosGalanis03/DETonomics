@@ -274,7 +274,7 @@
             <configuration>
               <target>
                 <mkdir dir="data/output"/>
-                <copy file="src/main/resources/com/detonomics/budgettuner/BudgetDB.db" tofile="data/output/BudgetDB.db" overwrite="true"/>
+                <copy file="src/main/resources/com/detonomics/budgettuner/database/BudgetDB.db" tofile="data/output/BudgetDB.db" overwrite="true"/>
               </target>
             </configuration>
           </execution>

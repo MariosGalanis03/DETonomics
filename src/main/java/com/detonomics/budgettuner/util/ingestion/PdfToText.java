@@ -17,11 +17,10 @@ import org.apache.pdfbox.text.PDFTextStripper;
 public final class PdfToText {
 
     // Keep strong references to avoid GC of logger configuration
-    private static final java.util.logging.Logger PDFBOX_LOGGER =
-            java.util.logging.Logger.getLogger("org.apache.pdfbox");
-    private static final java.util.logging.Logger FONT_LOGGER =
-            java.util.logging.Logger
-            .getLogger("org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
+    private static final java.util.logging.Logger PDFBOX_LOGGER = java.util.logging.Logger
+            .getLogger("org.apache.pdfbox");
+    private static final java.util.logging.Logger FONT_LOGGER = java.util.logging.Logger.getLogger(
+            "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
 
     static {
         PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
@@ -66,8 +65,27 @@ public final class PdfToText {
         File pdfFile = new File(pdfPath);
         try (PDDocument document = PDDocument.load(pdfFile)) {
             PDFTextStripper pdfStripper = new PDFTextStripper();
-            return pdfStripper.getText(document);
+            String rawText = pdfStripper.getText(document);
+            return cleanText(rawText);
         }
+    }
+
+    /**
+     * Cleans the extracted text to reduce token consumption.
+     * Removes empty lines and collapses multiple spaces.
+     *
+     * @param text The raw extracted text.
+     * @return The cleaned text.
+     */
+    private String cleanText(final String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.lines()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .map(line -> line.replaceAll("\\s+", " "))
+                .collect(java.util.stream.Collectors.joining("\n"));
     }
 
     /**
