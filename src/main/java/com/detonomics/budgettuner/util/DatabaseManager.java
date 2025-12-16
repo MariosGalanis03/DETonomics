@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public final class DatabaseManager {
 
-    private DatabaseManager() {
+    public DatabaseManager() {
         throw new AssertionError("Utility class");
     }
 
