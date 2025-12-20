@@ -17,10 +17,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
 public final class PdfToText {
 
     // Keep strong references to avoid GC of logger configuration
-    private static final java.util.logging.Logger PDFBOX_LOGGER = java.util.logging.Logger
-            .getLogger("org.apache.pdfbox");
-    private static final java.util.logging.Logger FONT_LOGGER = java.util.logging.Logger.getLogger(
-            "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
+    private static final java.util.logging.Logger PDFBOX_LOGGER =
+            java.util.logging.Logger.getLogger("org.apache.pdfbox");
+    private static final java.util.logging.Logger FONT_LOGGER =
+            java.util.logging.Logger.getLogger(
+                    "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
 
     static {
         PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);

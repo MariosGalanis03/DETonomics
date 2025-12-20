@@ -68,7 +68,7 @@ public final class BudgetTunerCLI {
                         // 1. Select Year
                         int year = selectYear(scanner, years, "Εισάγετε το έτος προϋπολογισμού: ");
                         System.out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
-                        
+
                         int budgetID = BudgetYearDao.loadBudgetIDByYear(year);
                         BudgetYear budget = BudgetYearDao.loadBudgetYear(budgetID);
 
@@ -82,7 +82,7 @@ public final class BudgetTunerCLI {
 
                     case 2:
                         System.out.println("Σύγκριση δύο ετών προϋπολογισμού...");
-                        
+
                         // 1. Select Years
                         int year1 = selectYear(scanner, years, "Εισάγετε το πρώτο έτος για σύγκριση: ");
                         int budgetID1 = BudgetYearDao.loadBudgetIDByYear(year1);
@@ -99,7 +99,7 @@ public final class BudgetTunerCLI {
                     case 3:
                         // Insert new year
                         System.out.println("Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
-                        System.out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού " 
+                        System.out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού "
                                 + "(ή 0 για ακύρωση): ");
                         String pdfPath = scanner.nextLine();
                         if (!pdfPath.equals("0")) {
@@ -132,7 +132,7 @@ public final class BudgetTunerCLI {
     /**
      * Helper method to prompt the user to select a valid year from the list.
      */
-    private static int selectYear(Scanner scanner, ArrayList<Integer> availableYears, String message) {
+    private static int selectYear(final Scanner scanner, final ArrayList<Integer> availableYears, final String message) {
         int selectedYear;
         do {
             System.out.println("Διαθέσιμα Έτη στη Βάση: ");
@@ -140,7 +140,7 @@ public final class BudgetTunerCLI {
                 System.out.println("- " + y);
             }
             System.out.print(message);
-            
+
             while (!scanner.hasNextInt()) {
                 System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
                 scanner.nextLine();
@@ -149,11 +149,11 @@ public final class BudgetTunerCLI {
             scanner.nextLine(); // Consume newline
 
             if (!availableYears.contains(selectedYear)) {
-                System.out.println("Το έτος " + selectedYear 
+                System.out.println("Το έτος " + selectedYear
                         + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
             }
         } while (!availableYears.contains(selectedYear));
-        
+
         return selectedYear;
     }
 
@@ -161,7 +161,7 @@ public final class BudgetTunerCLI {
      * Handles the menu for viewing a specific budget year.
      * @return true if the application should continue running, false if the user selected Exit.
      */
-    private static boolean handleViewBudgetMenu(Scanner scanner, BudgetYear budget, int year) {
+    private static boolean handleViewBudgetMenu(final Scanner scanner, final BudgetYear budget, final int year) {
         boolean menuRunning = true;
         boolean keepAppRunning = true;
 
@@ -234,8 +234,8 @@ public final class BudgetTunerCLI {
     /**
      * Handles the menu for comparing two budget years.
      */
-    private static void handleCompareBudgetsMenu(Scanner scanner, BudgetYear budget1,
-                                                 BudgetYear budget2, int year1, int year2) {
+    private static void handleCompareBudgetsMenu(final Scanner scanner, final BudgetYear budget1,
+                                                 final BudgetYear budget2, final int year1, final int year2) {
         boolean compareRunning = true;
         while (compareRunning) {
             System.out.println("\n--- ΜΕΝΟΥ ΣΥΓΚΡΙΣΗΣ ---");

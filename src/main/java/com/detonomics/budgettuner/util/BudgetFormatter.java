@@ -64,7 +64,8 @@ public final class BudgetFormatter {
     public static String getFormattedComparativeRevenues(
             final ArrayList<RevenueCategory> revenues1,
             final ArrayList<RevenueCategory> revenues2,
-            final int year1, final int year2) {
+            final int year1,
+            final int year2) {
         if (revenues1.isEmpty() && revenues2.isEmpty()) {
             return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
         }
@@ -472,8 +473,8 @@ public final class BudgetFormatter {
      * @param leftContent The content to display on the left.
      * @param rightContent The content to display on the right.
      */
-    public static void printSideBySide(String leftTitle, String leftContent,
-                                       String rightTitle, String rightContent) {
+    public static void printSideBySide(final String leftTitle, final String leftContent,
+                                       final String rightTitle, final String rightContent) {
         String[] leftLines = leftContent.split("\n");
         String[] rightLines = rightContent.split("\n");
         int maxLines = Math.max(leftLines.length, rightLines.length);

@@ -243,8 +243,9 @@ public class BudgetDetailsController {
                 double padding = range == 0 ? Math.max(1.0, Math.abs(max) * 0.05) : range * 0.08;
                 double lower = Math.max(0.0, min - padding);
                 double upper = max + padding;
-                if (upper <= lower)
+                if (upper <= lower) {
                     upper = lower + 1.0;
+                }
 
                 amountAxis.setAutoRanging(false);
                 amountAxis.setLowerBound(lower);
