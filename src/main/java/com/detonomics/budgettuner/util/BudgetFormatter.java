@@ -3,8 +3,11 @@ package com.detonomics.budgettuner.util;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.Ministry;
@@ -30,6 +33,167 @@ public final class BudgetFormatter {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
         nf.setMaximumFractionDigits(0);
         return nf.format(amount) + " €";
+    }
+
+    /**
+     * Truncates a string to a maximum length, appending "..." if truncated.
+     *
+     * @param str The string to truncate.
+     * @param maxLength The maximum length.
+     * @return The truncated string.
+     */
+    public static String truncateString(final String str, final int maxLength) {
+        if (str == null) {
+            return "";
+        }
+        if (str.length() <= maxLength) {
+            return str;
+        }
+        return str.substring(0, maxLength - 3) + "...";
+    }
+
+    /**
+     * Formats comparative revenue categories into a table string showing codes with amounts side by side.
+     *
+     * @param revenues1 The list of revenue categories for year 1.
+     * @param revenues2 The list of revenue categories for year 2.
+     * @param year1     The first year.
+     * @param year2     The second year.
+     * @return The formatted comparative table string.
+     */
+    public static String getFormattedComparativeRevenues(
+            final ArrayList<RevenueCategory> revenues1,
+            final ArrayList<RevenueCategory> revenues2,
+            final int year1, final int year2) {
+        if (revenues1.isEmpty() && revenues2.isEmpty()) {
+            return "Δεν υπάρχουν καταγεγραμμένα έσοδα.";
+        }
+
+        Map<Long, RevenueCategory> map1 = new HashMap<>();
+        for (RevenueCategory r : revenues1) {
+            map1.put(r.getCode(), r);
+        }
+        Map<Long, RevenueCategory> map2 = new HashMap<>();
+        for (RevenueCategory r : revenues2) {
+            map2.put(r.getCode(), r);
+        }
+
+        Set<Long> allCodes = new HashSet<>();
+        allCodes.addAll(map1.keySet());
+        allCodes.addAll(map2.keySet());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-15s | %-50s | %20s | %20s%n", "ΚΩΔΙΚΟΣ",
+                "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
+        sb.append("----------------|----------------------------------------------------|"
+                + "----------------------|----------------------\n");
+
+        for (Long code : new TreeSet<>(allCodes)) {
+            RevenueCategory r1 = map1.get(code);
+            RevenueCategory r2 = map2.get(code);
+            String name = r1 != null ? truncateString(r1.getName(), 50) : (r2 != null ? truncateString(r2.getName(), 50) : "Άγνωστο");
+            String amount1 = r1 != null ? formatAmount(r1.getAmount()) : "-";
+            String amount2 = r2 != null ? formatAmount(r2.getAmount()) : "-";
+            sb.append(String.format("%-15d | %-50s | %20s | %20s%n",
+                    code, name, amount1, amount2));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Formats comparative expense categories into a table string showing codes with amounts side by side.
+     *
+     * @param expenditures1 The list of expense categories for year 1.
+     * @param expenditures2 The list of expense categories for year 2.
+     * @param year1         The first year.
+     * @param year2         The second year.
+     * @return The formatted comparative table string.
+     */
+    public static String getFormattedComparativeExpenditures(
+            final ArrayList<ExpenseCategory> expenditures1,
+            final ArrayList<ExpenseCategory> expenditures2,
+            final int year1, final int year2) {
+        if (expenditures1.isEmpty() && expenditures2.isEmpty()) {
+            return "Δεν υπάρχουν καταγεγραμμένα έξοδα.";
+        }
+
+        Map<Long, ExpenseCategory> map1 = new HashMap<>();
+        for (ExpenseCategory e : expenditures1) {
+            map1.put(e.getCode(), e);
+        }
+        Map<Long, ExpenseCategory> map2 = new HashMap<>();
+        for (ExpenseCategory e : expenditures2) {
+            map2.put(e.getCode(), e);
+        }
+
+        Set<Long> allCodes = new HashSet<>();
+        allCodes.addAll(map1.keySet());
+        allCodes.addAll(map2.keySet());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-15s | %-50s | %20s | %20s%n", "ΚΩΔΙΚΟΣ",
+                "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
+        sb.append("----------------|----------------------------------------------------|"
+                + "----------------------|----------------------\n");
+
+        for (Long code : new TreeSet<>(allCodes)) {
+            ExpenseCategory e1 = map1.get(code);
+            ExpenseCategory e2 = map2.get(code);
+            String name = e1 != null ? truncateString(e1.getName(), 50) : (e2 != null ? truncateString(e2.getName(), 50) : "Άγνωστο");
+            String amount1 = e1 != null ? formatAmount(e1.getAmount()) : "-";
+            String amount2 = e2 != null ? formatAmount(e2.getAmount()) : "-";
+            sb.append(String.format("%-15d | %-50s | %20s | %20s%n",
+                    code, name, amount1, amount2));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Formats comparative ministries into a table string showing codes with amounts side by side.
+     *
+     * @param ministries1 The list of ministries for year 1.
+     * @param ministries2 The list of ministries for year 2.
+     * @param year1       The first year.
+     * @param year2       The second year.
+     * @return The formatted comparative table string.
+     */
+    public static String getFormattedComparativeMinistries(
+            final ArrayList<Ministry> ministries1,
+            final ArrayList<Ministry> ministries2,
+            final int year1, final int year2) {
+        if (ministries1.isEmpty() && ministries2.isEmpty()) {
+            return "Δεν υπάρχουν καταγεγραμμένοι φορείς.";
+        }
+
+        Map<Long, Ministry> map1 = new HashMap<>();
+        for (Ministry m : ministries1) {
+            map1.put(m.getCode(), m);
+        }
+        Map<Long, Ministry> map2 = new HashMap<>();
+        for (Ministry m : ministries2) {
+            map2.put(m.getCode(), m);
+        }
+
+        Set<Long> allCodes = new HashSet<>();
+        allCodes.addAll(map1.keySet());
+        allCodes.addAll(map2.keySet());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-15s | %-50s | %20s | %20s%n", "ΚΩΔΙΚΟΣ",
+                "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
+        sb.append("----------------|----------------------------------------------------|"
+                + "----------------------|----------------------\n");
+
+        for (Long code : new TreeSet<>(allCodes)) {
+            Ministry m1 = map1.get(code);
+            Ministry m2 = map2.get(code);
+            String name = m1 != null ? truncateString(m1.getName(), 50) : (m2 != null ? truncateString(m2.getName(), 50) : "Άγνωστο");
+            String amount1 = m1 != null ? formatAmount(m1.getTotalBudget()) : "-";
+            String amount2 = m2 != null ? formatAmount(m2.getTotalBudget()) : "-";
+            sb.append(String.format("%-15d | %-50s | %20s | %20s%n",
+                    code, name, amount1, amount2));
+        }
+        return sb.toString();
     }
 
     /**
@@ -121,6 +285,102 @@ public final class BudgetFormatter {
     }
 
     /**
+     * Formats comparative ministry expenses into a detailed table showing amounts side by side.
+     *
+     * @param ministries1 The list of ministries for year 1.
+     * @param expenseCategories1 The list of expense categories for year 1.
+     * @param ministryExpenses1 The list of ministry expenses for year 1.
+     * @param ministries2 The list of ministries for year 2.
+     * @param expenseCategories2 The list of expense categories for year 2.
+     * @param ministryExpenses2 The list of ministry expenses for year 2.
+     * @param year1 The first year.
+     * @param year2 The second year.
+     * @return The formatted comparative table string.
+     */
+    public static String getFormattedComparativeMinistryExpenses(
+            final ArrayList<Ministry> ministries1,
+            final ArrayList<ExpenseCategory> expenseCategories1,
+            final ArrayList<MinistryExpense> ministryExpenses1,
+            final ArrayList<Ministry> ministries2,
+            final ArrayList<ExpenseCategory> expenseCategories2,
+            final ArrayList<MinistryExpense> ministryExpenses2,
+            final int year1, final int year2) {
+
+        if (ministryExpenses1.isEmpty() && ministryExpenses2.isEmpty()) {
+            return "Δεν υπάρχουν καταγεγραμμένες δαπάνες φορέων.";
+        }
+
+        Map<Integer, Ministry> ministryMap1 = new HashMap<>();
+        for (Ministry m : ministries1) {
+            ministryMap1.put(m.getMinistryID(), m);
+        }
+        Map<Integer, Ministry> ministryMap2 = new HashMap<>();
+        for (Ministry m : ministries2) {
+            ministryMap2.put(m.getMinistryID(), m);
+        }
+
+        Map<Integer, String> categoryMap1 = new HashMap<>();
+        for (ExpenseCategory c : expenseCategories1) {
+            categoryMap1.put(c.getExpenseID(), c.getName());
+        }
+        Map<Integer, String> categoryMap2 = new HashMap<>();
+        for (ExpenseCategory c : expenseCategories2) {
+            categoryMap2.put(c.getExpenseID(), c.getName());
+        }
+
+        Map<String, Long> aggregatedExpenses1 = new HashMap<>();
+        for (MinistryExpense me : ministryExpenses1) {
+            String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
+            aggregatedExpenses1.put(key, aggregatedExpenses1.getOrDefault(key, 0L) + me.getAmount());
+        }
+
+        Map<String, Long> aggregatedExpenses2 = new HashMap<>();
+        for (MinistryExpense me : ministryExpenses2) {
+            String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
+            aggregatedExpenses2.put(key, aggregatedExpenses2.getOrDefault(key, 0L) + me.getAmount());
+        }
+
+        Set<String> allKeys = new HashSet<>();
+        allKeys.addAll(aggregatedExpenses1.keySet());
+        allKeys.addAll(aggregatedExpenses2.keySet());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-10s | %-50s | %-30s | %20s | %20s%n",
+                "ΚΩΔ. ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
+        sb.append("-----------|----------------------------------------------------|-------------------------------|----------------------|----------------------\n");
+
+        for (String key : new TreeSet<>(allKeys)) {
+            String[] ids = key.split("\\|");
+            int ministryID = Integer.parseInt(ids[0]);
+            int categoryID = Integer.parseInt(ids[1]);
+
+            Ministry ministry1 = ministryMap1.get(ministryID);
+            Ministry ministry2 = ministryMap2.get(ministryID);
+            String ministryName = ministry1 != null ? truncateString(ministry1.getName(), 50) :
+                              (ministry2 != null ? truncateString(ministry2.getName(), 50) : "Άγνωστος Φορέας");
+
+            String categoryName = categoryMap1.get(categoryID);
+            if (categoryName == null) {
+                categoryName = categoryMap2.get(categoryID);
+            }
+            if (categoryName == null) {
+                categoryName = "Άγνωστη Κατηγορία";
+            }
+            categoryName = truncateString(categoryName, 30);
+
+            Long amount1 = aggregatedExpenses1.get(key);
+            String amountStr1 = amount1 != null ? formatAmount(amount1) : "-";
+            Long amount2 = aggregatedExpenses2.get(key);
+            String amountStr2 = amount2 != null ? formatAmount(amount2) : "-";
+
+            sb.append(String.format("%-10d | %-50s | %-30s | %20s | %20s%n",
+                    ministryID, ministryName, categoryName, amountStr1, amountStr2));
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * Formats ministry expenses into a detailed table.
      *
      * @param ministries The list of ministries.
@@ -202,5 +462,29 @@ public final class BudgetFormatter {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Prints two formatted strings side by side for comparison.
+     *
+     * @param leftTitle   The title for the left content.
+     * @param rightTitle  The title for the right content.
+     * @param leftContent The content to display on the left.
+     * @param rightContent The content to display on the right.
+     */
+    public static void printSideBySide(String leftTitle, String leftContent,
+                                       String rightTitle, String rightContent) {
+        String[] leftLines = leftContent.split("\n");
+        String[] rightLines = rightContent.split("\n");
+        int maxLines = Math.max(leftLines.length, rightLines.length);
+
+        System.out.println(leftTitle + " | " + rightTitle);
+        System.out.println(String.format("%-70s | %-70s", "", "").replace(' ', '-'));
+
+        for (int i = 0; i < maxLines; i++) {
+            String l = i < leftLines.length ? leftLines[i] : "";
+            String r = i < rightLines.length ? rightLines[i] : "";
+            System.out.printf("%-70s | %s%n", l, r);
+        }
     }
 }
