@@ -77,7 +77,7 @@ public final class PdfToText {
      * @param text The raw extracted text.
      * @return The cleaned text.
      */
-    private String cleanText(final String text) {
+    String cleanText(final String text) {
         if (text == null) {
             return "";
         }
@@ -93,7 +93,7 @@ public final class PdfToText {
      * and appending ".txt".
      * Example: "document.pdf" -> "document.txt"
      */
-    private String getOutputFileName(final String pdfPath) {
+    String getOutputFileName(final String pdfPath) {
         String baseName = new File(pdfPath).getName();
         int dotIndex = baseName.lastIndexOf('.');
         if (dotIndex > 0) {

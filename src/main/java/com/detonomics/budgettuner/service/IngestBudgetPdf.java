@@ -20,7 +20,7 @@ public final class IngestBudgetPdf {
         throw new AssertionError("Utility class");
     }
 
-    private static String toTxtName(final String pdfPath) {
+    static String toTxtName(final String pdfPath) {
         String baseName = new File(pdfPath).getName();
         int dotIndex = baseName.lastIndexOf('.');
         if (dotIndex > 0) {
@@ -29,7 +29,7 @@ public final class IngestBudgetPdf {
         return baseName + ".txt";
     }
 
-    private static String toJsonName(final String pdfPath) {
+    static String toJsonName(final String pdfPath) {
         String baseName = new File(pdfPath).getName();
         int dotIndex = baseName.lastIndexOf('.');
         if (dotIndex > 0) {

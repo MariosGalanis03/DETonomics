@@ -1,8 +1,7 @@
 package com.detonomics.budgettuner.gui;
 
-import com.detonomics.budgettuner.dao.BudgetTotalsDao;
 import com.detonomics.budgettuner.dao.BudgetYearDao;
-import com.detonomics.budgettuner.model.BudgetTotals;
+import com.detonomics.budgettuner.dao.SummaryDao;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.Ministry;
@@ -132,12 +131,12 @@ public class BudgetDetailsController {
             return;
         }
 
-        List<BudgetTotals> totals = BudgetTotalsDao.loadAllBudgetTotals();
+        List<Summary> summaries = SummaryDao.loadAllSummaries();
 
         Integer candidate = null;
-        for (BudgetTotals t : totals) {
-            if (t.year() < selectedYear) {
-                candidate = t.year();
+        for (Summary s : summaries) {
+            if (s.getBudgetYear() < selectedYear) {
+                candidate = s.getBudgetYear();
             }
         }
         if (candidate == null) {
@@ -211,8 +210,8 @@ public class BudgetDetailsController {
 
         totalsChart.getData().clear();
 
-        List<BudgetTotals> totals = BudgetTotalsDao.loadAllBudgetTotals();
-        if (totals.isEmpty()) {
+        List<Summary> summaries = SummaryDao.loadAllSummaries();
+        if (summaries.isEmpty()) {
             return;
         }
 
@@ -222,10 +221,10 @@ public class BudgetDetailsController {
         XYChart.Series<String, Number> expenses = new XYChart.Series<>();
         expenses.setName("Έξοδα");
 
-        for (BudgetTotals t : totals) {
-            String year = String.valueOf(t.year());
-            revenues.getData().add(new XYChart.Data<>(year, t.totalRevenues()));
-            expenses.getData().add(new XYChart.Data<>(year, t.totalExpenses()));
+        for (Summary s : summaries) {
+            String year = String.valueOf(s.getBudgetYear());
+            revenues.getData().add(new XYChart.Data<>(year, s.getTotalRevenues()));
+            expenses.getData().add(new XYChart.Data<>(year, s.totalExpenses()));
         }
 
         totalsChart.getData().addAll(revenues, expenses);
@@ -234,9 +233,9 @@ public class BudgetDetailsController {
             double min = Double.POSITIVE_INFINITY;
             double max = Double.NEGATIVE_INFINITY;
 
-            for (BudgetTotals t : totals) {
-                min = Math.min(min, Math.min(t.totalRevenues(), t.totalExpenses()));
-                max = Math.max(max, Math.max(t.totalRevenues(), t.totalExpenses()));
+            for (Summary s : summaries) {
+                min = Math.min(min, Math.min(s.getTotalRevenues(), s.totalExpenses()));
+                max = Math.max(max, Math.max(s.getTotalRevenues(), s.totalExpenses()));
             }
 
             if (Double.isFinite(min) && Double.isFinite(max)) {
@@ -264,8 +263,8 @@ public class BudgetDetailsController {
 
         resultChart.getData().clear();
 
-        List<BudgetTotals> totals = BudgetTotalsDao.loadAllBudgetTotals();
-        if (totals.isEmpty()) {
+        List<Summary> summaries = SummaryDao.loadAllSummaries();
+        if (summaries.isEmpty()) {
             return;
         }
 
@@ -275,9 +274,9 @@ public class BudgetDetailsController {
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
 
-        for (BudgetTotals t : totals) {
-            String year = String.valueOf(t.year());
-            double value = t.budgetResult();
+        for (Summary s : summaries) {
+            String year = String.valueOf(s.getBudgetYear());
+            double value = s.budgetResult();
             resultSeries.getData().add(new XYChart.Data<>(year, value));
             min = Math.min(min, value);
             max = Math.max(max, value);
