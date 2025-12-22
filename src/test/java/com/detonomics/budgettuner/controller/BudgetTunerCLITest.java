@@ -36,10 +36,11 @@ class BudgetTunerCLITest {
         when(dataService.loadStatistics()).thenReturn(new SqlSequence(5, 10, 10, 5, 20));
     }
 
-    private BudgetTunerCLI createCLI(String input) {
+    private void runCLI(String input) {
         ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
         PrintStream out = new PrintStream(outContent, true, StandardCharsets.UTF_8);
-        return new BudgetTunerCLI(dataService, in, out);
+        BudgetTunerCLI cli = new BudgetTunerCLI();
+        cli.run(dataService, in, out);
     }
 
     private BudgetYear createDummyBudget(int year) {
@@ -69,8 +70,7 @@ class BudgetTunerCLITest {
     void testRun_Exit() {
         when(dataService.loadBudgetYears()).thenReturn(new ArrayList<>());
 
-        BudgetTunerCLI cli = createCLI("0\n");
-        cli.run();
+        runCLI("0\n");
 
         String output = outContent.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Καλωσορίσατε στο Budget Tuner"));
@@ -81,8 +81,7 @@ class BudgetTunerCLITest {
     void testRun_InvalidInput() {
         when(dataService.loadBudgetYears()).thenReturn(new ArrayList<>());
 
-        BudgetTunerCLI cli = createCLI("invalid\n0\n");
-        cli.run();
+        runCLI("invalid\n0\n");
 
         String output = outContent.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Άκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό"));
@@ -97,8 +96,7 @@ class BudgetTunerCLITest {
 
         // 1->Select, 2023, 1->View Summary, 7->Back to Main, 0->Exit
         String input = "1\n2023\n1\n7\n0\n";
-        BudgetTunerCLI cli = createCLI(input);
-        cli.run();
+        runCLI(input);
 
         String output = outContent.toString(StandardCharsets.UTF_8);
 
@@ -116,8 +114,7 @@ class BudgetTunerCLITest {
         // 1->Select, 2099->Invalid, 2023->Valid, 8->Exit View Menu (which exits app)
         String input = "1\n2099\n2023\n8\n0\n";
 
-        BudgetTunerCLI cli = createCLI(input);
-        cli.run();
+        runCLI(input);
 
         String output = outContent.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("δεν βρέθηκε στη βάση δεδομένων"));
@@ -135,8 +132,7 @@ class BudgetTunerCLITest {
 
         // 2->Compare, 2023, 2024, 1->Compare Summary, 5->Back, 0->Exit
         String input = "2\n2023\n2024\n1\n5\n0\n";
-        BudgetTunerCLI cli = createCLI(input);
-        cli.run();
+        runCLI(input);
 
         String output = outContent.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Σύγκριση δύο ετών προϋπολογισμού"));
@@ -150,8 +146,7 @@ class BudgetTunerCLITest {
         when(dataService.loadBudgetYears()).thenReturn(new ArrayList<>());
 
         String input = "3\ndata/budget.pdf\n0\n";
-        BudgetTunerCLI cli = createCLI(input);
-        cli.run();
+        runCLI(input);
 
         verify(dataService, times(1)).insertNewBudgetYear("data/budget.pdf");
         String output = outContent.toString(StandardCharsets.UTF_8);
@@ -164,8 +159,7 @@ class BudgetTunerCLITest {
         doThrow(new RuntimeException("File not found")).when(dataService).insertNewBudgetYear(anyString());
 
         String input = "3\nbad.pdf\n0\n";
-        BudgetTunerCLI cli = createCLI(input);
-        cli.run();
+        runCLI(input);
 
         verify(dataService, times(1)).insertNewBudgetYear("bad.pdf");
         String output = outContent.toString(StandardCharsets.UTF_8);

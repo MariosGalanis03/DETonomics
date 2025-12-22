@@ -17,30 +17,10 @@ import com.detonomics.budgettuner.util.ingestion.JsonToSQLite;
  */
 public final class IngestBudgetPdf {
 
-    private final PdfToText pdfToText;
-    private final TextToJson textToJson;
-    private final JsonToSQLite jsonToSQLite;
-
     /**
-     * Default constructor using default implementations.
+     * Default constructor.
      */
     public IngestBudgetPdf() {
-        this.pdfToText = new PdfToText();
-        this.textToJson = new TextToJson();
-        this.jsonToSQLite = new JsonToSQLite();
-    }
-
-    /**
-     * Constructor for dependency injection.
-     * 
-     * @param pdfToText    The PDF to Text converter.
-     * @param textToJson   The Text to JSON converter.
-     * @param jsonToSQLite The JSON to SQLite processor.
-     */
-    public IngestBudgetPdf(final PdfToText pdfToText, final TextToJson textToJson, final JsonToSQLite jsonToSQLite) {
-        this.pdfToText = pdfToText;
-        this.textToJson = textToJson;
-        this.jsonToSQLite = jsonToSQLite;
     }
 
     static String toTxtName(final String pdfPath) {
@@ -69,10 +49,15 @@ public final class IngestBudgetPdf {
      * <li>Loads JSON data into the Database.</li>
      * </ol>
      *
-     * @param pdfPath Absolute or relative path to the PDF file.
+     * @param pdfPath      Absolute or relative path to the PDF file.
+     * @param pdfToText    The PDF to Text converter.
+     * @param textToJson   The Text to JSON converter.
+     * @param jsonToSQLite The JSON to SQLite processor.
      * @throws Exception If any step in the pipeline fails (I/O, Parsing, SQL).
      */
-    public void process(final String pdfPath) throws Exception {
+    public void process(final String pdfPath, final PdfToText pdfToText,
+            final TextToJson textToJson, final JsonToSQLite jsonToSQLite)
+            throws Exception {
         // --- Step 1: PDF to Text ---
         System.out.println("STEP 1: Converting PDF to TEXT...");
         pdfToText.extractAndSaveText(pdfPath);
@@ -120,7 +105,8 @@ public final class IngestBudgetPdf {
         }
         try {
             IngestBudgetPdf ingestor = new IngestBudgetPdf();
-            ingestor.process(args[0]);
+            ingestor.process(args[0], new PdfToText(), new TextToJson(),
+                    new JsonToSQLite());
         } catch (Exception e) {
             System.err.println("\nPIPELINE FAILED!");
             e.printStackTrace();

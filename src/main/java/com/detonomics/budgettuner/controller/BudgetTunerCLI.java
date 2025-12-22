@@ -17,21 +17,10 @@ import com.detonomics.budgettuner.util.BudgetFormatter;
  */
 public final class BudgetTunerCLI {
 
-    private final BudgetDataService dataService;
-    private final InputStream in;
-    private final PrintStream out;
-
     /**
-     * Constructor for dependency injection.
-     * 
-     * @param dataService The service to access budget data.
-     * @param in          The input stream (e.g., System.in).
-     * @param out         The output stream (e.g., System.out).
+     * Default constructor.
      */
-    public BudgetTunerCLI(final BudgetDataService dataService, final InputStream in, final PrintStream out) {
-        this.dataService = dataService;
-        this.in = in;
-        this.out = out;
+    public BudgetTunerCLI() {
     }
 
     /**
@@ -39,14 +28,18 @@ public final class BudgetTunerCLI {
      */
     public static void main(final String[] args) {
         BudgetDataService service = new BudgetDataServiceImpl();
-        BudgetTunerCLI app = new BudgetTunerCLI(service, System.in, System.out);
-        app.run();
+        BudgetTunerCLI app = new BudgetTunerCLI();
+        app.run(service, System.in, System.out);
     }
 
     /**
      * Runs the application logic.
+     * 
+     * @param dataService The service to access budget data.
+     * @param in          The input stream.
+     * @param out         The output stream.
      */
-    public void run() {
+    public void run(final BudgetDataService dataService, final InputStream in, final PrintStream out) {
         try (Scanner scanner = new Scanner(in, StandardCharsets.UTF_8)) {
             out.println();
             out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -90,7 +83,7 @@ public final class BudgetTunerCLI {
                 switch (choice) {
                     case 1:
                         // 1. Select Year
-                        int year = selectYear(scanner, years, "Εισάγετε το έτος προϋπολογισμού: ");
+                        int year = selectYear(scanner, years, "Εισάγετε το έτος προϋπολογισμού: ", out);
                         out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
 
                         int budgetID = dataService.loadBudgetIDByYear(year);
@@ -98,7 +91,7 @@ public final class BudgetTunerCLI {
 
                         // 2. Enter View Menu
                         // Returns false if the user chose "Exit" (7), true if "Change Year" (6)
-                        boolean keepAppRunning = handleViewBudgetMenu(scanner, budget, year);
+                        boolean keepAppRunning = handleViewBudgetMenu(scanner, budget, year, out);
                         if (!keepAppRunning) {
                             mainMenurunning = false;
                         }
@@ -108,16 +101,17 @@ public final class BudgetTunerCLI {
                         out.println("Σύγκριση δύο ετών προϋπολογισμού...");
 
                         // 1. Select Years
-                        int year1 = selectYear(scanner, years, "Εισάγετε το πρώτο έτος για σύγκριση: ");
+                        int year1 = selectYear(scanner, years, "Εισάγετε το πρώτο έτος για σύγκριση: ", out);
                         int budgetID1 = dataService.loadBudgetIDByYear(year1);
                         BudgetYear budget1 = dataService.loadBudgetYear(budgetID1);
 
-                        int year2 = selectYear(scanner, years, "Εισάγετε το δεύτερο έτος για σύγκριση: ");
+                        int year2 = selectYear(scanner, years, "Εισάγετε το δεύτερο έτος για σύγκριση: ", out);
                         int budgetID2 = dataService.loadBudgetIDByYear(year2);
                         BudgetYear budget2 = dataService.loadBudgetYear(budgetID2);
 
                         // 2. Enter Comparison Menu
-                        handleCompareBudgetsMenu(scanner, budget1, budget2, year1, year2);
+
+                        handleCompareBudgetsMenu(scanner, budget1, budget2, year1, year2, out);
                         break;
 
                     case 3:
@@ -156,7 +150,11 @@ public final class BudgetTunerCLI {
     /**
      * Helper method to prompt the user to select a valid year from the list.
      */
-    private int selectYear(final Scanner scanner, final ArrayList<Integer> availableYears, final String message) {
+    /**
+     * Helper method to prompt the user to select a valid year from the list.
+     */
+    private int selectYear(final Scanner scanner, final ArrayList<Integer> availableYears, final String message,
+            final PrintStream out) {
         int selectedYear;
         do {
             out.println("Διαθέσιμα Έτη στη Βάση: ");
@@ -187,7 +185,14 @@ public final class BudgetTunerCLI {
      * @return true if the application should continue running, false if the user
      *         selected Exit.
      */
-    private boolean handleViewBudgetMenu(final Scanner scanner, final BudgetYear budget, final int year) {
+    /**
+     * Handles the menu for viewing a specific budget year.
+     * 
+     * @return true if the application should continue running, false if the user
+     *         selected Exit.
+     */
+    private boolean handleViewBudgetMenu(final Scanner scanner, final BudgetYear budget, final int year,
+            final PrintStream out) {
         boolean menuRunning = true;
         boolean keepAppRunning = true;
 
@@ -261,7 +266,7 @@ public final class BudgetTunerCLI {
      * Handles the menu for comparing two budget years.
      */
     private void handleCompareBudgetsMenu(final Scanner scanner, final BudgetYear budget1,
-            final BudgetYear budget2, final int year1, final int year2) {
+            final BudgetYear budget2, final int year1, final int year2, final PrintStream out) {
         boolean compareRunning = true;
         while (compareRunning) {
             out.println("\n--- ΜΕΝΟΥ ΣΥΓΚΡΙΣΗΣ ---");

@@ -32,7 +32,7 @@ class IngestBudgetPdfTest {
 
     @BeforeEach
     void setUp() {
-        ingestBudgetPdf = new IngestBudgetPdf(pdfToText, textToJson, jsonToSQLite);
+        ingestBudgetPdf = new IngestBudgetPdf();
     }
 
     @Test
@@ -40,7 +40,7 @@ class IngestBudgetPdfTest {
         String pdfPath = "data/Budget2024.pdf";
 
         // Execute
-        ingestBudgetPdf.process(pdfPath);
+        ingestBudgetPdf.process(pdfPath, pdfToText, textToJson, jsonToSQLite);
 
         // Verify Step 1: PDF to Text
         verify(pdfToText, times(1)).extractAndSaveText(pdfPath);

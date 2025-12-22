@@ -95,6 +95,8 @@ public final class BudgetYearDao {
     public static void insertNewBudgetYear(
             final String pdfPath) throws Exception {
         IngestBudgetPdf ingestor = new IngestBudgetPdf();
-        ingestor.process(pdfPath);
+        ingestor.process(pdfPath, new com.detonomics.budgettuner.util.ingestion.PdfToText(),
+                new com.detonomics.budgettuner.util.ingestion.TextToJson(),
+                new com.detonomics.budgettuner.util.ingestion.JsonToSQLite());
     }
 }
