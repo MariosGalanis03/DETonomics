@@ -29,11 +29,27 @@ public final class JsonToSQLite {
     /**
      * Default constructor.
      */
+    private static final String DEFAULT_DB_FILE_PATH = "data/output/BudgetDB.db";
+    private static final String DEFAULT_DB_URL = "jdbc:sqlite:"
+            + DEFAULT_DB_FILE_PATH;
+
+    private final String dbUrl;
+
+    /**
+     * Default constructor. Uses the default database path.
+     */
     public JsonToSQLite() {
+        this.dbUrl = DEFAULT_DB_URL;
     }
 
-    private static final String DB_FILE_PATH = "data/output/BudgetDB.db";
-    private static final String DB_URL = "jdbc:sqlite:" + DB_FILE_PATH;
+    /**
+     * Constructor with custom database path.
+     *
+     * @param dbPath The path to the SQLite database file.
+     */
+    public JsonToSQLite(final String dbPath) {
+        this.dbUrl = "jdbc:sqlite:" + dbPath;
+    }
 
     /**
      * Main method to allow running this class as a standalone
@@ -165,7 +181,7 @@ public final class JsonToSQLite {
                 );
                 """;
 
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(dbUrl);
                 Statement stmt = conn.createStatement()) {
             stmt.execute(sqlBudgets);
             stmt.execute(sqlRevenueCategories);
@@ -180,7 +196,7 @@ public final class JsonToSQLite {
             throws SQLException {
         // ... (Code is identical to the last version)
         String checkSql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(dbUrl);
                 PreparedStatement pstmtCheck = conn
                         .prepareStatement(checkSql)) {
             pstmtCheck.setInt(1, budgetFile.getMetadata().getBudgetYear());
@@ -195,7 +211,7 @@ public final class JsonToSQLite {
 
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(DB_URL);
+            conn = DriverManager.getConnection(dbUrl);
             conn.setAutoCommit(false);
             long budgetId = insertBudget(conn, budgetFile);
             insertRevenueCategoriesRecursive(conn,

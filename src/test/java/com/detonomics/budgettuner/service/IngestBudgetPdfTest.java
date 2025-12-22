@@ -1,41 +1,57 @@
 package com.detonomics.budgettuner.service;
 
+import com.detonomics.budgettuner.util.ingestion.JsonToSQLite;
+import com.detonomics.budgettuner.util.ingestion.PdfToText;
+import com.detonomics.budgettuner.util.ingestion.TextToJson;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class IngestBudgetPdfTest {
+import java.nio.file.Path;
 
-    @Test
-    public void testToTxtName() {
-        assertEquals("document.txt", IngestBudgetPdf.toTxtName("path/to/document.pdf"));
-        assertEquals("budget.txt", IngestBudgetPdf.toTxtName("/home/user/budget.pdf"));
-        assertEquals("file.txt", IngestBudgetPdf.toTxtName("file"));
-        assertEquals("test.txt", IngestBudgetPdf.toTxtName("test."));
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+
+@ExtendWith(MockitoExtension.class)
+class IngestBudgetPdfTest {
+
+    @Mock
+    private PdfToText pdfToText;
+
+    @Mock
+    private TextToJson textToJson;
+
+    @Mock
+    private JsonToSQLite jsonToSQLite;
+
+    private IngestBudgetPdf ingestBudgetPdf;
+
+    @BeforeEach
+    void setUp() {
+        ingestBudgetPdf = new IngestBudgetPdf(pdfToText, textToJson, jsonToSQLite);
     }
 
     @Test
-    public void testToJsonName() {
-        assertEquals("document.json", IngestBudgetPdf.toJsonName("path/to/document.pdf"));
-        assertEquals("budget.json", IngestBudgetPdf.toJsonName("/home/user/budget.pdf"));
-        assertEquals("file.json", IngestBudgetPdf.toJsonName("file"));
-        assertEquals("test.json", IngestBudgetPdf.toJsonName("test."));
-    }
+    void testProcess_Success() throws Exception {
+        String pdfPath = "data/Budget2024.pdf";
 
-    @Test
-    public void testToTxtNameWithPathSeparators() {
-        // File.getName() extracts just the filename after the last path separator
-        // On Linux, backslashes are not path separators, so "C:\path\to\document.pdf" is treated as one filename
-        assertEquals("C:\\path\\to\\document.txt", IngestBudgetPdf.toTxtName("C:\\path\\to\\document.pdf"));
-        assertEquals("document.txt", IngestBudgetPdf.toTxtName("/unix/path/to/document.pdf"));
-        assertEquals("file.txt", IngestBudgetPdf.toTxtName("file.pdf"));
-    }
+        // Execute
+        ingestBudgetPdf.process(pdfPath);
 
-    @Test
-    public void testToJsonNameWithPathSeparators() {
-        // File.getName() extracts just the filename after the last path separator
-        // On Linux, backslashes are not path separators
-        assertEquals("C:\\path\\to\\document.json", IngestBudgetPdf.toJsonName("C:\\path\\to\\document.pdf"));
-        assertEquals("document.json", IngestBudgetPdf.toJsonName("/unix/path/to/document.pdf"));
-        assertEquals("file.json", IngestBudgetPdf.toJsonName("file.pdf"));
+        // Verify Step 1: PDF to Text
+        verify(pdfToText, times(1)).extractAndSaveText(pdfPath);
+
+        // Verify Step 2: Text to JSON
+        // We expect .txt and .json extensions
+        verify(textToJson, times(1)).textFileToJson(
+                any(Path.class),
+                any(Path.class));
+
+        // Verify Step 3: JSON to Database
+        verify(jsonToSQLite, times(1)).processAndStoreBudget(anyString());
     }
 }

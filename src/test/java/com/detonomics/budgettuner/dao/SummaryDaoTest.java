@@ -1,54 +1,94 @@
 package com.detonomics.budgettuner.dao;
 
+import com.detonomics.budgettuner.model.Summary;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
-
-import com.detonomics.budgettuner.model.Summary;
-import com.detonomics.budgettuner.util.DatabaseManager;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SummaryDaoTest {
 
-    private String originalDbPath;
+    @TempDir
+    Path tempDir;
+
+    private String dbPath;
 
     @BeforeEach
-    void setUp() {
-        originalDbPath = DaoConfig.getDbPath();
+    void setUp() throws Exception {
+        dbPath = tempDir.resolve("test_summary.db").toAbsolutePath().toString();
+        DaoConfig.setDbPath(dbPath);
+
+        // Initialize DB schema
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+                Statement stmt = conn.createStatement()) {
+
+            stmt.execute("CREATE TABLE Budgets (" +
+                    "budget_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "source_title TEXT," +
+                    "source_date TEXT," +
+                    "budget_year INTEGER," +
+                    "currency TEXT," +
+                    "locale TEXT," +
+                    "total_revenue REAL," +
+                    "total_expenses REAL," +
+                    "state_budget_balance REAL," +
+                    "coverage_with_cash_reserves REAL" +
+                    ")");
+
+            // Insert sample data
+            stmt.execute("INSERT INTO Budgets (source_title, source_date, budget_year, currency, locale, " +
+                    "total_revenue, total_expenses, state_budget_balance, coverage_with_cash_reserves) " +
+                    "VALUES ('Budget 2024', '2023-11-20', 2024, 'EUR', 'el_GR', 1000.0, 900.0, 100.0, 50.0)");
+
+            stmt.execute("INSERT INTO Budgets (source_title, source_date, budget_year, currency, locale, " +
+                    "total_revenue, total_expenses, state_budget_balance, coverage_with_cash_reserves) " +
+                    "VALUES ('Budget 2025', '2024-11-20', 2025, 'EUR', 'el_GR', 1200.0, 1100.0, 100.0, NULL)");
+        }
     }
 
     @AfterEach
     void tearDown() {
-        DaoConfig.setDbPath(originalDbPath);
+        DaoConfig.setDbPath("data/output/BudgetDB.db"); // Reset to default
     }
 
     @Test
-    void testLoadSummary(@TempDir Path tempDir) {
-        Path dbFile = tempDir.resolve("test-summary.db");
-        String dbPath = dbFile.toAbsolutePath().toString();
-        DaoConfig.setDbPath(dbPath);
+    void testLoadSummary() {
+        // We assume ID 1 because it's the first insertion in a fresh DB.
+        Summary s1 = SummaryDao.loadSummary(1);
+        assertNotNull(s1);
+        assertEquals(2024, s1.getBudgetYear());
+        assertEquals("Budget 2024", s1.getSourceTitle());
+        assertEquals(1000L, s1.getTotalRevenues());
+        assertEquals(50L, s1.coverageWithCashReserves());
 
-        // Create minimal schema
-        String createBudgets = "CREATE TABLE IF NOT EXISTS Budgets (" +
-                "budget_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "source_title TEXT, currency TEXT, locale TEXT, source_date TEXT, " +
-                "budget_year INTEGER, total_revenue REAL, total_expenses REAL, coverage_with_cash_reserves REAL" +
-                ")";
-        DatabaseManager.executeUpdate(dbPath, createBudgets);
+        Summary s2 = SummaryDao.loadSummary(2);
+        assertNotNull(s2);
+        assertEquals(2025, s2.getBudgetYear());
+        assertEquals(0L, s2.coverageWithCashReserves()); // NULL logic test
+    }
 
-        // Insert one budget row
-        String insertBudget = "INSERT INTO Budgets (budget_id, source_title, currency, locale, source_date, budget_year, total_revenue, total_expenses, coverage_with_cash_reserves) "
-                +
-                "VALUES (1, 'Title', 'EUR', 'el-GR', '2025-01-01', 2025, 1000.0, 800.0, 200.0)";
-        DatabaseManager.executeUpdate(dbPath, insertBudget);
+    @Test
+    void testLoadSummaryNotFound() {
+        Summary s = SummaryDao.loadSummary(999);
+        assertNull(s);
+    }
 
-        Summary summary = SummaryDao.loadSummary(1);
-        assertNotNull(summary);
-        assertEquals("Title", summary.getSourceTitle());
-        assertEquals(1000L, summary.getTotalRevenues());
+    @Test
+    void testLoadAllSummaries() {
+        List<Summary> list = SummaryDao.loadAllSummaries();
+        assertEquals(2, list.size());
+
+        // Sorted by year
+        assertEquals(2024, list.get(0).getBudgetYear());
+        assertEquals(2025, list.get(1).getBudgetYear());
     }
 }

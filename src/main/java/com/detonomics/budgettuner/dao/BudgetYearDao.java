@@ -94,6 +94,7 @@ public final class BudgetYearDao {
      */
     public static void insertNewBudgetYear(
             final String pdfPath) throws Exception {
-        IngestBudgetPdf.process(pdfPath);
+        IngestBudgetPdf ingestor = new IngestBudgetPdf();
+        ingestor.process(pdfPath);
     }
 }

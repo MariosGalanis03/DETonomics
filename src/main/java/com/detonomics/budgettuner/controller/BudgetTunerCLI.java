@@ -1,13 +1,15 @@
 package com.detonomics.budgettuner.controller;
 
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.nio.charset.StandardCharsets;
 
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.SqlSequence;
-import com.detonomics.budgettuner.dao.BudgetYearDao;
-import com.detonomics.budgettuner.dao.SqlSequenceDao;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 
 /**
@@ -15,50 +17,72 @@ import com.detonomics.budgettuner.util.BudgetFormatter;
  */
 public final class BudgetTunerCLI {
 
-    private BudgetTunerCLI() {
-        throw new AssertionError("Utility class");
+    private final BudgetDataService dataService;
+    private final InputStream in;
+    private final PrintStream out;
+
+    /**
+     * Constructor for dependency injection.
+     * 
+     * @param dataService The service to access budget data.
+     * @param in          The input stream (e.g., System.in).
+     * @param out         The output stream (e.g., System.out).
+     */
+    public BudgetTunerCLI(final BudgetDataService dataService, final InputStream in, final PrintStream out) {
+        this.dataService = dataService;
+        this.in = in;
+        this.out = out;
     }
 
     /**
      * The main method that starts the application.
      */
     public static void main(final String[] args) {
-        try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
-            System.out.println();
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("Καλωσορίσατε στο Budget Tuner!");
-            System.out.println("Το εργαλείο διαχείρισης προϋπολογισμών");
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        BudgetDataService service = new BudgetDataServiceImpl();
+        BudgetTunerCLI app = new BudgetTunerCLI(service, System.in, System.out);
+        app.run();
+    }
 
-            System.out.println("Σύνολο αποθηκευμένων στοιχείων στη Βάση:");
-            SqlSequence statistics = SqlSequenceDao.loadSqliteSequence();
-            System.out.printf(
+    /**
+     * Runs the application logic.
+     */
+    public void run() {
+        try (Scanner scanner = new Scanner(in, StandardCharsets.UTF_8)) {
+            out.println();
+            out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            out.println("Καλωσορίσατε στο Budget Tuner!");
+            out.println("Το εργαλείο διαχείρισης προϋπολογισμών");
+            out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+            out.println("Σύνολο αποθηκευμένων στοιχείων στη Βάση:");
+            SqlSequence statistics = dataService.loadStatistics();
+            out.printf(
                     "- Προϋπολογισμοί: %d%n- Κατηγορίες Εσόδων: %d%n"
                             + "- Κατηγορίες Εξόδων: %d%n- Υπουργεία: %d%n"
                             + "- Έξοδα Υπουργείων: %d%n",
                     statistics.getBudgets(), statistics.getRevenueCategories(),
                     statistics.getExpenseCategories(), statistics.getMinistries(),
                     statistics.getMinistryExpenses());
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
             // Load list of budget years
-            ArrayList<Integer> years = BudgetYearDao.loadBudgetYearsList();
+            ArrayList<Integer> years = dataService.loadBudgetYears();
             boolean mainMenurunning = true;
             int choice;
 
             while (mainMenurunning) {
-                System.out.println("\n--- ΚΥΡΙΟ ΜΕΝΟΥ ---");
-                System.out.println("1. Επιλογή Έτους για Προβολή");
-                System.out.println("2. Σύγκριση Δύο Ετών");
-                System.out.println("3. Εισαγωγή Νέου Έτους");
-                System.out.println("0. Έξοδος");
-                System.out.print("Επιλογή: ");
+                out.println("\n--- ΚΥΡΙΟ ΜΕΝΟΥ ---");
+                out.println("1. Επιλογή Έτους για Προβολή");
+                out.println("2. Σύγκριση Δύο Ετών");
+                out.println("3. Εισαγωγή Νέου Έτους");
+                out.println("0. Έξοδος");
+                out.print("Επιλογή: ");
 
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine(); // Consume newline
                 } else {
-                    System.out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
+                    out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
                     scanner.nextLine();
                     continue;
                 }
@@ -67,10 +91,10 @@ public final class BudgetTunerCLI {
                     case 1:
                         // 1. Select Year
                         int year = selectYear(scanner, years, "Εισάγετε το έτος προϋπολογισμού: ");
-                        System.out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
+                        out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
 
-                        int budgetID = BudgetYearDao.loadBudgetIDByYear(year);
-                        BudgetYear budget = BudgetYearDao.loadBudgetYear(budgetID);
+                        int budgetID = dataService.loadBudgetIDByYear(year);
+                        BudgetYear budget = dataService.loadBudgetYear(budgetID);
 
                         // 2. Enter View Menu
                         // Returns false if the user chose "Exit" (7), true if "Change Year" (6)
@@ -81,16 +105,16 @@ public final class BudgetTunerCLI {
                         break;
 
                     case 2:
-                        System.out.println("Σύγκριση δύο ετών προϋπολογισμού...");
+                        out.println("Σύγκριση δύο ετών προϋπολογισμού...");
 
                         // 1. Select Years
                         int year1 = selectYear(scanner, years, "Εισάγετε το πρώτο έτος για σύγκριση: ");
-                        int budgetID1 = BudgetYearDao.loadBudgetIDByYear(year1);
-                        BudgetYear budget1 = BudgetYearDao.loadBudgetYear(budgetID1);
+                        int budgetID1 = dataService.loadBudgetIDByYear(year1);
+                        BudgetYear budget1 = dataService.loadBudgetYear(budgetID1);
 
                         int year2 = selectYear(scanner, years, "Εισάγετε το δεύτερο έτος για σύγκριση: ");
-                        int budgetID2 = BudgetYearDao.loadBudgetIDByYear(year2);
-                        BudgetYear budget2 = BudgetYearDao.loadBudgetYear(budgetID2);
+                        int budgetID2 = dataService.loadBudgetIDByYear(year2);
+                        BudgetYear budget2 = dataService.loadBudgetYear(budgetID2);
 
                         // 2. Enter Comparison Menu
                         handleCompareBudgetsMenu(scanner, budget1, budget2, year1, year2);
@@ -98,31 +122,31 @@ public final class BudgetTunerCLI {
 
                     case 3:
                         // Insert new year
-                        System.out.println("Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
-                        System.out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού "
+                        out.println("Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
+                        out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού "
                                 + "(ή 0 για ακύρωση): ");
                         String pdfPath = scanner.nextLine();
                         if (!pdfPath.equals("0")) {
                             try {
-                                BudgetYearDao.insertNewBudgetYear(pdfPath);
+                                dataService.insertNewBudgetYear(pdfPath);
                                 // Reload years list after insertion
-                                years = BudgetYearDao.loadBudgetYearsList();
-                                System.out.println("Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
+                                years = dataService.loadBudgetYears();
+                                out.println("Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
                             } catch (Exception e) {
-                                System.out.println("Σφάλμα κατά την εισαγωγή: " + e.getMessage());
+                                out.println("Σφάλμα κατά την εισαγωγή: " + e.getMessage());
                             }
                         } else {
-                            System.out.println("Ακύρωση εισαγωγής νέου έτους.");
+                            out.println("Ακύρωση εισαγωγής νέου έτους.");
                         }
                         break;
 
                     case 0:
-                        System.out.println("Έξοδος από την εφαρμογή.");
+                        out.println("Έξοδος από την εφαρμογή.");
                         mainMenurunning = false;
                         break;
 
                     default:
-                        System.out.println("Μη έγκυρη επιλογή.");
+                        out.println("Μη έγκυρη επιλογή.");
                         break;
                 }
             }
@@ -132,24 +156,24 @@ public final class BudgetTunerCLI {
     /**
      * Helper method to prompt the user to select a valid year from the list.
      */
-    private static int selectYear(final Scanner scanner, final ArrayList<Integer> availableYears, final String message) {
+    private int selectYear(final Scanner scanner, final ArrayList<Integer> availableYears, final String message) {
         int selectedYear;
         do {
-            System.out.println("Διαθέσιμα Έτη στη Βάση: ");
+            out.println("Διαθέσιμα Έτη στη Βάση: ");
             for (int y : availableYears) {
-                System.out.println("- " + y);
+                out.println("- " + y);
             }
-            System.out.print(message);
+            out.print(message);
 
             while (!scanner.hasNextInt()) {
-                System.out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
+                out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
                 scanner.nextLine();
             }
             selectedYear = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
             if (!availableYears.contains(selectedYear)) {
-                System.out.println("Το έτος " + selectedYear
+                out.println("Το έτος " + selectedYear
                         + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
             }
         } while (!availableYears.contains(selectedYear));
@@ -159,72 +183,74 @@ public final class BudgetTunerCLI {
 
     /**
      * Handles the menu for viewing a specific budget year.
-     * @return true if the application should continue running, false if the user selected Exit.
+     * 
+     * @return true if the application should continue running, false if the user
+     *         selected Exit.
      */
-    private static boolean handleViewBudgetMenu(final Scanner scanner, final BudgetYear budget, final int year) {
+    private boolean handleViewBudgetMenu(final Scanner scanner, final BudgetYear budget, final int year) {
         boolean menuRunning = true;
         boolean keepAppRunning = true;
 
         while (menuRunning) {
-            System.out.println("\n--- ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ---");
-            System.out.println("1. Προβολή Συνολικών Στοιχείων (Σύνοψη)");
-            System.out.println("2. Προβολή Εσόδων");
-            System.out.println("3. Προβολή Εξόδων");
-            System.out.println("4. Προβολή Φορέων");
-            System.out.println("5. Προβολή Δαπανών Φορέων");
-            System.out.println("6. Αλλαγή Έτους Προϋπολογισμού");
-            System.out.println("7. Επιστροφή στο Κύριο Μενού");
-            System.out.println("8. Έξοδος");
-            System.out.println("-----------------------");
-            System.out.print("Επιλογή: ");
+            out.println("\n--- ΚΕΝΤΡΙΚΟ ΜΕΝΟΥ ---");
+            out.println("1. Προβολή Συνολικών Στοιχείων (Σύνοψη)");
+            out.println("2. Προβολή Εσόδων");
+            out.println("3. Προβολή Εξόδων");
+            out.println("4. Προβολή Φορέων");
+            out.println("5. Προβολή Δαπανών Φορέων");
+            out.println("6. Αλλαγή Έτους Προϋπολογισμού");
+            out.println("7. Επιστροφή στο Κύριο Μενού");
+            out.println("8. Έξοδος");
+            out.println("-----------------------");
+            out.print("Επιλογή: ");
 
             int choice;
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
                 scanner.nextLine();
             } else {
-                System.out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
+                out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
                 scanner.nextLine();
                 choice = -1;
             }
 
             switch (choice) {
                 case 1:
-                    System.out.println("\n--- ΣΥΝΟΨΗ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    System.out.println(budget.getSummary());
+                    out.println("\n--- ΣΥΝΟΨΗ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println(budget.getSummary());
                     break;
                 case 2:
-                    System.out.println("\n--- ΕΣΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    System.out.println(BudgetFormatter.getFormattedRevenues(budget.getRevenues()));
+                    out.println("\n--- ΕΣΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedRevenues(budget.getRevenues()));
                     break;
                 case 3:
-                    System.out.println("\n--- ΕΞΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    System.out.println(BudgetFormatter.getFormattedExpenditures(budget.getExpenses()));
+                    out.println("\n--- ΕΞΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedExpenditures(budget.getExpenses()));
                     break;
                 case 4:
-                    System.out.println("\n--- ΦΟΡΕΙΣ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    System.out.println(BudgetFormatter.getFormattedMinistries(budget.getMinistries()));
+                    out.println("\n--- ΦΟΡΕΙΣ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedMinistries(budget.getMinistries()));
                     break;
                 case 5:
-                    System.out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    System.out.println(BudgetFormatter.getFormattedMinistryExpenses(
+                    out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedMinistryExpenses(
                             budget.getMinistries(), budget.getExpenses(), budget.getMinistryExpenses()));
                     break;
                 case 6:
-                    System.out.println("Αλλαγή έτους προϋπολογισμού...");
+                    out.println("Αλλαγή έτους προϋπολογισμού...");
                     menuRunning = false;
                     break;
                 case 7:
-                    System.out.println("Επιστροφή στο Κύριο Μενού...");
+                    out.println("Επιστροφή στο Κύριο Μενού...");
                     menuRunning = false;
                     break;
                 case 8:
-                    System.out.println("Έξοδος...");
+                    out.println("Έξοδος...");
                     menuRunning = false;
                     keepAppRunning = false;
                     break;
                 default:
-                    System.out.println("Μη έγκυρη επιλογή.");
+                    out.println("Μη έγκυρη επιλογή.");
                     break;
             }
         }
@@ -234,24 +260,24 @@ public final class BudgetTunerCLI {
     /**
      * Handles the menu for comparing two budget years.
      */
-    private static void handleCompareBudgetsMenu(final Scanner scanner, final BudgetYear budget1,
-                                                 final BudgetYear budget2, final int year1, final int year2) {
+    private void handleCompareBudgetsMenu(final Scanner scanner, final BudgetYear budget1,
+            final BudgetYear budget2, final int year1, final int year2) {
         boolean compareRunning = true;
         while (compareRunning) {
-            System.out.println("\n--- ΜΕΝΟΥ ΣΥΓΚΡΙΣΗΣ ---");
-            System.out.println("1. Σύγκριση Συνολικών Στοιχείων (Σύνοψη)");
-            System.out.println("2. Σύγκριση Εσόδων");
-            System.out.println("3. Σύγκριση Εξόδων");
-            System.out.println("4. Σύγκριση Φορέων");
-            System.out.println("5. Επιστροφή στο Κύριο Μενού");
-            System.out.print("Επιλογή: ");
+            out.println("\n--- ΜΕΝΟΥ ΣΥΓΚΡΙΣΗΣ ---");
+            out.println("1. Σύγκριση Συνολικών Στοιχείων (Σύνοψη)");
+            out.println("2. Σύγκριση Εσόδων");
+            out.println("3. Σύγκριση Εξόδων");
+            out.println("4. Σύγκριση Φορέων");
+            out.println("5. Επιστροφή στο Κύριο Μενού");
+            out.print("Επιλογή: ");
 
             int compareChoice;
             if (scanner.hasNextInt()) {
                 compareChoice = scanner.nextInt();
                 scanner.nextLine();
             } else {
-                System.out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
+                out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
                 scanner.nextLine();
                 compareChoice = -1;
             }
@@ -260,28 +286,32 @@ public final class BudgetTunerCLI {
                 case 1:
                     String[] lines1 = budget1.getSummary().toString().split("\n");
                     String[] lines2 = budget2.getSummary().toString().split("\n");
-                    System.out.println("\n" + String.format("%-80s", year1) + "|" + year2);
-                    System.out.println(String.format("%-80s", "").replace(' ', '-') + "|" + String.format("%-80s", "").replace(' ', '-'));
+                    out.println("\n" + String.format("%-80s", year1) + "|" + year2);
+                    out.println(String.format("%-80s", "").replace(' ', '-') + "|"
+                            + String.format("%-80s", "").replace(' ', '-'));
                     for (int i = 0; i < Math.max(lines1.length, lines2.length); i++) {
                         String l1 = i < lines1.length ? lines1[i] : "";
                         String l2 = i < lines2.length ? lines2[i] : "";
-                        System.out.println(String.format("%-80s", l1) + "|" + l2);
+                        out.println(String.format("%-80s", l1) + "|" + l2);
                     }
                     break;
                 case 2:
-                    System.out.println(BudgetFormatter.getFormattedComparativeRevenues(budget1.getRevenues(), budget2.getRevenues(), year1, year2));
+                    out.println(BudgetFormatter.getFormattedComparativeRevenues(budget1.getRevenues(),
+                            budget2.getRevenues(), year1, year2));
                     break;
                 case 3:
-                    System.out.println(BudgetFormatter.getFormattedComparativeExpenditures(budget1.getExpenses(), budget2.getExpenses(), year1, year2));
+                    out.println(BudgetFormatter.getFormattedComparativeExpenditures(budget1.getExpenses(),
+                            budget2.getExpenses(), year1, year2));
                     break;
                 case 4:
-                    System.out.println(BudgetFormatter.getFormattedComparativeMinistries(budget1.getMinistries(), budget2.getMinistries(), year1, year2));
+                    out.println(BudgetFormatter.getFormattedComparativeMinistries(budget1.getMinistries(),
+                            budget2.getMinistries(), year1, year2));
                     break;
                 case 5:
                     compareRunning = false;
                     break;
                 default:
-                    System.out.println("Μη έγκυρη επιλογή.");
+                    out.println("Μη έγκυρη επιλογή.");
                     break;
             }
         }

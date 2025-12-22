@@ -3,10 +3,17 @@ package com.detonomics.budgettuner.util.ingestion;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +40,7 @@ public class JsonToSQLiteTest {
     @Test
     public void testMainWithNoArgs() {
         // Test main method with no arguments
-        JsonToSQLite.main(new String[]{});
+        JsonToSQLite.main(new String[] {});
 
         // Should print error message to stderr
         String errorOutput = errContent.toString();
@@ -45,23 +52,155 @@ public class JsonToSQLiteTest {
     public void testMainWithValidArgs() {
         // Test main method with valid arguments but nonexistent file
         // The main method catches exceptions internally, so it shouldn't throw
-        JsonToSQLite.main(new String[]{"nonexistent.json"});
+        JsonToSQLite.main(new String[] { "nonexistent.json" });
 
         // Should have printed error messages to stderr
         String errorOutput = errContent.toString();
         assertTrue(errorOutput.contains("A critical error occurred") ||
-                  errorOutput.contains("nonexistent.json"));
+                errorOutput.contains("nonexistent.json"));
     }
 
     @Test
     public void testMainWithMultipleArgs() {
         // Test main method with multiple arguments (should only use first)
-        JsonToSQLite.main(new String[]{"file1.json", "file2.json"});
+        JsonToSQLite.main(new String[] { "file1.json", "file2.json" });
 
         // Should have printed error messages to stderr about the first file
         String errorOutput = errContent.toString();
         assertTrue(errorOutput.contains("A critical error occurred") ||
-                  errorOutput.contains("file1.json"));
+                errorOutput.contains("file1.json"));
+    }
+
+    @Test
+    public void testProcessAndStoreBudgetWithTempDB(@TempDir Path tempDir) throws Exception {
+        // Create a temporary database file
+        Path dbPath = tempDir.resolve("test_budget.db");
+        String dbUrl = dbPath.toAbsolutePath().toString();
+
+        // Create a dummy JSON file
+        Path jsonPath = tempDir.resolve("test_budget.json");
+        String jsonContent = """
+                {
+                  "metadata": {
+                    "sourceTitle": "Test Budget",
+                    "sourceDate": "2025-01-01",
+                    "budgetYear": 2025,
+                    "currency": "EUR",
+                    "locale": "el_GR",
+                    "missingFields": []
+                  },
+                  "budgetSummary": {
+                    "totalRevenue": 1000,
+                    "totalExpenses": 800,
+                    "stateBudgetBalance": 200,
+                    "coverageWithCashReserves": 0
+                  },
+                  "revenueAnalysis": [
+                    {
+                      "code": "100",
+                      "name": "Tax",
+                      "amount": 500,
+                      "children": []
+                    }
+                  ],
+                  "expenseAnalysis": [
+                     {
+                      "code": "200",
+                      "name": "Salary",
+                      "amount": 400
+                     }
+                  ],
+                  "distributionByMinistry": [
+                    {
+                      "code": "10",
+                      "ministryBody": "Ministry of Tests",
+                      "regularBudget": 300,
+                      "publicInvestmentBudget": 100,
+                      "total": 400,
+                      "totalFromMajorCategories": [
+                          {
+                              "code": "200",
+                              "name": "Salary",
+                              "amount": 400
+                          }
+                      ]
+                    }
+                  ]
+                }
+                """;
+        Files.writeString(jsonPath, jsonContent);
+
+        // Run the processor with the temp DB
+        JsonToSQLite processor = new JsonToSQLite(dbUrl);
+        processor.processAndStoreBudget(jsonPath.toString());
+
+        // Verify data in the database
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbUrl)) {
+            try (Statement stmt = conn.createStatement()) {
+                // Check Budgets table
+                ResultSet rs = stmt.executeQuery("SELECT * FROM Budgets");
+                assertTrue(rs.next());
+                assertEquals(2025, rs.getInt("budget_year"));
+                assertEquals(1000, rs.getDouble("total_revenue"));
+
+                // Check RevenueCategories table
+                rs = stmt.executeQuery("SELECT * FROM RevenueCategories WHERE code='100'");
+                assertTrue(rs.next());
+                assertEquals("Tax", rs.getString("name"));
+
+                // Check ExpenseCategories table
+                rs = stmt.executeQuery("SELECT * FROM ExpenseCategories WHERE code='200'");
+                assertTrue(rs.next());
+                assertEquals("Salary", rs.getString("name"));
+
+                // Check Ministries table
+                rs = stmt.executeQuery("SELECT * FROM Ministries WHERE code='10'");
+                assertTrue(rs.next());
+                assertEquals("Ministry of Tests", rs.getString("name"));
+            }
+        }
+    }
+
+    @Test
+    public void testProcessAndStoreBudgetDuplicateYear(@TempDir Path tempDir) throws Exception {
+        // Create a temporary database file
+        Path dbPath = tempDir.resolve("test_duplicate.db");
+        String dbUrl = dbPath.toAbsolutePath().toString();
+
+        // Create a dummy JSON file
+        Path jsonPath = tempDir.resolve("test_budget.json");
+        String jsonContent = """
+                {
+                  "metadata": {
+                    "sourceTitle": "Test Budget",
+                    "sourceDate": "2025-01-01",
+                    "budgetYear": 2025,
+                    "currency": "EUR",
+                    "locale": "el_GR",
+                    "missingFields": []
+                  },
+                  "budgetSummary": {
+                    "totalRevenue": 1000,
+                    "totalExpenses": 800,
+                    "stateBudgetBalance": 200,
+                    "coverageWithCashReserves": 0
+                  },
+                  "revenueAnalysis": [],
+                  "expenseAnalysis": [],
+                  "distributionByMinistry": []
+                }
+                """;
+        Files.writeString(jsonPath, jsonContent);
+
+        // Run the processor twice
+        JsonToSQLite processor = new JsonToSQLite(dbUrl);
+        processor.processAndStoreBudget(jsonPath.toString());
+
+        // Capture output for the second run
+        processor.processAndStoreBudget(jsonPath.toString());
+
+        String output = outContent.toString();
+        assertTrue(output.contains("already exists in the database. Skipping insertion."));
     }
 
     @Test

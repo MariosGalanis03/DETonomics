@@ -16,8 +16,10 @@ import com.google.genai.types.Part;
  */
 public final class TextToJson {
 
-  private TextToJson() {
-    throw new AssertionError("Utility class");
+  /**
+   * Default constructor.
+   */
+  public TextToJson() {
   }
 
   private static final String PROMPT1 = """
@@ -200,15 +202,29 @@ public final class TextToJson {
       """;
 
   /**
-   * Converts a text file to a JSON file using the Gemini API.
+   * Converts a text file to a JSON file using the Gemini API, reading the API key
+   * from the
+   * environment.
    *
    * @param inTxt   The path to the input text file.
    * @param outJson The path to the output JSON file.
    * @throws Exception If an error occurs during API call or file operations.
    */
-  public static void textFileToJson(final Path inTxt, final Path outJson)
-      throws Exception {
+  public void textFileToJson(final Path inTxt, final Path outJson) throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");
+    textFileToJson(inTxt, outJson, apiKey);
+  }
+
+  /**
+   * Converts a text file to a JSON file using the Gemini API.
+   *
+   * @param inTxt   The path to the input text file.
+   * @param outJson The path to the output JSON file.
+   * @param apiKey  The Gemini API key.
+   * @throws Exception If an error occurs during API call or file operations.
+   */
+  public void textFileToJson(final Path inTxt, final Path outJson, String apiKey)
+      throws Exception {
 
     if (apiKey == null || apiKey.isBlank()) {
       throw new IllegalArgumentException(
