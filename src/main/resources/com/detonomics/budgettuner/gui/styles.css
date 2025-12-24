@@ -110,9 +110,12 @@
 
 /* --- 5. Budget Details (Modern Dashboard) --- */
 .details-topbar {
-    -fx-background-color: rgba(255, 255, 255, 0.35);
-    -fx-background-radius: 18;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.10), 14, 0, 0, 6);
+    -fx-background-color: rgba(255, 255, 255, 0.65);
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 20, 0, 0, 8);
+    -fx-border-color: rgba(255, 255, 255, 0.9);
+    -fx-border-width: 1;
+    -fx-border-radius: 24;
 }
 
 .details-title {
@@ -128,20 +131,21 @@
 }
 
 .menu-button {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-color: white;
     -fx-text-fill: #1565C0;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-background-radius: 14;
-    -fx-border-color: rgba(21, 101, 192, 0.55);
-    -fx-border-radius: 14;
-    -fx-border-width: 1;
-    -fx-padding: 10 14;
+    -fx-background-radius: 50;
+    /* Circle/Pill */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+    -fx-padding: 8 16;
     -fx-cursor: hand;
 }
 
 .menu-button:hover {
-    -fx-background-color: #ffffff;
+    -fx-background-color: #f5f5f5;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 .details-scroll {
@@ -154,9 +158,12 @@
 }
 
 .card {
-    -fx-background-color: rgba(255, 255, 255, 0.78);
-    -fx-background-radius: 18;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.10), 14, 0, 0, 6);
+    -fx-background-color: rgba(255, 255, 255, 0.75);
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(three-pass-box, rgba(21, 101, 192, 0.08), 25, 0, 0, 10);
+    -fx-border-color: rgba(255, 255, 255, 0.6);
+    -fx-border-width: 1;
+    -fx-border-radius: 24;
 }
 
 .chart-card {
@@ -288,4 +295,76 @@
 
 .menu-item:hover {
     -fx-background-color: rgba(21, 101, 192, 0.10);
+}
+
+/* --- 6. Modern Dashboard Styles --- */
+
+.dashboard-card {
+    -fx-background-color: rgba(255, 255, 255, 0.65);
+    -fx-background-radius: 18;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 12, 0, 0, 4);
+    -fx-border-color: rgba(255, 255, 255, 0.6);
+    -fx-border-width: 1;
+    -fx-border-radius: 18;
+}
+
+.card-label-sm {
+    -fx-text-fill: #546E7A;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-opacity: 0.9;
+}
+
+.card-value-lg {
+    -fx-text-fill: #1565C0;
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+}
+
+.card-value-md {
+    -fx-text-fill: #0D47A1;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.search-bar {
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-background-radius: 20;
+    -fx-border-color: #90CAF9;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 8 15;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1565C0;
+    -fx-prompt-text-fill: #90A4AE;
+}
+
+.search-bar:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #1565C0;
+    -fx-effect: dropshadow(three-pass-box, rgba(21, 101, 192, 0.2), 8, 0, 0, 2);
+}
+
+.trend-up {
+    -fx-text-fill: #2E7D32;
+    /* Green */
+    -fx-font-weight: bold;
+}
+
+.trend-down {
+    -fx-text-fill: #C62828;
+    /* Red */
+    -fx-font-weight: bold;
+}
+
+.trend-neutral {
+    -fx-text-fill: #78909C;
+    /* Grey */
+}
+
+/* Enhancements for Tree Row */
+.row-header {
+    -fx-background-color: rgba(21, 101, 192, 0.15);
+    -fx-border-color: rgba(21, 101, 192, 0.2);
+    -fx-border-width: 0 0 1 0;
 }

@@ -15,7 +15,7 @@ public class GuiApp extends Application {
     public static final double DEFAULT_HEIGHT = 500;
 
     @Override
-    public void start(final Stage stage) throws IOException {
+    public void start(Stage stage) throws IOException {
         // ΕΠΑΝΑΦΟΡΑ: Φορτώνουμε την Αρχική Σελίδα (welcome-view.fxml)
         FXMLLoader fxmlLoader = new FXMLLoader(GuiApp.class.getResource("welcome-view.fxml"));
 
@@ -39,7 +39,7 @@ public class GuiApp extends Application {
         stage.show();
     }
 
-    public static void main(final String[] args) {
+    public static void main(String[] args) {
         launch();
     }
 }

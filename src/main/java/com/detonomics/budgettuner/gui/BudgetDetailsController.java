@@ -1,41 +1,43 @@
 package com.detonomics.budgettuner.gui;
 
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+
+import com.detonomics.budgettuner.dao.BudgetTotalsDao;
 import com.detonomics.budgettuner.dao.BudgetYearDao;
-import com.detonomics.budgettuner.dao.SummaryDao;
+import com.detonomics.budgettuner.model.BudgetTotals;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.model.RevenueCategory;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.util.PlotlyHelper;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.text.NumberFormat;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 
 public class BudgetDetailsController {
 
@@ -51,14 +53,10 @@ public class BudgetDetailsController {
     private Label resultValue;
 
     @FXML
-    private LineChart<String, Number> totalsChart;
-    @FXML
-    private NumberAxis amountAxis;
+    private WebView totalsWebView;
 
     @FXML
-    private LineChart<String, Number> resultChart;
-    @FXML
-    private NumberAxis resultAmountAxis;
+    private WebView resultWebView;
 
     @FXML
     private VBox topRevenuesBox;
@@ -96,19 +94,11 @@ public class BudgetDetailsController {
             menuOverlay.setOpacity(0.0);
         }
 
-        if (totalsChart != null) {
-            totalsChart.setAnimated(true);
-            totalsChart.setCreateSymbols(true);
+        if (totalsWebView != null) {
+            totalsWebView.setContextMenuEnabled(false);
         }
-        if (resultChart != null) {
-            resultChart.setAnimated(true);
-            resultChart.setCreateSymbols(true);
-        }
-        if (amountAxis != null) {
-            amountAxis.setAutoRanging(true);
-        }
-        if (resultAmountAxis != null) {
-            resultAmountAxis.setAutoRanging(true);
+        if (resultWebView != null) {
+            resultWebView.setContextMenuEnabled(false);
         }
     }
 
@@ -131,12 +121,12 @@ public class BudgetDetailsController {
             return;
         }
 
-        List<Summary> summaries = SummaryDao.loadAllSummaries();
+        List<BudgetTotals> totals = BudgetTotalsDao.loadAllBudgetTotals();
 
         Integer candidate = null;
-        for (Summary s : summaries) {
-            if (s.getBudgetYear() < selectedYear) {
-                candidate = s.getBudgetYear();
+        for (BudgetTotals t : totals) {
+            if (t.year() < selectedYear) {
+                candidate = t.year();
             }
         }
         if (candidate == null) {
@@ -204,104 +194,57 @@ public class BudgetDetailsController {
     }
 
     private void renderTotalsChart() {
-        if (totalsChart == null || dbPath == null) {
+        if (totalsWebView == null || dbPath == null) {
             return;
         }
 
-        totalsChart.getData().clear();
-
-        List<Summary> summaries = SummaryDao.loadAllSummaries();
-        if (summaries.isEmpty()) {
+        List<BudgetTotals> totals = BudgetTotalsDao.loadAllBudgetTotals();
+        if (totals.isEmpty()) {
             return;
         }
 
-        XYChart.Series<String, Number> revenues = new XYChart.Series<>();
-        revenues.setName("Έσοδα");
+        List<String> years = new ArrayList<>();
+        List<Double> revenues = new ArrayList<>();
+        List<Double> expenses = new ArrayList<>();
 
-        XYChart.Series<String, Number> expenses = new XYChart.Series<>();
-        expenses.setName("Έξοδα");
-
-        for (Summary s : summaries) {
-            String year = String.valueOf(s.getBudgetYear());
-            revenues.getData().add(new XYChart.Data<>(year, s.getTotalRevenues()));
-            expenses.getData().add(new XYChart.Data<>(year, s.totalExpenses()));
+        for (BudgetTotals t : totals) {
+            years.add(String.valueOf(t.year()));
+            revenues.add(t.totalRevenues());
+            expenses.add(t.totalExpenses());
         }
 
-        totalsChart.getData().addAll(revenues, expenses);
+        String trace1 = PlotlyHelper.createTrace("Έσοδα", years, revenues, "#2E7D32"); // Green
+        String trace2 = PlotlyHelper.createTrace("Έξοδα", years, expenses, "#C62828"); // Red
+        String layout = PlotlyHelper.createLayout("Μεταβολή Εσόδων-Εξόδων", "Ποσό (€)");
 
-        if (amountAxis != null) {
-            double min = Double.POSITIVE_INFINITY;
-            double max = Double.NEGATIVE_INFINITY;
-
-            for (Summary s : summaries) {
-                min = Math.min(min, Math.min(s.getTotalRevenues(), s.totalExpenses()));
-                max = Math.max(max, Math.max(s.getTotalRevenues(), s.totalExpenses()));
-            }
-
-            if (Double.isFinite(min) && Double.isFinite(max)) {
-                double range = max - min;
-                double padding = range == 0 ? Math.max(1.0, Math.abs(max) * 0.05) : range * 0.08;
-                double lower = Math.max(0.0, min - padding);
-                double upper = max + padding;
-                if (upper <= lower) {
-                    upper = lower + 1.0;
-                }
-
-                amountAxis.setAutoRanging(false);
-                amountAxis.setLowerBound(lower);
-                amountAxis.setUpperBound(upper);
-                amountAxis.setTickUnit(Math.max(1.0, (upper - lower) / 6.0));
-            } else {
-                amountAxis.setAutoRanging(true);
-            }
-        }
+        String html = PlotlyHelper.getHtml("totalsChart",
+                "{data: [" + trace1 + ", " + trace2 + "], layout: " + layout + "}");
+        totalsWebView.getEngine().loadContent(html);
     }
 
     private void renderResultChart() {
-        if (resultChart == null || dbPath == null) {
+        if (resultWebView == null || dbPath == null) {
             return;
         }
 
-        resultChart.getData().clear();
-
-        List<Summary> summaries = SummaryDao.loadAllSummaries();
-        if (summaries.isEmpty()) {
+        List<BudgetTotals> totals = BudgetTotalsDao.loadAllBudgetTotals();
+        if (totals.isEmpty()) {
             return;
         }
 
-        XYChart.Series<String, Number> resultSeries = new XYChart.Series<>();
-        resultSeries.setName("Αποτέλεσμα");
+        List<String> years = new ArrayList<>();
+        List<Double> results = new ArrayList<>();
 
-        double min = Double.POSITIVE_INFINITY;
-        double max = Double.NEGATIVE_INFINITY;
-
-        for (Summary s : summaries) {
-            String year = String.valueOf(s.getBudgetYear());
-            double value = s.budgetResult();
-            resultSeries.getData().add(new XYChart.Data<>(year, value));
-            min = Math.min(min, value);
-            max = Math.max(max, value);
+        for (BudgetTotals t : totals) {
+            years.add(String.valueOf(t.year()));
+            results.add(t.budgetResult());
         }
 
-        resultChart.getData().add(resultSeries);
+        String trace = PlotlyHelper.createTrace("Αποτέλεσμα", years, results, "#1565C0"); // Blue
+        String layout = PlotlyHelper.createLayout("Αποτέλεσμα Κρατικού Προϋπολογισμού", "Ποσό (€)");
 
-        if (resultAmountAxis != null) {
-            if (Double.isFinite(min) && Double.isFinite(max)) {
-                double range = max - min;
-                double padding = range == 0 ? Math.max(1.0, Math.abs(max) * 0.08) : range * 0.12;
-                double lower = min - padding;
-                double upper = max + padding;
-                if (upper <= lower)
-                    upper = lower + 1.0;
-
-                resultAmountAxis.setAutoRanging(false);
-                resultAmountAxis.setLowerBound(lower);
-                resultAmountAxis.setUpperBound(upper);
-                resultAmountAxis.setTickUnit(Math.max(1.0, (upper - lower) / 6.0));
-            } else {
-                resultAmountAxis.setAutoRanging(true);
-            }
-        }
+        String html = PlotlyHelper.getHtml("resultChart", "{data: [" + trace + "], layout: " + layout + "}");
+        resultWebView.getEngine().loadContent(html);
     }
 
     private void renderTopRevenues() {
@@ -532,5 +475,37 @@ public class BudgetDetailsController {
         slideOut.setToX(-MENU_WIDTH);
         slideOut.setOnFinished(e -> menuDrawer.setVisible(false));
         slideOut.play();
+    }
+
+    @FXML
+    protected void onRevenueAnalysisClick(ActionEvent event) throws IOException {
+        openAnalysisView(event, AnalysisController.AnalysisType.REVENUES);
+    }
+
+    @FXML
+    protected void onExpenseAnalysisClick(ActionEvent event) throws IOException {
+        openAnalysisView(event, AnalysisController.AnalysisType.EXPENSES);
+    }
+
+    @FXML
+    protected void onMinistryAnalysisClick(ActionEvent event) throws IOException {
+        openAnalysisView(event, AnalysisController.AnalysisType.MINISTRIES);
+    }
+
+    private void openAnalysisView(ActionEvent event, AnalysisController.AnalysisType type) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("analysis-view.fxml"));
+        Parent root = loader.load();
+
+        AnalysisController controller = loader.getController();
+        controller.setContext(budget, dbPath, type);
+
+        Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+        scene.getStylesheets().add(css);
+
+        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        window.setScene(scene);
+        window.setMaximized(true);
+        window.show();
     }
 }

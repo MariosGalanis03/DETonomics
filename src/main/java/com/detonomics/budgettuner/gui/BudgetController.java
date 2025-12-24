@@ -42,7 +42,7 @@ public class BudgetController {
         setupSearchField();
     }
 
-    private static String formatBudgetItem(final int year) {
+    private static String formatBudgetItem(int year) {
         return "Προϋπολογισμός Έτους: " + year;
     }
 
@@ -127,7 +127,7 @@ public class BudgetController {
         });
     }
 
-    private static String getSearchSuffix(final String fullText) {
+    private static String getSearchSuffix(String fullText) {
         if (fullText == null) {
             return "";
         }
@@ -179,7 +179,7 @@ public class BudgetController {
     }
 
     @FXML
-    protected void onOpenBudgetClick(final ActionEvent event) throws IOException {
+    protected void onOpenBudgetClick(ActionEvent event) throws IOException {
         String selected = budgetList.getSelectionModel().getSelectedItem();
         if (selected == null) {
             System.out.println("Please select a budget year.");
@@ -212,7 +212,7 @@ public class BudgetController {
     }
 
     @FXML
-    protected void onBackButtonClick(final ActionEvent event) throws IOException {
+    protected void onBackButtonClick(ActionEvent event) throws IOException {
         Parent welcomeViewParent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("welcome-view.fxml")));
         Scene welcomeViewScene = new Scene(welcomeViewParent, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
 

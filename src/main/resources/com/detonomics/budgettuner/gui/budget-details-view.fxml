@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.gui.BudgetDetailsController">
 
@@ -92,14 +93,7 @@
                                 <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
                                     <children>
                                         <Label text="Μεταβολη Εσοδων-Εξοδων" styleClass="section-title" />
-                                        <LineChart fx:id="totalsChart" animated="true" createSymbols="true" legendVisible="true" prefHeight="520.0">
-                                            <xAxis>
-                                                <CategoryAxis fx:id="yearsAxis" label="Έτος" />
-                                            </xAxis>
-                                            <yAxis>
-                                                <NumberAxis fx:id="amountAxis" label="Ποσό (€)" />
-                                            </yAxis>
-                                        </LineChart>
+                                        <WebView fx:id="totalsWebView" prefHeight="520.0" prefWidth="720.0" />
                                     </children>
                                     <padding>
                                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
@@ -109,14 +103,7 @@
                                 <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
                                     <children>
                                         <Label text="Μεταβολή Αποτέλεσμα Κρατικού Προϋπολογισμού" styleClass="section-title" />
-                                        <LineChart fx:id="resultChart" animated="true" createSymbols="true" legendVisible="false" prefHeight="520.0">
-                                            <xAxis>
-                                                <CategoryAxis fx:id="resultYearsAxis" label="Έτος" />
-                                            </xAxis>
-                                            <yAxis>
-                                                <NumberAxis fx:id="resultAmountAxis" label="Ποσό (€)" />
-                                            </yAxis>
-                                        </LineChart>
+                                        <WebView fx:id="resultWebView" prefHeight="520.0" prefWidth="720.0" />
                                     </children>
                                     <padding>
                                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
@@ -131,7 +118,7 @@
                                     <children>
                                         <Label text="Μεγαλύτερες Πηγές Εσόδων" styleClass="list-section-title" />
                                         <VBox fx:id="topRevenuesBox" spacing="8.0" />
-                                        <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εσόδων" />
+                                        <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εσόδων" onAction="#onRevenueAnalysisClick" />
                                     </children>
                                     <padding>
                                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
@@ -142,7 +129,7 @@
                                     <children>
                                         <Label text="Μεγαλύτερες Πηγές Εξόδων" styleClass="list-section-title" />
                                         <VBox fx:id="topExpensesBox" spacing="8.0" />
-                                        <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εξόδων" />
+                                        <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εξόδων" onAction="#onExpenseAnalysisClick" />
                                     </children>
                                     <padding>
                                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
@@ -155,7 +142,7 @@
                             <children>
                                 <Label text="Υπουργεια με τη μεγαλυτερη δημοσιονομικη επιβαρυνση" styleClass="list-section-title" />
                                 <VBox fx:id="topMinistriesBox" spacing="8.0" />
-                                <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Υπουργείων" />
+                                <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Υπουργείων" onAction="#onMinistryAnalysisClick" />
                             </children>
                             <padding>
                                 <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />

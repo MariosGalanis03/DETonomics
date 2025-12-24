@@ -15,7 +15,7 @@ public class WelcomeController {
 
     // Μέθοδος που καλείται όταν πατάμε το κουμπί "Επιλογή Προϋπολογισμού"
     @FXML
-    protected void onSelectBudgetClick(final ActionEvent event) throws IOException {
+    protected void onSelectBudgetClick(ActionEvent event) throws IOException {
         System.out.println("Μετάβαση στη λίστα προϋπολογισμών...");
 
         // 1. Φόρτωση του FXML της λίστας (budget-view.fxml)

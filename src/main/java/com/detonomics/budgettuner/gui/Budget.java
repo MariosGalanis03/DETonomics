@@ -1,14 +1,13 @@
 package com.detonomics.budgettuner.gui;
 
-public final class Budget {
+public class Budget {
     private String year;
     private String status;
     private String date;
     private String amount;
 
     // Constructor
-    public Budget(final String year, final String status,
-            final String date, final String amount) {
+    public Budget(String year, String status, String date, String amount) {
         this.year = year;
         this.status = status;
         this.date = date;
