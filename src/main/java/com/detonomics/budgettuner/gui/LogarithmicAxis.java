@@ -28,7 +28,8 @@ public class LogarithmicAxis extends ValueAxis<Number> {
 
     private void validateBounds(double lowerBound, double upperBound) throws IllegalArgumentException {
         if (lowerBound < 0 || upperBound < 0 || lowerBound > upperBound) {
-            // Basic sanity check, but allow correction in logic
+            throw new IllegalArgumentException(
+                    "Axis bounds must be non-negative and lower bound must be less than upper bound");
         }
     }
 
