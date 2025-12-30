@@ -68,12 +68,12 @@ class SummaryDaoTest {
         assertEquals(2024, s1.getBudgetYear());
         assertEquals("Budget 2024", s1.getSourceTitle());
         assertEquals(1000L, s1.getTotalRevenues());
-        assertEquals(50L, s1.coverageWithCashReserves());
+        assertEquals(50L, s1.getCoverageWithCashReserves());
 
         Summary s2 = SummaryDao.loadSummary(2);
         assertNotNull(s2);
         assertEquals(2025, s2.getBudgetYear());
-        assertEquals(0L, s2.coverageWithCashReserves()); // NULL logic test
+        assertEquals(0L, s2.getCoverageWithCashReserves()); // NULL logic test
     }
 
     @Test

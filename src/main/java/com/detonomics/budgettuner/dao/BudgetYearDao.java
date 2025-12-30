@@ -28,13 +28,13 @@ public final class BudgetYearDao {
      * @return A list of years (Integers).
      */
     public static ArrayList<Integer> loadBudgetYearsList() {
-        String sql = "SELECT budget_year FROM Budgets";
-        List<Map<String, Object>> results = DatabaseManager
+        final String sql = "SELECT budget_year FROM Budgets";
+        final List<Map<String, Object>> results = DatabaseManager
                 .executeQuery(DaoConfig.getDbPath(), sql);
-        ArrayList<Integer> years = new ArrayList<>();
+        final ArrayList<Integer> years = new ArrayList<>();
 
         for (Map<String, Object> resultRow : results) {
-            Integer year = (Integer) resultRow.get("budget_year");
+            final Integer year = (Integer) resultRow.get("budget_year");
             years.add(year);
         }
         return years;
@@ -47,8 +47,9 @@ public final class BudgetYearDao {
      * @return The budget ID, or -1 if not found.
      */
     public static int loadBudgetIDByYear(final int year) {
-        String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
-        List<Map<String, Object>> results = DatabaseManager
+        final String sql = "SELECT budget_id FROM Budgets "
+                + "WHERE budget_year = ?";
+        final List<Map<String, Object>> results = DatabaseManager
                 .executeQuery(DaoConfig.getDbPath(), sql, year);
 
         if (results.isEmpty()) {
@@ -65,13 +66,14 @@ public final class BudgetYearDao {
      * @return A BudgetYear object.
      */
     public static BudgetYear loadBudgetYear(final int budgetID) {
-        Summary summary = SummaryDao.loadSummary(budgetID);
-        ArrayList<RevenueCategory> revenues = RevenueCategoryDao
+        final Summary summary = SummaryDao.loadSummary(budgetID);
+        final ArrayList<RevenueCategory> revenues = RevenueCategoryDao
                 .loadRevenues(budgetID);
-        ArrayList<ExpenseCategory> expenses = ExpenseCategoryDao
+        final ArrayList<ExpenseCategory> expenses = ExpenseCategoryDao
                 .loadExpenses(budgetID);
-        ArrayList<Ministry> ministries = MinistryDao.loadMinistries(budgetID);
-        ArrayList<MinistryExpense> ministryExpenses = MinistryExpenseDao
+        final ArrayList<Ministry> ministries = MinistryDao
+                .loadMinistries(budgetID);
+        final ArrayList<MinistryExpense> ministryExpenses = MinistryExpenseDao
                 .loadMinistryExpenses(budgetID);
 
         return new BudgetYear(summary, revenues, expenses,
@@ -79,9 +81,10 @@ public final class BudgetYearDao {
     }
 
     public static BudgetYear loadBudgetYearByYear(final int year) {
-        int budgetId = loadBudgetIDByYear(year);
+        final int budgetId = loadBudgetIDByYear(year);
         if (budgetId <= 0) {
-            throw new IllegalArgumentException("No budget found for year: " + year);
+            throw new IllegalArgumentException(
+                    "No budget found for year: " + year);
         }
         return loadBudgetYear(budgetId);
     }
@@ -94,8 +97,9 @@ public final class BudgetYearDao {
      */
     public static void insertNewBudgetYear(
             final String pdfPath) throws Exception {
-        IngestBudgetPdf ingestor = new IngestBudgetPdf();
-        ingestor.process(pdfPath, new com.detonomics.budgettuner.util.ingestion.PdfToText(),
+        final IngestBudgetPdf ingestor = new IngestBudgetPdf();
+        ingestor.process(pdfPath,
+                new com.detonomics.budgettuner.util.ingestion.PdfToText(),
                 new com.detonomics.budgettuner.util.ingestion.TextToJson(),
                 new com.detonomics.budgettuner.util.ingestion.JsonToSQLite());
     }

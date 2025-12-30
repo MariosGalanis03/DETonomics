@@ -25,8 +25,8 @@ public final class TextToJson {
   private static final String PROMPT1 = """
       **ROLE**
       You are a budget data-extraction agent. You read unstructured text in
-      Greek or English and return valid JSON only, following the schema below.
-      No prose.
+      Greek or English and return valid JSON only, following the schema
+      below. No prose.
 
       **GOAL**
       Extract clean numeric euro values from budget documents, reconstruct
@@ -37,15 +37,16 @@ public final class TextToJson {
       -Return JSON only. No comments, no preface.
       -All amounts as numbers in euros, no symbols, no thousand separators,
       decimals only if present. Example: "1.304.827.000.000" → 1304827000000.
-      -Field language: Greek as defined in the schema. Category/Ministry names
-      exactly as in source.
+      -Field language: Greek as defined in the schema. Category/Ministry
+      names exactly as in source.
       -If a field is missing, set null and record the reason in
       metadata.missing_fields.
       -Normalize separators: remove thousand dots/commas, treat comma as
       decimal. Ignore €, EUR.
-      -Hierarchy Reconstruction: For revenue analysis, reconstruct the hierarchy
-      based on classification codes. A code is a child of the longest preceding
-      code that is a prefix of it (e.g., 111 is a child of 11).
+      -Hierarchy Reconstruction: For revenue analysis, reconstruct the
+      hierarchy based on classification codes. A code is a child of the
+      longest preceding code that is a prefix of it (e.g., 111 is a child
+      of 11).
       -Compute derived fields and verify equalities. If they do not match,
       populate checks with deltas.
       -For tables, preserve source order.
@@ -105,18 +106,21 @@ public final class TextToJson {
 
       **EXTRACTION STEPS**
       1.Locate the summary section and extract the four main budget values.
-      2.Scan for both summary and detailed revenue tables. Build a nested array
-      for ανάλυση_εσόδων, identifying parent-child relationships from the codes.
-      3.Locate the expense table by economic category (titled "ΠΙΣΤΩΣΕΙΣ ΚΑΤΑ
-      ΜΕΙΖΟΝΑ ΚΑΤΗΓΟΡΙΑ ΔΑΠΑΝΗΣ"). Extract each category into the
+      2.Scan for both summary and detailed revenue tables. Build a nested
+      array for ανάλυση_εσόδων, identifying parent-child relationships
+      from the codes.
+      3.Locate the expense table by economic category (titled "ΠΙΣΤΩΣΕΙΣ
+      ΚΑΤΑ ΜΕΙΖΟΝΑ ΚΑΤΗΓΟΡΙΑ ΔΑΠΑΝΗΣ"). Extract each category into the
       ανάλυση_εξόδων array as a flat list.
-      4.Locate the three expense tables broken down by Ministry/Agency (titled
-      "ΠΙΣΤΩΣΕΙΣ ΣΥΝΟΛΙΚΑ ΚΑΤΑ ΦΟΡΕΑ"). These correspond to the Total State
-      Budget, the Regular Budget, and the Public Investment Budget.
-      5.Consolidate the ministry data. For each ministry, create one object in
-      the κατανομή_ανά_υπουργείο array. Populate the σύνολο,
-      τακτικός_προϋπολογισμός, and προϋπολογισμός_δημοσίων_επενδύσεων fields by
-      matching the ministry's name and code across the three respective tables.
+      4.Locate the three expense tables broken down by Ministry/Agency
+      (titled "ΠΙΣΤΩΣΕΙΣ ΣΥΝΟΛΙΚΑ ΚΑΤΑ ΦΟΡΕΑ"). These correspond to the
+      Total State Budget, the Regular Budget, and the Public Investment
+      Budget.
+      5.Consolidate the ministry data. For each ministry, create one object
+      in the κατανομή_ανά_υπουργείο array. Populate the σύνολο,
+      τακτικός_προϋπολογισμός, and προϋπολογισμός_δημοσίων_επενδύσεων
+      fields by matching the ministry's name and code across the three
+      respective tables.
       6.Convert all monetary values to numeric euros.
       7.Fill metadata with any available title/date/year details.
       8.Compute checks; if any fail, set ok: false and include the delta.
@@ -143,8 +147,8 @@ public final class TextToJson {
                 "children": [
                   {
                     "code": "11101",
-                    "name": "Φόροι προστιθέμενης αξίας που εισπράττονται "
-                            + "μέσω Δ.Ο.Υ",
+                    "name": "Φόροι προστιθέμενης αξίας που "
+                            + "εισπράττονται μέσω Δ.Ο.Υ",
                     "amount": 14635000000,
                     "children": [
                       {
@@ -172,8 +176,10 @@ public final class TextToJson {
         "expenseAnalysis": [
           { "code": "21", "name": "Παροχές σε εργαζομένους",
       "amount": 14889199000 },
-          { "code": "22", "name": "Κοινωνικές παροχές", "amount": 425136000 },
-          { "code": "23", "name": "Μεταβιβάσεις", "amount": 34741365000 },
+          { "code": "22", "name": "Κοινωνικές παροχές",
+      "amount": 425136000 },
+          { "code": "23", "name": "Μεταβιβάσεις",
+      "amount": 34741365000 },
           { "code": "26", "name": "Τόκοι", "amount": 7701101000 }
         ]
       }
@@ -202,15 +208,15 @@ public final class TextToJson {
       """;
 
   /**
-   * Converts a text file to a JSON file using the Gemini API, reading the API key
-   * from the
-   * environment.
+   * Converts a text file to a JSON file using the Gemini API
+   * reading the API key from the environment.
    *
    * @param inTxt   The path to the input text file.
    * @param outJson The path to the output JSON file.
    * @throws Exception If an error occurs during API call or file operations.
    */
-  public void textFileToJson(final Path inTxt, final Path outJson) throws Exception {
+  public void textFileToJson(final Path inTxt, final Path outJson)
+      throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");
     textFileToJson(inTxt, outJson, apiKey);
   }
@@ -223,7 +229,8 @@ public final class TextToJson {
    * @param apiKey  The Gemini API key.
    * @throws Exception If an error occurs during API call or file operations.
    */
-  public void textFileToJson(final Path inTxt, final Path outJson, String apiKey)
+  public void textFileToJson(final Path inTxt,
+      final Path outJson, final String apiKey)
       throws Exception {
 
     if (apiKey == null || apiKey.isBlank()) {
@@ -268,7 +275,8 @@ public final class TextToJson {
     }
 
     Files.writeString(outJson, json, StandardCharsets.UTF_8,
-        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING);
 
     System.out.println("Saved to " + outJson.toAbsolutePath());
   }

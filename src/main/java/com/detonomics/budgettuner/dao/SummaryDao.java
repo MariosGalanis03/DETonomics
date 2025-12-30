@@ -12,77 +12,74 @@ import com.detonomics.budgettuner.util.DatabaseManager;
  */
 public final class SummaryDao {
 
-    private SummaryDao() {
-        throw new AssertionError("Utility class");
-    }
-
-    /**
-     * Loads the budget summary for a given budget ID.
-     *
-     * @param budgetID The ID of the budget.
-     * @return A Summary object, or null if not found.
-     */
-    public static Summary loadSummary(final int budgetID) {
-        String sql = "SELECT * FROM Budgets WHERE budget_id = ?";
-        List<Map<String, Object>> result = DatabaseManager
-                .executeQuery(DaoConfig.getDbPath(), sql, budgetID);
-
-        if (result.isEmpty()) {
-            return null;
+        private SummaryDao() {
+                throw new AssertionError("Utility class");
         }
 
-        Map<String, Object> row = result.getFirst();
+        /**
+         * Loads the budget summary for a given budget ID.
+         *
+         * @param budgetID The ID of the budget.
+         * @return A Summary object, or null if not found.
+         */
+        public static Summary loadSummary(final int budgetID) {
+                final String sql = "SELECT * FROM Budgets WHERE budget_id = ?";
+                final List<Map<String, Object>> result = DatabaseManager
+                                .executeQuery(DaoConfig.getDbPath(), sql,
+                                                budgetID);
 
-        String sourceTitle = (String) row.get("source_title");
-        String currency = (String) row.get("currency");
-        String locale = (String) row.get("locale");
-        String sourceDate = (String) row.get("source_date");
-        int budgetYear = (Integer) row.get("budget_year");
-        long totalRevenues = ((Number) row.get("total_revenue")).longValue();
-        long totalExpenses = ((Number) row.get("total_expenses")).longValue();
-        long budgetResult = totalRevenues - totalExpenses;
-        Object covObj = row.get("coverage_with_cash_reserves");
-        long coverageWithCashReserves = (covObj != null)
-                ? ((Number) covObj).longValue()
-                : 0;
+                if (result.isEmpty()) {
+                        return null;
+                }
 
-        return new Summary(sourceTitle, currency, locale, sourceDate,
-                budgetYear, totalRevenues, totalExpenses, budgetResult,
-                coverageWithCashReserves);
-    }
+                return mapRowToSummary(result.getFirst());
+        }
 
-    /**
-     * Loads all budget summaries ordered by budget year.
-     *
-     * @return A list of Summary objects for all budgets.
-     */
-    public static List<Summary> loadAllSummaries() {
-        String sql = "SELECT * FROM Budgets ORDER BY budget_year ASC";
+        /**
+         * Loads all budget summaries ordered by budget year.
+         *
+         * @return A list of Summary objects for all budgets.
+         */
+        public static List<Summary> loadAllSummaries() {
+                final String sql = "SELECT * FROM Budgets "
+                                + "ORDER BY budget_year ASC";
 
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql);
+                final List<Map<String, Object>> results = DatabaseManager
+                                .executeQuery(DaoConfig.getDbPath(), sql);
 
-        return results.stream()
-                .map(row -> {
-                    String sourceTitle = (String) row.get("source_title");
-                    String currency = (String) row.get("currency");
-                    String locale = (String) row.get("locale");
-                    String sourceDate = (String) row.get("source_date");
-                    int budgetYear = ((Number) row.get("budget_year")).intValue();
-                    long totalRevenues = row.get("total_revenue") == null ? 0L
-                            : ((Number) row.get("total_revenue")).longValue();
-                    long totalExpenses = row.get("total_expenses") == null ? 0L
-                            : ((Number) row.get("total_expenses")).longValue();
-                    long budgetResult = totalRevenues - totalExpenses;
-                    Object covObj = row.get("coverage_with_cash_reserves");
-                    long coverageWithCashReserves = (covObj != null)
-                            ? ((Number) covObj).longValue()
-                            : 0;
+                return results.stream()
+                                .map(SummaryDao::mapRowToSummary)
+                                .sorted(Comparator.comparingInt(
+                                                Summary::getBudgetYear))
+                                .toList();
+        }
 
-                    return new Summary(sourceTitle, currency, locale, sourceDate,
-                            budgetYear, totalRevenues, totalExpenses, budgetResult,
-                            coverageWithCashReserves);
-                })
-                .sorted(Comparator.comparingInt(Summary::getBudgetYear))
-                .toList();
-    }
+        private static Summary mapRowToSummary(final Map<String, Object> row) {
+                final String sourceTitle = (String) row.get("source_title");
+                final String currency = (String) row.get("currency");
+                final String locale = (String) row.get("locale");
+                final String sourceDate = (String) row.get("source_date");
+                final int budgetYear = ((Number) row.get("budget_year"))
+                                .intValue();
+
+                final long totalRevenues = row.get("total_revenue") == null ? 0L
+                                : ((Number) row.get("total_revenue"))
+                                                .longValue();
+
+                final long totalExpenses = row.get("total_expenses") == null
+                                ? 0L
+                                : ((Number) row.get("total_expenses"))
+                                                .longValue();
+
+                final long budgetResult = totalRevenues - totalExpenses;
+
+                final Object covObj = row.get("coverage_with_cash_reserves");
+                final long coverageWithCashReserves = (covObj != null)
+                                ? ((Number) covObj).longValue()
+                                : 0;
+
+                return new Summary(sourceTitle, currency, locale, sourceDate,
+                                budgetYear, totalRevenues, totalExpenses,
+                                budgetResult, coverageWithCashReserves);
+        }
 }

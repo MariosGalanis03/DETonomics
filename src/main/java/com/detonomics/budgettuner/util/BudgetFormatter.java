@@ -1,5 +1,10 @@
 package com.detonomics.budgettuner.util;
 
+import com.detonomics.budgettuner.model.ExpenseCategory;
+import com.detonomics.budgettuner.model.Ministry;
+import com.detonomics.budgettuner.model.MinistryExpense;
+import com.detonomics.budgettuner.model.RevenueCategory;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,11 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import com.detonomics.budgettuner.model.ExpenseCategory;
-import com.detonomics.budgettuner.model.Ministry;
-import com.detonomics.budgettuner.model.MinistryExpense;
-import com.detonomics.budgettuner.model.RevenueCategory;
 
 /**
  * Utility class for formatting budget data into readable strings.
@@ -38,7 +38,7 @@ public final class BudgetFormatter {
     /**
      * Truncates a string to a maximum length, appending "..." if truncated.
      *
-     * @param str The string to truncate.
+     * @param str       The string to truncate.
      * @param maxLength The maximum length.
      * @return The truncated string.
      */
@@ -53,7 +53,8 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative revenue categories into a table string showing codes with amounts side by side.
+     * Formats comparative revenue categories into a table string
+     * showing codes with amounts side by side.
      *
      * @param revenues1 The list of revenue categories for year 1.
      * @param revenues2 The list of revenue categories for year 2.
@@ -86,13 +87,16 @@ public final class BudgetFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-15s | %-50s | %20s | %20s%n", "ΚΩΔΙΚΟΣ",
                 "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
-        sb.append("----------------|----------------------------------------------------|"
-                + "----------------------|----------------------\n");
+        sb.append("----------------|----------------------------------"
+                + "------------------|----------------------|"
+                + "----------------------\n");
 
         for (Long code : new TreeSet<>(allCodes)) {
             RevenueCategory r1 = map1.get(code);
             RevenueCategory r2 = map2.get(code);
-            String name = r1 != null ? truncateString(r1.getName(), 50) : (r2 != null ? truncateString(r2.getName(), 50) : "Άγνωστο");
+            String name = r1 != null ? truncateString(r1.getName(), 50)
+                    : (r2 != null ? truncateString(r2.getName(), 50)
+                            : "Άγνωστο");
             String amount1 = r1 != null ? formatAmount(r1.getAmount()) : "-";
             String amount2 = r2 != null ? formatAmount(r2.getAmount()) : "-";
             sb.append(String.format("%-15d | %-50s | %20s | %20s%n",
@@ -102,7 +106,8 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative expense categories into a table string showing codes with amounts side by side.
+     * Formats comparative expense categories into a table string
+     * showing codes with amounts side by side.
      *
      * @param expenditures1 The list of expense categories for year 1.
      * @param expenditures2 The list of expense categories for year 2.
@@ -134,13 +139,16 @@ public final class BudgetFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-15s | %-50s | %20s | %20s%n", "ΚΩΔΙΚΟΣ",
                 "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
-        sb.append("----------------|----------------------------------------------------|"
-                + "----------------------|----------------------\n");
+        sb.append("----------------|----------------------------------"
+                + "------------------|----------------------|"
+                + "----------------------\n");
 
         for (Long code : new TreeSet<>(allCodes)) {
             ExpenseCategory e1 = map1.get(code);
             ExpenseCategory e2 = map2.get(code);
-            String name = e1 != null ? truncateString(e1.getName(), 50) : (e2 != null ? truncateString(e2.getName(), 50) : "Άγνωστο");
+            String name = e1 != null ? truncateString(e1.getName(), 50)
+                    : (e2 != null ? truncateString(e2.getName(), 50)
+                            : "Άγνωστο");
             String amount1 = e1 != null ? formatAmount(e1.getAmount()) : "-";
             String amount2 = e2 != null ? formatAmount(e2.getAmount()) : "-";
             sb.append(String.format("%-15d | %-50s | %20s | %20s%n",
@@ -150,7 +158,8 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative ministries into a table string showing codes with amounts side by side.
+     * Formats comparative ministries into a table string showing
+     * codes with amounts side by side.
      *
      * @param ministries1 The list of ministries for year 1.
      * @param ministries2 The list of ministries for year 2.
@@ -182,15 +191,22 @@ public final class BudgetFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-15s | %-50s | %20s | %20s%n", "ΚΩΔΙΚΟΣ",
                 "ΟΝΟΜΑΣΙΑ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
-        sb.append("----------------|----------------------------------------------------|"
-                + "----------------------|----------------------\n");
+        sb.append("----------------|----------------------------------"
+                + "------------------|----------------------|"
+                + "----------------------\n");
 
         for (Long code : new TreeSet<>(allCodes)) {
             Ministry m1 = map1.get(code);
             Ministry m2 = map2.get(code);
-            String name = m1 != null ? truncateString(m1.getName(), 50) : (m2 != null ? truncateString(m2.getName(), 50) : "Άγνωστο");
-            String amount1 = m1 != null ? formatAmount(m1.getTotalBudget()) : "-";
-            String amount2 = m2 != null ? formatAmount(m2.getTotalBudget()) : "-";
+            String name = m1 != null ? truncateString(m1.getName(), 50)
+                    : (m2 != null ? truncateString(m2.getName(), 50)
+                            : "Άγνωστο");
+            String amount1 = m1 != null
+                    ? formatAmount(m1.getTotalBudget())
+                    : "-";
+            String amount2 = m2 != null
+                    ? formatAmount(m2.getTotalBudget())
+                    : "-";
             sb.append(String.format("%-15d | %-50s | %20s | %20s%n",
                     code, name, amount1, amount2));
         }
@@ -286,16 +302,17 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative ministry expenses into a detailed table showing amounts side by side.
+     * Formats comparative ministry expenses into a detailed table
+     * showing amounts side by side.
      *
-     * @param ministries1 The list of ministries for year 1.
+     * @param ministries1        The list of ministries for year 1.
      * @param expenseCategories1 The list of expense categories for year 1.
-     * @param ministryExpenses1 The list of ministry expenses for year 1.
-     * @param ministries2 The list of ministries for year 2.
+     * @param ministryExpenses1  The list of ministry expenses for year 1.
+     * @param ministries2        The list of ministries for year 2.
      * @param expenseCategories2 The list of expense categories for year 2.
-     * @param ministryExpenses2 The list of ministry expenses for year 2.
-     * @param year1 The first year.
-     * @param year2 The second year.
+     * @param ministryExpenses2  The list of ministry expenses for year 2.
+     * @param year1              The first year.
+     * @param year2              The second year.
      * @return The formatted comparative table string.
      */
     public static String getFormattedComparativeMinistryExpenses(
@@ -332,13 +349,15 @@ public final class BudgetFormatter {
         Map<String, Long> aggregatedExpenses1 = new HashMap<>();
         for (MinistryExpense me : ministryExpenses1) {
             String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
-            aggregatedExpenses1.put(key, aggregatedExpenses1.getOrDefault(key, 0L) + me.getAmount());
+            aggregatedExpenses1.put(key,
+                    aggregatedExpenses1.getOrDefault(key, 0L) + me.getAmount());
         }
 
         Map<String, Long> aggregatedExpenses2 = new HashMap<>();
         for (MinistryExpense me : ministryExpenses2) {
             String key = me.getMinistryID() + "|" + me.getExpenseCategoryID();
-            aggregatedExpenses2.put(key, aggregatedExpenses2.getOrDefault(key, 0L) + me.getAmount());
+            aggregatedExpenses2.put(key,
+                    aggregatedExpenses2.getOrDefault(key, 0L) + me.getAmount());
         }
 
         Set<String> allKeys = new HashSet<>();
@@ -347,8 +366,11 @@ public final class BudgetFormatter {
 
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-10s | %-50s | %-30s | %20s | %20s%n",
-                "ΚΩΔ. ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ", "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
-        sb.append("-----------|----------------------------------------------------|-------------------------------|----------------------|----------------------\n");
+                "ΚΩΔ. ΦΟΡΕΑ", "ΦΟΡΕΑΣ", "ΚΑΤΗΓΟΡΙΑ ΕΞΟΔΟΥ",
+                "ΠΟΣΟ " + year1, "ΠΟΣΟ " + year2));
+        sb.append("-----------|-------------------------------------------"
+                + "---------|-------------------------------|"
+                + "----------------------|----------------------\n");
 
         for (String key : new TreeSet<>(allKeys)) {
             String[] ids = key.split("\\|");
@@ -357,8 +379,11 @@ public final class BudgetFormatter {
 
             Ministry ministry1 = ministryMap1.get(ministryID);
             Ministry ministry2 = ministryMap2.get(ministryID);
-            String ministryName = ministry1 != null ? truncateString(ministry1.getName(), 50) :
-                              (ministry2 != null ? truncateString(ministry2.getName(), 50) : "Άγνωστος Φορέας");
+            String ministryName = ministry1 != null
+                    ? truncateString(ministry1.getName(), 50)
+                    : (ministry2 != null
+                            ? truncateString(ministry2.getName(), 50)
+                            : "Άγνωστος Φορέας");
 
             String categoryName = categoryMap1.get(categoryID);
             if (categoryName == null) {
@@ -375,7 +400,8 @@ public final class BudgetFormatter {
             String amountStr2 = amount2 != null ? formatAmount(amount2) : "-";
 
             sb.append(String.format("%-10d | %-50s | %-30s | %20s | %20s%n",
-                    ministryID, ministryName, categoryName, amountStr1, amountStr2));
+                    ministryID, ministryName, categoryName,
+                    amountStr1, amountStr2));
         }
 
         return sb.toString();
@@ -384,9 +410,9 @@ public final class BudgetFormatter {
     /**
      * Formats ministry expenses into a detailed table.
      *
-     * @param ministries The list of ministries.
+     * @param ministries        The list of ministries.
      * @param expenseCategories The list of expense categories.
-     * @param ministryExpenses The list of ministry expenses.
+     * @param ministryExpenses  The list of ministry expenses.
      * @return The formatted table string.
      */
     public static String getFormattedMinistryExpenses(
@@ -468,19 +494,22 @@ public final class BudgetFormatter {
     /**
      * Prints two formatted strings side by side for comparison.
      *
-     * @param leftTitle   The title for the left content.
-     * @param rightTitle  The title for the right content.
-     * @param leftContent The content to display on the left.
+     * @param leftTitle    The title for the left content.
+     * @param leftContent  The content to display on the left.
+     * @param rightTitle   The title for the right content.
      * @param rightContent The content to display on the right.
      */
-    public static void printSideBySide(final String leftTitle, final String leftContent,
-                                       final String rightTitle, final String rightContent) {
+    public static void printSideBySide(final String leftTitle,
+            final String leftContent,
+            final String rightTitle,
+            final String rightContent) {
         String[] leftLines = leftContent.split("\n");
         String[] rightLines = rightContent.split("\n");
         int maxLines = Math.max(leftLines.length, rightLines.length);
 
         System.out.println(leftTitle + " | " + rightTitle);
-        System.out.println(String.format("%-70s | %-70s", "", "").replace(' ', '-'));
+        System.out.println(String.format("%-70s | %-70s", "", "")
+                .replace(' ', '-'));
 
         for (int i = 0; i < maxLines; i++) {
             String l = i < leftLines.length ? leftLines[i] : "";

@@ -7,7 +7,7 @@ import com.detonomics.budgettuner.model.SqlSequence;
 
 import java.util.ArrayList;
 
-public class BudgetDataServiceImpl implements BudgetDataService {
+public final class BudgetDataServiceImpl implements BudgetDataService {
 
     @Override
     public SqlSequence loadStatistics() {
@@ -20,17 +20,17 @@ public class BudgetDataServiceImpl implements BudgetDataService {
     }
 
     @Override
-    public int loadBudgetIDByYear(int year) {
+    public int loadBudgetIDByYear(final int year) {
         return BudgetYearDao.loadBudgetIDByYear(year);
     }
 
     @Override
-    public BudgetYear loadBudgetYear(int budgetID) {
+    public BudgetYear loadBudgetYear(final int budgetID) {
         return BudgetYearDao.loadBudgetYear(budgetID);
     }
 
     @Override
-    public void insertNewBudgetYear(String pdfPath) throws Exception {
+    public void insertNewBudgetYear(final String pdfPath) throws Exception {
         BudgetYearDao.insertNewBudgetYear(pdfPath);
     }
 }

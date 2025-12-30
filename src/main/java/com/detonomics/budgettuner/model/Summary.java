@@ -18,10 +18,10 @@ public final class Summary {
     private final String locale;
     private final String sourceDate;
     private final int budgetYear;
-    private long totalRevenues;
-    private long totalExpenses;
-    private long budgetResult;
-    private long coverageWithCashReserves;
+    private final long totalRevenues;
+    private final long totalExpenses;
+    private final long budgetResult;
+    private final long coverageWithCashReserves;
 
     /**
      * Constructs a new Summary instance with the specified budget details.
@@ -111,7 +111,7 @@ public final class Summary {
      *
      * @return The total expenses.
      */
-    public long totalExpenses() {
+    public long getTotalExpenses() {
         return totalExpenses;
     }
 
@@ -120,7 +120,7 @@ public final class Summary {
      *
      * @return The budget result.
      */
-    public long budgetResult() {
+    public long getBudgetResult() {
         return budgetResult;
     }
 
@@ -129,7 +129,7 @@ public final class Summary {
      *
      * @return The coverage amount.
      */
-    public long coverageWithCashReserves() {
+    public long getCoverageWithCashReserves() {
         return coverageWithCashReserves;
     }
 
@@ -140,8 +140,8 @@ public final class Summary {
                         + "Αποτέλεσμα Κρατικού Προϋπολογισμού: %s%n"
                         + "Κάλυψη με χρήση ταμειακών διαθεσίμων: %s",
                 BudgetFormatter.formatAmount(getTotalRevenues()),
-                BudgetFormatter.formatAmount(totalExpenses()),
-                BudgetFormatter.formatAmount(budgetResult()),
-                BudgetFormatter.formatAmount(coverageWithCashReserves()));
+                BudgetFormatter.formatAmount(getTotalExpenses()),
+                BudgetFormatter.formatAmount(getBudgetResult()),
+                BudgetFormatter.formatAmount(getCoverageWithCashReserves()));
     }
 }

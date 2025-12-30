@@ -1,9 +1,12 @@
 package com.detonomics.budgettuner.gui;
 
-import javafx.application.Application;
+public final class Launcher {
 
-public class Launcher {
-    public static void main(String[] args) {
-        Application.launch(GuiApp.class, args);
+    private Launcher() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    public static void main(final String[] args) {
+        GuiApp.main(args);
     }
 }

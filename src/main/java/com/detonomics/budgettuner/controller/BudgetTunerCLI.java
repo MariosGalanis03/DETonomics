@@ -1,16 +1,16 @@
 package com.detonomics.budgettuner.controller;
 
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Scanner;
-
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.SqlSequence;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
 import com.detonomics.budgettuner.util.BudgetFormatter;
+
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * The main entry point for the Budget Tuner command-line interface.
@@ -25,6 +25,8 @@ public final class BudgetTunerCLI {
 
     /**
      * The main method that starts the application.
+     *
+     * @param args Command line arguments
      */
     public static void main(final String[] args) {
         BudgetDataService service = new BudgetDataServiceImpl();
@@ -34,12 +36,13 @@ public final class BudgetTunerCLI {
 
     /**
      * Runs the application logic.
-     * 
+     *
      * @param dataService The service to access budget data.
      * @param in          The input stream.
      * @param out         The output stream.
      */
-    public void run(final BudgetDataService dataService, final InputStream in, final PrintStream out) {
+    public void run(final BudgetDataService dataService,
+            final InputStream in, final PrintStream out) {
         try (Scanner scanner = new Scanner(in, StandardCharsets.UTF_8)) {
             out.println();
             out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -54,7 +57,8 @@ public final class BudgetTunerCLI {
                             + "- Κατηγορίες Εξόδων: %d%n- Υπουργεία: %d%n"
                             + "- Έξοδα Υπουργείων: %d%n",
                     statistics.getBudgets(), statistics.getRevenueCategories(),
-                    statistics.getExpenseCategories(), statistics.getMinistries(),
+                    statistics.getExpenseCategories(),
+                    statistics.getMinistries(),
                     statistics.getMinistryExpenses());
             out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
@@ -75,7 +79,8 @@ public final class BudgetTunerCLI {
                     choice = scanner.nextInt();
                     scanner.nextLine(); // Consume newline
                 } else {
-                    out.println("\nΆκυρη επιλογή. Παρακαλώ εισάγετε έναν αριθμό.");
+                    out.println("\nΆκυρη επιλογή. "
+                            + "Παρακαλώ εισάγετε έναν αριθμό.");
                     scanner.nextLine();
                     continue;
                 }
@@ -83,15 +88,20 @@ public final class BudgetTunerCLI {
                 switch (choice) {
                     case 1:
                         // 1. Select Year
-                        int year = selectYear(scanner, years, "Εισάγετε το έτος προϋπολογισμού: ", out);
-                        out.println("Φορτώνεται ο προϋπολογισμός για το έτος " + year + "...");
+                        int year = selectYear(scanner, years,
+                                "Εισάγετε το έτος προϋπολογισμού: ", out);
+                        out.println("Φορτώνεται ο προϋπολογισμός για το έτος "
+                                + year + "...");
 
                         int budgetID = dataService.loadBudgetIDByYear(year);
-                        BudgetYear budget = dataService.loadBudgetYear(budgetID);
+                        BudgetYear budget = dataService
+                                .loadBudgetYear(budgetID);
 
                         // 2. Enter View Menu
-                        // Returns false if the user chose "Exit" (7), true if "Change Year" (6)
-                        boolean keepAppRunning = handleViewBudgetMenu(scanner, budget, year, out);
+                        // Returns false if the user chose "Exit" (7),
+                        // true if "Change Year" (6)
+                        boolean keepAppRunning = handleViewBudgetMenu(
+                                scanner, budget, year, out);
                         if (!keepAppRunning) {
                             mainMenurunning = false;
                         }
@@ -101,33 +111,41 @@ public final class BudgetTunerCLI {
                         out.println("Σύγκριση δύο ετών προϋπολογισμού...");
 
                         // 1. Select Years
-                        int year1 = selectYear(scanner, years, "Εισάγετε το πρώτο έτος για σύγκριση: ", out);
+                        int year1 = selectYear(scanner, years,
+                                "Εισάγετε το πρώτο έτος για σύγκριση: ", out);
                         int budgetID1 = dataService.loadBudgetIDByYear(year1);
-                        BudgetYear budget1 = dataService.loadBudgetYear(budgetID1);
+                        BudgetYear budget1 = dataService
+                                .loadBudgetYear(budgetID1);
 
-                        int year2 = selectYear(scanner, years, "Εισάγετε το δεύτερο έτος για σύγκριση: ", out);
+                        int year2 = selectYear(scanner, years,
+                                "Εισάγετε το δεύτερο έτος για σύγκριση: ", out);
                         int budgetID2 = dataService.loadBudgetIDByYear(year2);
-                        BudgetYear budget2 = dataService.loadBudgetYear(budgetID2);
+                        BudgetYear budget2 = dataService
+                                .loadBudgetYear(budgetID2);
 
                         // 2. Enter Comparison Menu
 
-                        handleCompareBudgetsMenu(scanner, budget1, budget2, year1, year2, out);
+                        handleCompareBudgetsMenu(scanner, budget1, budget2,
+                                year1, year2, out);
                         break;
 
                     case 3:
                         // Insert new year
-                        out.println("Εισαγωγή νέου έτους προϋπολογισμού στη βάση...");
-                        out.print("Εισάγετε τη διαδρομή του αρχείου PDF προϋπολογισμού "
-                                + "(ή 0 για ακύρωση): ");
+                        out.println("Εισαγωγή νέου έτους προϋπολογισμού "
+                                + "στη βάση...");
+                        out.print("Εισάγετε τη διαδρομή του αρχείου "
+                                + "PDF προϋπολογισμού (ή 0 για ακύρωση): ");
                         String pdfPath = scanner.nextLine();
                         if (!pdfPath.equals("0")) {
                             try {
                                 dataService.insertNewBudgetYear(pdfPath);
                                 // Reload years list after insertion
                                 years = dataService.loadBudgetYears();
-                                out.println("Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
+                                out.println(
+                                        "Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
                             } catch (Exception e) {
-                                out.println("Σφάλμα κατά την εισαγωγή: " + e.getMessage());
+                                out.println("Σφάλμα κατά την εισαγωγή: "
+                                        + e.getMessage());
                             }
                         } else {
                             out.println("Ακύρωση εισαγωγής νέου έτους.");
@@ -149,11 +167,16 @@ public final class BudgetTunerCLI {
 
     /**
      * Helper method to prompt the user to select a valid year from the list.
+     *
+     * @param scanner        The scanner to read input
+     * @param availableYears The list of available years
+     * @param message        The prompt message
+     * @param out            The output stream
+     * @return The selected year
      */
-    /**
-     * Helper method to prompt the user to select a valid year from the list.
-     */
-    private int selectYear(final Scanner scanner, final ArrayList<Integer> availableYears, final String message,
+    private int selectYear(final Scanner scanner,
+            final ArrayList<Integer> availableYears,
+            final String message,
             final PrintStream out) {
         int selectedYear;
         do {
@@ -164,7 +187,8 @@ public final class BudgetTunerCLI {
             out.print(message);
 
             while (!scanner.hasNextInt()) {
-                out.println("Άκυρη είσοδος. Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
+                out.println("Άκυρη είσοδος. "
+                        + "Παρακαλώ εισάγετε έναν έγκυρο αριθμό έτους.");
                 scanner.nextLine();
             }
             selectedYear = scanner.nextInt();
@@ -172,7 +196,8 @@ public final class BudgetTunerCLI {
 
             if (!availableYears.contains(selectedYear)) {
                 out.println("Το έτος " + selectedYear
-                        + " δεν βρέθηκε στη βάση δεδομένων. Παρακαλώ εισάγετε ένα άλλο έτος.");
+                        + " δεν βρέθηκε στη βάση δεδομένων. "
+                        + "Παρακαλώ εισάγετε ένα άλλο έτος.");
             }
         } while (!availableYears.contains(selectedYear));
 
@@ -181,17 +206,17 @@ public final class BudgetTunerCLI {
 
     /**
      * Handles the menu for viewing a specific budget year.
-     * 
-     * @return true if the application should continue running, false if the user
-     *         selected Exit.
+     *
+     * @param scanner The scanner to read input
+     * @param budget  The budget year object
+     * @param year    The year being viewed
+     * @param out     The output stream
+     * @return true if the application should continue running,
+     *         false if the user selected Exit.
      */
-    /**
-     * Handles the menu for viewing a specific budget year.
-     * 
-     * @return true if the application should continue running, false if the user
-     *         selected Exit.
-     */
-    private boolean handleViewBudgetMenu(final Scanner scanner, final BudgetYear budget, final int year,
+    private boolean handleViewBudgetMenu(final Scanner scanner,
+            final BudgetYear budget,
+            final int year,
             final PrintStream out) {
         boolean menuRunning = true;
         boolean keepAppRunning = true;
@@ -221,25 +246,35 @@ public final class BudgetTunerCLI {
 
             switch (choice) {
                 case 1:
-                    out.println("\n--- ΣΥΝΟΨΗ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println("\n--- ΣΥΝΟΨΗ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ ("
+                            + year + ") ---");
                     out.println(budget.getSummary());
                     break;
                 case 2:
-                    out.println("\n--- ΕΣΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    out.println(BudgetFormatter.getFormattedRevenues(budget.getRevenues()));
+                    out.println("\n--- ΕΣΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ ("
+                            + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedRevenues(
+                            budget.getRevenues()));
                     break;
                 case 3:
-                    out.println("\n--- ΕΞΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    out.println(BudgetFormatter.getFormattedExpenditures(budget.getExpenses()));
+                    out.println("\n--- ΕΞΟΔΑ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ ("
+                            + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedExpenditures(
+                            budget.getExpenses()));
                     break;
                 case 4:
-                    out.println("\n--- ΦΟΡΕΙΣ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
-                    out.println(BudgetFormatter.getFormattedMinistries(budget.getMinistries()));
+                    out.println("\n--- ΦΟΡΕΙΣ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ ("
+                            + year + ") ---");
+                    out.println(BudgetFormatter.getFormattedMinistries(
+                            budget.getMinistries()));
                     break;
                 case 5:
-                    out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ (" + year + ") ---");
+                    out.println("\n--- ΔΑΠΑΝΕΣ ΦΟΡΕΩΝ ΠΡΟϋΠΟΛΟΓΙΣΜΟΥ ("
+                            + year + ") ---");
                     out.println(BudgetFormatter.getFormattedMinistryExpenses(
-                            budget.getMinistries(), budget.getExpenses(), budget.getMinistryExpenses()));
+                            budget.getMinistries(),
+                            budget.getExpenses(),
+                            budget.getMinistryExpenses()));
                     break;
                 case 6:
                     out.println("Αλλαγή έτους προϋπολογισμού...");
@@ -264,9 +299,19 @@ public final class BudgetTunerCLI {
 
     /**
      * Handles the menu for comparing two budget years.
+     *
+     * @param scanner The scanner to read input
+     * @param budget1 The first budget year
+     * @param budget2 The second budget year
+     * @param year1   The first year
+     * @param year2   The second year
+     * @param out     The output stream
      */
-    private void handleCompareBudgetsMenu(final Scanner scanner, final BudgetYear budget1,
-            final BudgetYear budget2, final int year1, final int year2, final PrintStream out) {
+    private void handleCompareBudgetsMenu(final Scanner scanner,
+            final BudgetYear budget1,
+            final BudgetYear budget2,
+            final int year1, final int year2,
+            final PrintStream out) {
         boolean compareRunning = true;
         while (compareRunning) {
             out.println("\n--- ΜΕΝΟΥ ΣΥΓΚΡΙΣΗΣ ---");
@@ -289,28 +334,40 @@ public final class BudgetTunerCLI {
 
             switch (compareChoice) {
                 case 1:
-                    String[] lines1 = budget1.getSummary().toString().split("\n");
-                    String[] lines2 = budget2.getSummary().toString().split("\n");
-                    out.println("\n" + String.format("%-80s", year1) + "|" + year2);
-                    out.println(String.format("%-80s", "").replace(' ', '-') + "|"
-                            + String.format("%-80s", "").replace(' ', '-'));
-                    for (int i = 0; i < Math.max(lines1.length, lines2.length); i++) {
+                    String[] lines1 = budget1.getSummary()
+                            .toString().split("\n");
+                    String[] lines2 = budget2.getSummary()
+                            .toString().split("\n");
+                    out.println("\n" + String.format("%-80s", year1)
+                            + "|" + year2);
+                    out.println(String.format("%-80s", "")
+                            .replace(' ', '-')
+                            + "|"
+                            + String.format("%-80s", "")
+                                    .replace(' ', '-'));
+                    for (int i = 0; i < Math.max(lines1.length,
+                            lines2.length); i++) {
                         String l1 = i < lines1.length ? lines1[i] : "";
                         String l2 = i < lines2.length ? lines2[i] : "";
                         out.println(String.format("%-80s", l1) + "|" + l2);
                     }
                     break;
                 case 2:
-                    out.println(BudgetFormatter.getFormattedComparativeRevenues(budget1.getRevenues(),
+                    out.println(BudgetFormatter.getFormattedComparativeRevenues(
+                            budget1.getRevenues(),
                             budget2.getRevenues(), year1, year2));
                     break;
                 case 3:
-                    out.println(BudgetFormatter.getFormattedComparativeExpenditures(budget1.getExpenses(),
-                            budget2.getExpenses(), year1, year2));
+                    out.println(BudgetFormatter
+                            .getFormattedComparativeExpenditures(
+                                    budget1.getExpenses(),
+                                    budget2.getExpenses(), year1, year2));
                     break;
                 case 4:
-                    out.println(BudgetFormatter.getFormattedComparativeMinistries(budget1.getMinistries(),
-                            budget2.getMinistries(), year1, year2));
+                    out.println(BudgetFormatter
+                            .getFormattedComparativeMinistries(
+                                    budget1.getMinistries(),
+                                    budget2.getMinistries(), year1, year2));
                     break;
                 case 5:
                     compareRunning = false;

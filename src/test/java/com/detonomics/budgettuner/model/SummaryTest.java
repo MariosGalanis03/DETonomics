@@ -14,9 +14,9 @@ public class SummaryTest {
         assertEquals("2025-01-01", s.getSourceDate());
         assertEquals(2025, s.getBudgetYear());
         assertEquals(1234L, s.getTotalRevenues());
-        assertEquals(1000L, s.totalExpenses());
-        assertEquals(234L, s.budgetResult());
-        assertEquals(50L, s.coverageWithCashReserves());
+        assertEquals(1000L, s.getTotalExpenses());
+        assertEquals(234L, s.getBudgetResult());
+        assertEquals(50L, s.getCoverageWithCashReserves());
 
         String txt = s.toString();
         assertTrue(txt.contains("€"));
