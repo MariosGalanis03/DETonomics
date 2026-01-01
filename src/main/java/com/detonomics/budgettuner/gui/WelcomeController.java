@@ -38,10 +38,16 @@ public final class WelcomeController {
                                 .getScene().getWindow();
 
                 // 5. Change Scene
+                // 5. Change Scene and Enforce Manual Fullscreen
                 window.setScene(budgetViewScene);
-                window.setWidth(GuiApp.DEFAULT_WIDTH);
-                window.setHeight(GuiApp.DEFAULT_HEIGHT);
-                window.centerOnScreen();
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(false);
+
                 window.show();
         }
 

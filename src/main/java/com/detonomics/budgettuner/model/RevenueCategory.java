@@ -28,7 +28,7 @@ public final class RevenueCategory {
         this.parentID = parentID;
     }
 
-    int getRevenueID() {
+    public int getRevenueID() {
         return revenueID;
     }
 

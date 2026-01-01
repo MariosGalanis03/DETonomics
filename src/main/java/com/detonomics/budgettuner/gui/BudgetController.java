@@ -88,6 +88,14 @@ public final class BudgetController {
 
                 final Stage window = (Stage) sourceNode.getScene().getWindow();
                 window.setScene(scene);
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(false);
+
                 window.show();
         }
 
@@ -156,6 +164,14 @@ public final class BudgetController {
                 final Stage window = (Stage) ((Node) event.getSource())
                                 .getScene().getWindow();
                 window.setScene(scene);
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(false);
+
                 window.show();
         }
 }

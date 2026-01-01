@@ -368,3 +368,64 @@
     -fx-border-color: rgba(21, 101, 192, 0.2);
     -fx-border-width: 0 0 1 0;
 }
+
+/* --- 7. Analysis TitledPane Styles --- */
+.analysis-pane {
+    -fx-box-border: transparent;
+    -fx-text-fill: black;
+    -fx-background-color: transparent;
+}
+
+/* Title Area (Header) - Collapsed (Default) */
+.analysis-pane>.title {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 2 10 2 0;
+    /* Reduced padding to match simple list items */
+}
+
+/* Label inside title */
+.analysis-pane>.title .label {
+    -fx-text-fill: black;
+    /* Removed font-size 14px to match default simple items (usually ~12-13px) */
+    -fx-padding: 0;
+}
+
+.analysis-pane>.title .arrow-button .arrow {
+    -fx-background-color: black;
+    -fx-scale-x: 1.2;
+    /* Larger arrow > */
+    -fx-scale-y: 1.2;
+}
+
+.analysis-pane .arrow-button {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-insets: 0;
+}
+
+/* Title Area (Header) - Expanded */
+.analysis-pane:expanded>.title {
+    -fx-background-color: #1565C0;
+    -fx-background-radius: 30;
+    -fx-padding: 8 15;
+    /* Comfortable padding for button state */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 5, 0, 0, 2);
+}
+
+.analysis-pane:expanded>.title .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    /* Make bold when expanded/active */
+}
+
+.analysis-pane:expanded>.title .arrow-button .arrow {
+    -fx-background-color: white;
+}
+
+/* Content Area - List below */
+.analysis-pane>.content {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}

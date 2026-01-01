@@ -32,7 +32,7 @@
                                 <Insets top="15.0" />
                             </HBox.margin>
                         </TextField>
-                        <Button mnemonicParsing="false" onAction="#onSearchClick" prefHeight="46.0" prefWidth="144.0" styleClass="btn-blue" text="Αναζήτηση">
+                        <Button mnemonicParsing="false" onAction="#onSearchClick" prefHeight="46.0" prefWidth="180.0" styleClass="btn-blue" text="Αναζήτηση">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>

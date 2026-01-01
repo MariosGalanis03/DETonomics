@@ -37,7 +37,7 @@
                 </Label>
             </center>
             <right>
-                <javafx.scene.control.TextField fx:id="searchField" promptText="Αναζήτηση..." styleClass="search-bar" prefWidth="250" />
+
             </right>
             <padding>
                 <Insets bottom="14.0" left="14.0" right="18.0" top="14.0" />
@@ -62,7 +62,7 @@
                                         <!-- Card 1: Total -->
                                         <VBox styleClass="dashboard-card" alignment="CENTER_LEFT" spacing="5">
                                              <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
-                                             <Label text="Σύνολο" styleClass="card-label-sm" />
+                                             <Label fx:id="totalTitleLabel" text="Σύνολο" styleClass="card-label-sm" />
                                              <Label fx:id="totalAmountLabel" text="— €" styleClass="card-value-lg" />
                                         </VBox>
                                         
@@ -71,7 +71,7 @@
                                              <!-- Card 2: Difference -->
                                              <VBox styleClass="dashboard-card" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5">
                                                   <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
-                                                  <Label text="Διαφορά (vs Prev)" styleClass="card-label-sm" />
+                                                  <Label fx:id="diffTitleLabel" text="Διαφορά (vs Prev)" styleClass="card-label-sm" />
                                                   <Label fx:id="diffAmountLabel" text="— €" styleClass="card-value-md" />
                                              </VBox>
                                              
@@ -90,15 +90,8 @@
                               <!-- Chart Card -->
                               <VBox styleClass="chart-card" HBox.hgrow="ALWAYS">
                                    <children>
-                                        <Label text="Top 5 Κατηγορίες" styleClass="section-title" />
-                                        <BarChart fx:id="barChart" legendVisible="false" animated="false" minHeight="250" maxHeight="250">
-                                            <xAxis>
-                                                <LogarithmicAxis fx:id="logAxis" label="Ποσό (Log Scale)" />
-                                            </xAxis>
-                                            <yAxis>
-                                                <CategoryAxis label="Κατηγορία" />
-                                            </yAxis>
-                                        </BarChart>
+                                        <Label fx:id="chartTitleLabel" text="Top 5 Κατηγορίες" styleClass="section-title" />
+                                        <javafx.scene.chart.PieChart fx:id="pieChart" legendVisible="true" legendSide="LEFT" animated="false" labelsVisible="false" labelLineLength="20" VBox.vgrow="ALWAYS" />
                                    </children>
                               </VBox>
                          </children>

@@ -135,7 +135,7 @@
 
                                 <VBox spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS">
                                     <children>
-                                        <Label text="Μεγαλύτερες Πηγές Εξόδων" styleClass="list-section-title" />
+                                        <Label text="Μεγαλύτερες Κατηγορίες Εξόδων" styleClass="list-section-title" />
                                         <VBox fx:id="topExpensesBox" spacing="8.0" />
                                         <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Εξόδων" onAction="#onExpenseAnalysisClick" />
                                     </children>
@@ -148,7 +148,7 @@
 
                         <VBox spacing="10.0" styleClass="card">
                             <children>
-                                <Label text="Υπουργεια με τη μεγαλυτερη δημοσιονομικη επιβαρυνση" styleClass="list-section-title" />
+                                <Label text="Κρατικοί Φορείς με την Μεγαλύτερη Δημοσιονομική Επιβάρυνση" styleClass="list-section-title" />
                                 <VBox fx:id="topMinistriesBox" spacing="8.0" />
                                 <Button mnemonicParsing="false" styleClass="btn-blue" text="Ανάλυση Υπουργείων" onAction="#onMinistryAnalysisClick" />
                             </children>
@@ -167,7 +167,7 @@
     <VBox fx:id="menuDrawer" styleClass="menu-drawer" translateX="-320.0" maxWidth="320.0" prefWidth="320.0" visible="false" StackPane.alignment="CENTER_LEFT">
         <children>
             <Label text="Μενού" styleClass="menu-title" />
-            <Button mnemonicParsing="false" styleClass="menu-item" text="Αποθηκευση" />
+
             <Button mnemonicParsing="false" onAction="#onMenuSelectBudgetClick" styleClass="menu-item" text="Επιλογη Προυπολογισμου" />
             <Button mnemonicParsing="false" styleClass="menu-item" text="Συγκριση Προυπολογισμων" />
             <Button mnemonicParsing="false" onAction="#onMenuExitClick" styleClass="menu-item" text="Εξοδος" />
