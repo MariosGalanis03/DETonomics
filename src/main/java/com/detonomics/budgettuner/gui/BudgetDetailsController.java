@@ -29,27 +29,27 @@ import javafx.stage.Stage;
 public final class BudgetDetailsController {
 
         @FXML
-        private Label yearLabel;
+        private Label titleLabel;
         @FXML
-        private Label totalRevenueLabel;
+        private Label revenuesValue;
         @FXML
-        private Label totalExpenseLabel;
+        private Label expensesValue;
         @FXML
-        private Label resultLabel;
+        private Label resultValue;
         @FXML
         private BarChart<String, Number> revenueChart;
         @FXML
-        private CategoryAxis revenueXAxis;
-        @FXML
-        private NumberAxis revenueYAxis;
-        @FXML
         private BarChart<String, Number> expenseChart;
         @FXML
-        private CategoryAxis expenseXAxis;
+        private javafx.scene.layout.VBox topRevenuesBox;
         @FXML
-        private NumberAxis expenseYAxis;
+        private javafx.scene.layout.VBox topExpensesBox;
         @FXML
-        private TableView<Budget> budgetTable; // Placeholder TableView
+        private javafx.scene.layout.VBox topMinistriesBox;
+        @FXML
+        private javafx.scene.layout.Pane menuOverlay;
+        @FXML
+        private javafx.scene.layout.VBox menuDrawer;
 
         private BudgetYear budget;
         private String dbPath;
@@ -66,23 +66,23 @@ public final class BudgetDetailsController {
                         return;
                 }
 
-                yearLabel.setText("Έτος: "
+                titleLabel.setText("Προϋπολογισμός "
                                 + budget.getSummary().getBudgetYear());
-                totalRevenueLabel.setText(String.format("Σύνολο Εσόδων: %,d €",
+                revenuesValue.setText(String.format("%,d €",
                                 budget.getSummary().getTotalRevenues()));
-                totalExpenseLabel.setText(String.format("Σύνολο Εξόδων: %,d €",
+                expensesValue.setText(String.format("%,d €",
                                 budget.getSummary().getTotalExpenses()));
 
                 long result = budget.getSummary().getBudgetResult();
-                resultLabel.setText(String.format("Αποτέλεσμα: %,d €", result));
+                resultValue.setText(String.format("%,d €", result));
                 if (result >= 0) {
-                        resultLabel.setStyle("-fx-text-fill: green;");
+                        resultValue.setStyle("-fx-text-fill: green;");
                 } else {
-                        resultLabel.setStyle("-fx-text-fill: red;");
+                        resultValue.setStyle("-fx-text-fill: red;");
                 }
 
                 setupCharts();
-                setupTable();
+                setupLists();
         }
 
         private void setupCharts() {
@@ -128,36 +128,87 @@ public final class BudgetDetailsController {
                 return str;
         }
 
-        private void setupTable() {
-                // Example: Show Ministries in the table
-                final ObservableList<Budget> data = FXCollections.observableArrayList();
-                final List<Map<String, Object>> ministries = DatabaseManager
-                                .executeQuery(dbPath, "SELECT * FROM Ministries"
-                                                + " WHERE budget_id = "
-                                                + com.detonomics.budgettuner.dao.BudgetYearDao
-                                                                .loadBudgetIDByYear(
-                                                                                budget.getSummary()
-                                                                                                .getBudgetYear()));
+        private void setupLists() {
+                // Top Revenues
+                topRevenuesBox.getChildren().clear();
+                budget.getRevenues().stream()
+                                .sorted((a, b) -> Long.compare(b.getAmount(), a.getAmount()))
+                                .limit(5)
+                                .forEach(r -> topRevenuesBox.getChildren()
+                                                .add(createListItem(r.getName(), r.getAmount())));
 
-                for (Map<String, Object> m : ministries) {
-                        // Placeholder logic for table population
-                        String name = (String) m.get("name");
-                        // Assuming we have fields in Budget class
-                        // that match table columns
-                        // Actually Budget.java is a POJO for TableView
-                        // Let's assume it has (Year, Status, Date, Amount)
-                        // This table setup might be vestigial or for demo.
-                        // I'll populate it with dummy data derived from
-                        // ministries to show I touched it.
-                        // Or just leave it empty if not required.
-                        data.add(new Budget(
-                                        String.valueOf(budget.getSummary()
-                                                        .getBudgetYear()),
-                                        "Active", "2023-10-01",
-                                        "0"));
-                }
+                // Top Expenses
+                topExpensesBox.getChildren().clear();
+                budget.getExpenses().stream()
+                                .sorted((a, b) -> Long.compare(b.getAmount(), a.getAmount()))
+                                .limit(5)
+                                .forEach(e -> topExpensesBox.getChildren()
+                                                .add(createListItem(e.getName(), e.getAmount())));
 
-                budgetTable.setItems(data);
+                // Top Ministries
+                topMinistriesBox.getChildren().clear();
+                budget.getMinistries().stream()
+                                .sorted((a, b) -> Long.compare(b.getTotalBudget(), a.getTotalBudget()))
+                                .limit(5)
+                                .forEach(m -> topMinistriesBox.getChildren()
+                                                .add(createListItem(m.getName(), m.getTotalBudget())));
+        }
+
+        private Node createListItem(String name, long amount) {
+                javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
+                hbox.setSpacing(10);
+                Label nameLabel = new Label(name);
+                nameLabel.setWrapText(true);
+                nameLabel.setPrefWidth(200);
+                Label amountLabel = new Label(String.format("%,d €", amount));
+                amountLabel.setStyle("-fx-font-weight: bold;");
+                hbox.getChildren().addAll(nameLabel, amountLabel);
+                return hbox;
+        }
+
+        @FXML
+        public void onMenuButtonClick(ActionEvent event) {
+                menuOverlay.setVisible(true);
+                menuDrawer.setVisible(true);
+                menuDrawer.setTranslateX(0);
+        }
+
+        @FXML
+        public void onMenuOverlayClick(javafx.scene.input.MouseEvent event) {
+                menuOverlay.setVisible(false);
+                menuDrawer.setVisible(false);
+        }
+
+        @FXML
+        public void onMenuExitClick(ActionEvent event) {
+                javafx.application.Platform.exit();
+        }
+
+        @FXML
+        public void onMenuSelectBudgetClick(ActionEvent event) throws IOException {
+                final FXMLLoader loader = new FXMLLoader(getClass().getResource("budget-view.fxml"));
+                final Parent root = loader.load();
+                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                scene.getStylesheets().add(css);
+                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                window.setScene(scene);
+                window.show();
+        }
+
+        @FXML
+        public void onRevenueAnalysisClick(final ActionEvent event) throws IOException {
+                onAnalysisClick(event);
+        }
+
+        @FXML
+        public void onExpenseAnalysisClick(final ActionEvent event) throws IOException {
+                onAnalysisClick(event);
+        }
+
+        @FXML
+        public void onMinistryAnalysisClick(final ActionEvent event) throws IOException {
+                onAnalysisClick(event);
         }
 
         @FXML

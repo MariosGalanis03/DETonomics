@@ -3,6 +3,8 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
@@ -92,8 +94,11 @@
                             <children>
                                 <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
                                     <children>
-                                        <Label text="Μεταβολη Εσοδων-Εξοδων" styleClass="section-title" />
-                                        <WebView fx:id="totalsWebView" prefHeight="520.0" prefWidth="720.0" />
+                                        <Label text="Πορεία Εσόδων" styleClass="section-title" />
+                                        <BarChart fx:id="revenueChart" prefHeight="520.0" prefWidth="720.0" legendVisible="false">
+                                            <xAxis><CategoryAxis label="Κατηγορία" /></xAxis>
+                                            <yAxis><NumberAxis label="Ποσό" /></yAxis>
+                                        </BarChart>
                                     </children>
                                     <padding>
                                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
@@ -102,8 +107,11 @@
 
                                 <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
                                     <children>
-                                        <Label text="Μεταβολή Αποτέλεσμα Κρατικού Προϋπολογισμού" styleClass="section-title" />
-                                        <WebView fx:id="resultWebView" prefHeight="520.0" prefWidth="720.0" />
+                                        <Label text="Πορεία Εξόδων" styleClass="section-title" />
+                                        <BarChart fx:id="expenseChart" prefHeight="520.0" prefWidth="720.0" legendVisible="false">
+                                            <xAxis><CategoryAxis label="Κατηγορία" /></xAxis>
+                                            <yAxis><NumberAxis label="Ποσό" /></yAxis>
+                                        </BarChart>
                                     </children>
                                     <padding>
                                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />

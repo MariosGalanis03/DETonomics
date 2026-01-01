@@ -28,94 +28,22 @@ import javafx.stage.Stage;
 public final class AnalysisController {
 
     @FXML
-    private TreeTableView<HierarchyData> treeTable;
+    private javafx.scene.control.Label titleLabel;
     @FXML
-    private TreeTableColumn<HierarchyData, String> nameColumn;
+    private javafx.scene.control.TextField searchField;
     @FXML
-    private TreeTableColumn<HierarchyData, String> amountColumn;
+    private javafx.scene.control.Label totalAmountLabel;
     @FXML
-    private TreeTableColumn<HierarchyData, String> pctTotalColumn;
+    private javafx.scene.control.Label diffAmountLabel;
     @FXML
-    private TreeTableColumn<HierarchyData, String> pctParentColumn;
+    private javafx.scene.control.Label perfLabel;
+    @FXML
+    private javafx.scene.chart.BarChart<String, Number> barChart;
+    @FXML
+    private javafx.scene.layout.VBox itemsBox;
 
     private BudgetYear budget;
     private String dbPath;
-
-    // Inner class for TreeTableView data
-    public static final class HierarchyData {
-        private final String name;
-        private final double amount;
-        private final double totalBudget;
-        private final double parentAmount;
-        private final List<HierarchyData> children;
-
-        // Keep track of expansion state
-        private boolean expanded;
-        private int depth;
-
-        public HierarchyData(final String name, final double amount,
-                final double totalBudget,
-                final double parentAmount) {
-            this.name = name;
-            this.amount = amount;
-            this.totalBudget = totalBudget;
-            this.parentAmount = parentAmount;
-            this.children = new ArrayList<>();
-            this.expanded = false;
-            this.depth = 0;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public double getAmount() {
-            return amount;
-        }
-
-        public String getAmountFormatted() {
-            return String.format("%,.0f €", amount);
-        }
-
-        public String getPctTotal() {
-            if (totalBudget == 0) {
-                return "0%";
-            }
-            return String.format("%.2f%%", (amount / totalBudget) * 100);
-        }
-
-        public String getPctParent() {
-            if (parentAmount == 0) {
-                return "100%";
-            }
-            return String.format("%.2f%%", (amount / parentAmount) * 100);
-        }
-
-        public List<HierarchyData> getChildren() {
-            return java.util.Collections.unmodifiableList(children);
-        }
-
-        public void addChild(final HierarchyData child) {
-            this.children.add(child);
-        }
-
-        // Methods for managing state (if needed for recursive logic)
-        public boolean isExpanded() {
-            return expanded;
-        }
-
-        public void setExpanded(final boolean expanded) {
-            this.expanded = expanded;
-        }
-
-        public int getDepth() {
-            return depth;
-        }
-
-        public void setDepth(final int depth) {
-            this.depth = depth;
-        }
-    }
 
     public void setContext(final BudgetYear budgetIn, final String dbPathIn) {
         this.budget = budgetIn;
@@ -124,86 +52,54 @@ public final class AnalysisController {
     }
 
     private void loadAnalysisData() {
-        if (budget == null) {
+        if (budget == null)
             return;
-        }
 
-        // Root
-        final double totalExpenses = budget.getSummary().getTotalExpenses();
-        final HierarchyData rootData = new HierarchyData("Σύνολο Εξόδων",
-                totalExpenses, totalExpenses, totalExpenses);
+        long totalAmount = budget.getSummary().getTotalExpenses();
+        // Assuming we are analyzing expenses by default, or we can make this dynamic.
+        // For now, let's show Total Expenses.
 
-        // Map: Ministry Name -> HierarchyData
-        final Map<Integer, HierarchyData> ministryNodes = new HashMap<>();
+        totalAmountLabel.setText(String.format("%,d €", totalAmount));
+        diffAmountLabel.setText("-"); // Logic for diff would
+                                      // go here
+        perfLabel.setText("-"); // Logic for perf would go here
 
-        // 1. Create Ministry Nodes
-        for (Ministry m : budget.getMinistries()) {
-            final HierarchyData mData = new HierarchyData(m.getName(),
-                    m.getTotalBudget(), totalExpenses, totalExpenses);
-            ministryNodes.put(m.getMinistryID(), mData);
-            rootData.addChild(mData);
-        }
-
-        // Pre-fetch category names
-        final Map<Integer, String> categoryNames = new HashMap<>();
-        for (ExpenseCategory ec : budget.getExpenses()) {
-            categoryNames.put(ec.getExpenseID(), ec.getName());
-        }
-        // Also fetch from DB if needed
-        if (categoryNames.isEmpty()) {
-            // fallback
-            final String sql = "SELECT * FROM ExpenseCategories";
-            final List<Map<String, Object>> cats = DatabaseManager
-                    .executeQuery(dbPath, sql);
-            for (Map<String, Object> r : cats) {
-                categoryNames.put((Integer) r.get("id"),
-                        (String) r.get("name"));
-            }
-        }
-
-        for (MinistryExpense me : budget.getMinistryExpenses()) {
-            final HierarchyData mNode = ministryNodes.get(me.getMinistryID());
-            if (mNode != null) {
-                final String catName = categoryNames.getOrDefault(
-                        me.getExpenseCategoryID(),
-                        "Unknown Category " + me.getExpenseCategoryID());
-                final HierarchyData expData = new HierarchyData(catName,
-                        me.getAmount(), totalExpenses, mNode.getAmount());
-                mNode.addChild(expData);
-            }
-        }
-
-        // Build Tree
-        final TreeItem<HierarchyData> rootItem = new TreeItem<>(rootData);
-        rootItem.setExpanded(true);
-
-        for (HierarchyData mData : rootData.getChildren()) {
-            final TreeItem<HierarchyData> mItem = new TreeItem<>(mData);
-            for (HierarchyData expData : mData.getChildren()) {
-                mItem.getChildren().add(new TreeItem<>(expData));
-            }
-            rootItem.getChildren().add(mItem);
-        }
-
-        setupColumns();
-
-        treeTable.setRoot(rootItem);
-        treeTable.setShowRoot(true);
+        setupCharts(totalAmount);
+        setupList();
     }
 
-    private void setupColumns() {
-        nameColumn.setCellValueFactory(
-                param -> new SimpleStringProperty(
-                        param.getValue().getValue().getName()));
-        amountColumn.setCellValueFactory(
-                param -> new SimpleStringProperty(
-                        param.getValue().getValue().getAmountFormatted()));
-        pctTotalColumn.setCellValueFactory(
-                param -> new SimpleStringProperty(
-                        param.getValue().getValue().getPctTotal()));
-        pctParentColumn.setCellValueFactory(
-                param -> new SimpleStringProperty(
-                        param.getValue().getValue().getPctParent()));
+    private void setupCharts(long totalExpenses) {
+        barChart.getData().clear();
+        final javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
+        series.setName("Έξοδα");
+
+        // Top 5 Categories
+        budget.getExpenses().stream()
+                .sorted((a, b) -> Long.compare(b.getAmount(), a.getAmount()))
+                .limit(5)
+                .forEach(e -> series.getData().add(new javafx.scene.chart.XYChart.Data<>(e.getName(), e.getAmount())));
+
+        barChart.getData().add(series);
+    }
+
+    private void setupList() {
+        itemsBox.getChildren().clear();
+        // List top ministries
+        budget.getMinistries().stream()
+                .sorted((a, b) -> Long.compare(b.getTotalBudget(), a.getTotalBudget()))
+                .limit(10)
+                .forEach(m -> {
+                    javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
+                    hbox.setSpacing(10);
+                    javafx.scene.control.Label nameLbl = new javafx.scene.control.Label(m.getName());
+                    nameLbl.setWrapText(true);
+                    nameLbl.setPrefWidth(300);
+                    javafx.scene.control.Label amtLbl = new javafx.scene.control.Label(
+                            String.format("%,d €", m.getTotalBudget()));
+                    amtLbl.setStyle("-fx-font-weight: bold;");
+                    hbox.getChildren().addAll(nameLbl, amtLbl);
+                    itemsBox.getChildren().add(hbox);
+                });
     }
 
     @FXML
