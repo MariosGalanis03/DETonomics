@@ -18,6 +18,8 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
+    <Region VBox.vgrow="ALWAYS" />
+
     <Label text="Καλώς Ορίσατε στο Budget Tuner" textFill="#1565c0">
         <font>
             <Font name="Segoe UI Bold" size="24.0" />
@@ -29,4 +31,12 @@
     <Button text="Επιλογή Υπάρχοντος Προϋπολογισμού" onAction="#onSelectBudgetClick" styleClass="btn-blue" prefWidth="400" />
 
     <Button text="Εισαγωγή Νέου Προϋπολογισμού" onAction="#onImportNewBudgetClick" styleClass="btn-white" prefWidth="400" />
+    
+    <Region VBox.vgrow="ALWAYS" />
+
+    <VBox alignment="CENTER" spacing="10.0" styleClass="about-us-box">
+         <Label text="Για Εμάς" styleClass="about-us-title" />
+         <Label wrapText="true" styleClass="about-us-text" 
+                text="Το Budget Tuner φέρνει την επανάσταση στον τρόπο που αλληλεπιδρούμε με τα δημόσια οικονομικά. Είναι η πρώτη πλατφόρμα που δεν προσφέρει απλώς διαφάνεια μέσω της προβολής του Κρατικού Προϋπολογισμού, αλλά δίνει τη δυνατότητα ουσιαστικής παρέμβασης. Μέσα από καινοτόμα εργαλεία προσομοίωσης, ο χρήστης μπορεί να ανακατανείμει πόρους, να τροποποιήσει δαπάνες και να δει άμεσα τον αντίκτυπο των αποφάσεων. Μετατρέπουμε τα πολύπλοκα δεδομένα σε προσβάσιμη γνώση, δίνοντας στον πολίτη τη δύναμη της κατανόησης." />
+    </VBox>
 </VBox>

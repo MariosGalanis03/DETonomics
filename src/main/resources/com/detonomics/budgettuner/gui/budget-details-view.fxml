@@ -168,9 +168,9 @@
         <children>
             <Label text="Μενού" styleClass="menu-title" />
 
-            <Button mnemonicParsing="false" onAction="#onMenuSelectBudgetClick" styleClass="menu-item" text="Επιλογη Προυπολογισμου" />
-            <Button mnemonicParsing="false" styleClass="menu-item" text="Συγκριση Προυπολογισμων" />
-            <Button mnemonicParsing="false" onAction="#onMenuExitClick" styleClass="menu-item" text="Εξοδος" />
+            <Button mnemonicParsing="false" onAction="#onMenuSelectBudgetClick" styleClass="menu-item" text="Επιλογή Προϋπολογισμού" />
+            <Button mnemonicParsing="false" styleClass="menu-item" text="Σύγκριση Προϋπολογισμών" />
+            <Button mnemonicParsing="false" onAction="#onMenuExitClick" styleClass="menu-item" text="Έξοδος" />
         </children>
         <padding>
             <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />

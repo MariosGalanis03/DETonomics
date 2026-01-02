@@ -138,7 +138,7 @@ public final class BudgetTunerCLI {
                         String pdfPath = scanner.nextLine();
                         if (!pdfPath.equals("0")) {
                             try {
-                                dataService.insertNewBudgetYear(pdfPath);
+                                dataService.insertNewBudgetYear(pdfPath, System.out::println);
                                 // Reload years list after insertion
                                 years = dataService.loadBudgetYears();
                                 out.println(

@@ -148,7 +148,7 @@ class BudgetTunerCLITest {
         String input = "3\ndata/budget.pdf\n0\n";
         runCLI(input);
 
-        verify(dataService, times(1)).insertNewBudgetYear("data/budget.pdf");
+        verify(dataService, times(1)).insertNewBudgetYear(eq("data/budget.pdf"), any());
         String output = outContent.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Η εισαγωγή ολοκληρώθηκε με επιτυχία"));
     }
@@ -156,12 +156,12 @@ class BudgetTunerCLITest {
     @Test
     void testInsertNewYear_Failure() throws Exception {
         when(dataService.loadBudgetYears()).thenReturn(new ArrayList<>());
-        doThrow(new RuntimeException("File not found")).when(dataService).insertNewBudgetYear(anyString());
+        doThrow(new RuntimeException("File not found")).when(dataService).insertNewBudgetYear(anyString(), any());
 
         String input = "3\nbad.pdf\n0\n";
         runCLI(input);
 
-        verify(dataService, times(1)).insertNewBudgetYear("bad.pdf");
+        verify(dataService, times(1)).insertNewBudgetYear(eq("bad.pdf"), any());
         String output = outContent.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Σφάλμα κατά την εισαγωγή"));
     }

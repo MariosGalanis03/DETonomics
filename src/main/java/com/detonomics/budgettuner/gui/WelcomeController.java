@@ -51,11 +51,25 @@ public final class WelcomeController {
                 window.show();
         }
 
-        // Placeholder
         @FXML
-        protected void onImportNewBudgetClick() {
-                System.out.println(
-                                "Λειτουργία εισαγωγής νέου προϋπολογισμού "
-                                                + "(υπό κατασκευή)...");
+        protected void onImportNewBudgetClick(final ActionEvent event) throws IOException {
+                final FXMLLoader loader = new FXMLLoader(getClass().getResource("ingest-view.fxml"));
+                final Parent root = loader.load();
+
+                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                scene.getStylesheets().add(css);
+
+                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                window.setScene(scene);
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(false);
+
+                window.show();
         }
 }

@@ -13,7 +13,7 @@ This project is a application for reviewing, processing and analyzing the state 
 - Αλλαγές στα έξοδα. Καταχώρηση αλλαγών στο χαμηλότερο επίπεδο (MinistryExpense) με ενημέρωση τιμών υψηλότερων επιπέδων.
 - Αλλαγές στα έσοδα. Καταχωρήσεις αλλαγών σε επίπεδα με ενημέρωση άλλων επιπέδων.
 - Επιλογή αποθήκευσης αλλαγών σε έσοδα και έξοδα σε νέο προϋπολογισμό στην SQLite βάση (με επιλογή ονόματος).
-- Ολοκλήρωση παραθύρου Γραφικής Διεπαφής με σύγκριση προϋπολογισμών, δυνατότητα εισαγωγής νέου προϋπολογισμού και αλλαγή τιμών με αποθήκευση αλλαγών.
+- Ολοκλήρωση παραθύρου Γραφικής Διεπαφής με σύγκριση προϋπολογισμών και αλλαγή τιμών με αποθήκευση αλλαγών.
 - Επέκταση unit tests για υψηλότερο ποσοστό κάλυψης από JaCoCo.
 
 ### Προαιρετικά
@@ -27,10 +27,15 @@ This project is a application for reviewing, processing and analyzing the state 
 
 Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`BudgetTunerCLI.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
 
-### Entry Point (Main)
+### CLI Entry Point (Main)
 
-Το σημείο εισόδου της εφαρμογής είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
+Το σημείο εισόδου της εφαρμογής γραμμής εντολών είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
 Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn exec:java`) όπως περιγράφεται παρακάτω.
+
+### GUI Entry Point (Main)
+
+Το σημείο εισόδου της εφαρμογής γραφικής διεπαφής είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
+Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn javafx:run`) όπως περιγράφεται παρακάτω.
 
 ### Dao package
 
@@ -126,11 +131,11 @@ git checkout -b "Μέσα στα εισαγωγικά το όνομα του π�
     ```
 
 4.  **Εκτέλεση της Εφαρμογής:**
-    Εκτελέστε την κύρια κλάση (`BudgetTunerCLI.java`) χρησιμοποιώντας το `exec-maven-plugin`.
+    Εκτελέστε την κύρια κλάση γραμμής εντολών (`BudgetTunerCLI.java`) χρησιμοποιώντας το `exec-maven-plugin`.
 
-    ```bash
-    mvn exec:java
-    ```
+```bash
+mvn exec:java
+```
 
 Η εφαρμογή θα ξεκινήσει και θα εμφανίσει το διαδραστικό μενού στην κονσόλα.
 

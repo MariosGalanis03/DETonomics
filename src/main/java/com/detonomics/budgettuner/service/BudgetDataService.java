@@ -13,5 +13,5 @@ public interface BudgetDataService {
 
     BudgetYear loadBudgetYear(int budgetID);
 
-    void insertNewBudgetYear(String pdfPath) throws Exception;
+    void insertNewBudgetYear(String pdfPath, java.util.function.Consumer<String> logger) throws Exception;
 }

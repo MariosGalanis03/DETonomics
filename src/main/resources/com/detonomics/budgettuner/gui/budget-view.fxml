@@ -57,7 +57,7 @@
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
             <children>
-                <Button mnemonicParsing="false" onAction="#onBackButtonClick" styleClass="btn-white" text="Ακύρωση" />
+                <Button mnemonicParsing="false" onAction="#onBackButtonClick" styleClass="btn-white" text="Επιστροφή" />
                 <Button mnemonicParsing="false" onAction="#onOpenBudgetClick" styleClass="btn-blue" text="Άνοιγμα Προϋπολογισμού" />
             </children>
             <padding>

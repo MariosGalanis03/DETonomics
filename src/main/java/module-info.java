@@ -17,6 +17,7 @@ module com.detonomics.budgettuner {
     requires com.fasterxml.jackson.core;
 
     opens com.detonomics.budgettuner.gui to javafx.fxml;
+    opens com.detonomics.budgettuner.util.ingestion to com.fasterxml.jackson.databind;
 
     exports com.detonomics.budgettuner.gui;
     exports com.detonomics.budgettuner.controller;

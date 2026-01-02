@@ -3,11 +3,8 @@ package com.detonomics.budgettuner.gui;
 import com.detonomics.budgettuner.dao.BudgetYearDao;
 import com.detonomics.budgettuner.dao.SummaryDao;
 import com.detonomics.budgettuner.model.BudgetYear;
-import com.detonomics.budgettuner.model.ExpenseCategory;
-import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.Summary;
-import com.detonomics.budgettuner.util.DatabaseManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,16 +13,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ArrayList;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
 import javafx.stage.Stage;
 
 public final class AnalysisController {
@@ -84,7 +77,16 @@ public final class AnalysisController {
 
         // Update Chart Title to indicate exclusion or specific naming
         if (chartTitleLabel != null) {
-            chartTitleLabel.setText("Top 5 Κατηγορίες (Εξαιρούνται τα Δάνεια)");
+            String chartTitle;
+            if (analysisType == AnalysisType.REVENUE) {
+                chartTitle = "Κατανομή Εσόδων ανα Πηγή (Εξαιρούνται τα Δάνεια)";
+            } else if (analysisType == AnalysisType.EXPENSE) {
+                chartTitle = "Κατανομή Εξόδων ανά Λειτουργία (Εξαιρούνται τα Δάνεια)";
+            } else {
+                // MINISTRY
+                chartTitle = "Κατανομή Δαπανών ανά Κρατικό Φορέα (Εξαιρούνται τα Δάνεια)";
+            }
+            chartTitleLabel.setText(chartTitle);
         }
 
         totalTitleLabel.setText("Σύνολο");
@@ -278,73 +280,6 @@ public final class AnalysisController {
         itemsBox.getChildren().add(hbox);
     }
 
-    private void addExpandableItem(String title, long amount,
-            List<com.detonomics.budgettuner.model.RevenueCategory> revChildren,
-            List<DataPoint> dataChildren) {
-
-        // Header Graphic
-        javafx.scene.layout.HBox headerBox = new javafx.scene.layout.HBox();
-        headerBox.setSpacing(10);
-        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-        // If we want the arrow to be the only thing that expands, TitledPane does that
-        // by default on click.
-        // We just need a nice header.
-
-        javafx.scene.control.Label titleLbl = new javafx.scene.control.Label(title);
-        titleLbl.setWrapText(true);
-        titleLbl.setPrefWidth(280); // Adjusted for TitledPane padding
-        // Removed bold to match simple items as requested
-        // titleLbl.setStyle("-fx-font-weight: bold;");
-
-        javafx.scene.control.Label amtLbl = new javafx.scene.control.Label(String.format("%,d €", amount));
-        amtLbl.setStyle("-fx-font-weight: bold;");
-
-        headerBox.getChildren().addAll(titleLbl, amtLbl);
-
-        javafx.scene.control.TitledPane pane = new javafx.scene.control.TitledPane();
-        pane.setGraphic(headerBox);
-        pane.setExpanded(false);
-        pane.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY); // Hide text, show graphic
-
-        // Add CSS class
-        pane.getStyleClass().add("analysis-pane");
-
-        // Content
-        javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
-        contentBox.setSpacing(5);
-        contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20)); // Indent children
-
-        if (revChildren != null) {
-            for (com.detonomics.budgettuner.model.RevenueCategory child : revChildren) {
-                javafx.scene.layout.HBox childHbox = new javafx.scene.layout.HBox();
-                childHbox.setSpacing(10);
-                javafx.scene.control.Label cName = new javafx.scene.control.Label(child.getName());
-                cName.setWrapText(true);
-                cName.setPrefWidth(260);
-                javafx.scene.control.Label cAmt = new javafx.scene.control.Label(
-                        String.format("%,d €", child.getAmount()));
-                childHbox.getChildren().addAll(cName, cAmt);
-                contentBox.getChildren().add(childHbox);
-            }
-        } else if (dataChildren != null) {
-            for (DataPoint dp : dataChildren) {
-                javafx.scene.layout.HBox childHbox = new javafx.scene.layout.HBox();
-                childHbox.setSpacing(10);
-                javafx.scene.control.Label cName = new javafx.scene.control.Label(dp.name);
-                cName.setWrapText(true);
-                cName.setPrefWidth(260);
-                javafx.scene.control.Label cAmt = new javafx.scene.control.Label(String.format("%,d €", dp.amount));
-                childHbox.getChildren().addAll(cName, cAmt);
-                contentBox.getChildren().add(childHbox);
-            }
-        }
-
-        pane.setContent(contentBox);
-
-        itemsBox.getChildren().add(pane);
-    }
-
     // Recursive based on RevenueCategory
     private Node buildRevenueNode(com.detonomics.budgettuner.model.RevenueCategory cat,
             Map<Integer, List<com.detonomics.budgettuner.model.RevenueCategory>> childrenMap) {
@@ -356,15 +291,26 @@ public final class AnalysisController {
         } else {
             javafx.scene.control.TitledPane pane = createTitledPane(cat.getName(), cat.getAmount());
 
-            javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
-            contentBox.setSpacing(5);
-            contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
+            // Lazy Load: Set a placeholder initially
+            javafx.scene.layout.VBox placeholder = new javafx.scene.layout.VBox();
+            pane.setContent(placeholder);
 
-            for (com.detonomics.budgettuner.model.RevenueCategory child : children) {
-                contentBox.getChildren().add(buildRevenueNode(child, childrenMap));
-            }
+            pane.expandedProperty().addListener((obs, wasExpanded, isExpanded) -> {
+                if (isExpanded && pane.getUserData() == null) {
+                    // Mark as loaded
+                    pane.setUserData(Boolean.TRUE);
 
-            pane.setContent(contentBox);
+                    javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
+                    contentBox.setSpacing(5);
+                    contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
+
+                    for (com.detonomics.budgettuner.model.RevenueCategory child : children) {
+                        contentBox.getChildren().add(buildRevenueNode(child, childrenMap));
+                    }
+                    pane.setContent(contentBox);
+                }
+            });
+
             return pane;
         }
     }
@@ -377,15 +323,26 @@ public final class AnalysisController {
 
         javafx.scene.control.TitledPane pane = createTitledPane(title, amount);
 
-        javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
-        contentBox.setSpacing(5);
-        contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
+        // Lazy Load: Set a placeholder initially
+        javafx.scene.layout.VBox placeholder = new javafx.scene.layout.VBox();
+        pane.setContent(placeholder);
 
-        for (DataPoint dp : children) {
-            contentBox.getChildren().add(createSimpleItemBox(dp.name, dp.amount));
-        }
+        pane.expandedProperty().addListener((obs, wasExpanded, isExpanded) -> {
+            if (isExpanded && pane.getUserData() == null) {
+                // Mark as loaded
+                pane.setUserData(Boolean.TRUE);
 
-        pane.setContent(contentBox);
+                javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
+                contentBox.setSpacing(5);
+                contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
+
+                for (DataPoint dp : children) {
+                    contentBox.getChildren().add(createSimpleItemBox(dp.name, dp.amount));
+                }
+                pane.setContent(contentBox);
+            }
+        });
+
         return pane;
     }
 

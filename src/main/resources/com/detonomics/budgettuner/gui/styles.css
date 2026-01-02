@@ -1,7 +1,11 @@
 /* --- 1. Γενικό Background --- */
 .root {
-    /* Gradient από Άσπρο σε Γαλάζιο */
-    -fx-background-color: linear-gradient(to bottom, #ffffff, #bbdefb);
+    /* Gradient Replaced with Image */
+    /* -fx-background-color: linear-gradient(to bottom, #ffffff, #bbdefb); */
+    -fx-background-image: url("background.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
     -fx-font-family: "Segoe UI", sans-serif;
 }
 
@@ -421,6 +425,9 @@
 
 .analysis-pane:expanded>.title .arrow-button .arrow {
     -fx-background-color: white;
+    -fx-scale-x: 1.2;
+    /* Was missing or overridden? Keep it consistent */
+    -fx-scale-y: 1.2;
 }
 
 /* Content Area - List below */
@@ -428,4 +435,63 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-padding: 0;
+}
+
+
+/* --- 8. About Us Section (Blue Title, Black Text, Left Aligned) --- */
+.about-us-box {
+    -fx-background-color: transparent;
+    -fx-padding: 0 20 20 20;
+    /* Reduced top padding since title has space */
+    -fx-max-width: 600;
+    -fx-alignment: TOP-LEFT;
+    /* Align content to the left */
+}
+
+.about-us-title {
+    -fx-text-fill: #1565C0;
+    /* Primary Blue */
+    -fx-font-size: 32px;
+    -fx-font-weight: 900;
+    -fx-font-family: "Segoe UI Black";
+    -fx-alignment: CENTER-LEFT;
+    -fx-padding: 0 0 10 0;
+    /* Space below title */
+}
+
+.about-us-text {
+    -fx-text-fill: #000000;
+    /* Black */
+    -fx-font-size: 14px;
+    -fx-text-alignment: LEFT;
+    -fx-alignment: TOP-LEFT;
+    -fx-line-spacing: 3;
+    -fx-wrap-text: true;
+}
+
+/* --- 9. Rounded Progress Bar and Animations --- */
+.progress-bar {
+    -fx-pref-height: 20;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+}
+
+.progress-bar>.track {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+}
+
+.progress-bar>.bar {
+    -fx-background-color: linear-gradient(to right, #1E88E5, #42A5F5, #90CAF9);
+    -fx-background-radius: 20;
+    -fx-background-insets: 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(21, 101, 192, 0.4), 5, 0, 0, 1);
+}
+
+/* Error State (Red) */
+.progress-bar.error-bar>.bar {
+    -fx-background-color: linear-gradient(to right, #d32f2f, #ef5350, #ffcdd2);
+    -fx-effect: dropshadow(three-pass-box, rgba(183, 28, 28, 0.4), 5, 0, 0, 1);
 }

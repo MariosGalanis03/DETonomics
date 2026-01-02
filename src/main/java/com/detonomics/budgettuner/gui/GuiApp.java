@@ -37,6 +37,11 @@ public class GuiApp extends Application {
         stage.setResizable(false);
 
         stage.show();
+
+        stage.setOnCloseRequest(event -> {
+            javafx.application.Platform.exit();
+            System.exit(0);
+        });
     }
 
     public static void main(final String[] args) {

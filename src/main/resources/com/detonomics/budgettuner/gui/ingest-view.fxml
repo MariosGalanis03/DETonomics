@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="main-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.gui.IngestController">
+
+    <stylesheets>
+        <URL value="@styles.css" />
+    </stylesheets>
+
+    <top>
+        <VBox spacing="15.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="Εισαγωγή Νέου Προϋπολογισμού" textFill="#1565c0">
+                    <font>
+                        <Font name="Segoe UI Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Label text="Επιλέξτε το αρχείο PDF του προϋπολογισμού για εισαγωγή στη βάση δεδομένων." wrapText="true" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="40.0" right="40.0" top="10.0" />
+            </padding>
+            <children>
+                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                    <children>
+                        <TextField fx:id="filePathField" promptText="Διαδρομή Αρχείου..." HBox.hgrow="ALWAYS" editable="false" />
+                        <Button fx:id="fileSelectButton" mnemonicParsing="false" onAction="#onSelectFileClick" styleClass="btn-blue" text="Επιλογή Αρχείου" />
+                    </children>
+                </HBox>
+                
+                <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartClick" styleClass="btn-blue" text="Έναρξη Εισαγωγής" maxWidth="Infinity" disable="true"/>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="10.0" alignment="CENTER">
+                    <children>
+                        <Label fx:id="statusLabel" text="Αναμονή για έναρξη..." style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                        <Label fx:id="subStatusLabel" text="" style="-fx-text-fill: grey;"/>
+                        <!-- Approx 1/4 of standard width -> Increased by 50% = 450 -->
+                        <javafx.scene.control.ProgressBar fx:id="progressBar" progress="0.0" prefWidth="450.0" prefHeight="25.0"/>
+                    </children>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+            </children>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackClick" styleClass="btn-white" text="Επιστροφή" />
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </HBox>
+    </bottom>
+
+</BorderPane>

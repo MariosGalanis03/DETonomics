@@ -53,29 +53,31 @@ public final class IngestBudgetPdf {
      * @param pdfToText    The PDF to Text converter.
      * @param textToJson   The Text to JSON converter.
      * @param jsonToSQLite The JSON to SQLite processor.
+     * @param logger       A consumer to accept log messages.
      * @throws Exception If any step in the pipeline fails (I/O, Parsing, SQL).
      */
     public void process(final String pdfPath, final PdfToText pdfToText,
-            final TextToJson textToJson, final JsonToSQLite jsonToSQLite)
+            final TextToJson textToJson, final JsonToSQLite jsonToSQLite,
+            final java.util.function.Consumer<String> logger)
             throws Exception {
         // --- Step 1: PDF to Text ---
-        System.out.println("STEP 1: Converting PDF to TEXT...");
+        logger.accept("STEP 1: Converting PDF to TEXT...");
         pdfToText.extractAndSaveText(pdfPath);
-        System.out.println("-> PDF to TEXT conversion complete.");
+        logger.accept("-> PDF to TEXT conversion complete.");
 
         // --- Step 2: Text to JSON ---
         String txtFileName = toTxtName(pdfPath);
         Path inTxt = Path.of("data/processed", txtFileName);
-        System.out.println("STEP 2: Converting TEXT to JSON from: "
+        logger.accept("STEP 2: Converting TEXT to JSON from: "
                 + inTxt.toAbsolutePath());
 
         Path outJson = Path.of("data/processed", toJsonName(pdfPath));
         textToJson.textFileToJson(inTxt, outJson);
-        System.out.println("-> TEXT to JSON conversion complete. Output at: "
+        logger.accept("-> TEXT to JSON conversion complete. Output at: "
                 + outJson.toAbsolutePath());
 
         // --- Step 3: JSON to Database ---
-        System.out.println("STEP 3: Loading JSON into Database...");
+        logger.accept("STEP 3: Loading JSON into Database...");
         try {
             // Get the full path of the JSON file we just created
             String jsonFilePath = outJson.toAbsolutePath().toString();
@@ -83,11 +85,11 @@ public final class IngestBudgetPdf {
             // Call the public method to process and store the budget
             jsonToSQLite.processAndStoreBudget(jsonFilePath);
 
-            System.out.println("-> Database loading complete.");
-            System.out.println("\nPIPELINE FINISHED SUCCESSFULLY!");
+            logger.accept("-> Database loading complete.");
+            logger.accept("\nPIPELINE FINISHED SUCCESSFULLY!");
 
         } catch (Exception e) {
-            System.err.println("-> FAILED to load data into the database.");
+            logger.accept("-> FAILED to load data into the database.");
             // Re-throw the exception to let the caller know the pipeline failed
             throw e;
         }
@@ -106,7 +108,7 @@ public final class IngestBudgetPdf {
         try {
             IngestBudgetPdf ingestor = new IngestBudgetPdf();
             ingestor.process(args[0], new PdfToText(), new TextToJson(),
-                    new JsonToSQLite());
+                    new JsonToSQLite(), System.out::println);
         } catch (Exception e) {
             System.err.println("\nPIPELINE FAILED!");
             e.printStackTrace();

@@ -40,7 +40,8 @@ class IngestBudgetPdfTest {
         String pdfPath = "data/Budget2024.pdf";
 
         // Execute
-        ingestBudgetPdf.process(pdfPath, pdfToText, textToJson, jsonToSQLite);
+        ingestBudgetPdf.process(pdfPath, pdfToText, textToJson, jsonToSQLite, log -> {
+        });
 
         // Verify Step 1: PDF to Text
         verify(pdfToText, times(1)).extractAndSaveText(pdfPath);

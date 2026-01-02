@@ -30,7 +30,8 @@ public final class BudgetDataServiceImpl implements BudgetDataService {
     }
 
     @Override
-    public void insertNewBudgetYear(final String pdfPath) throws Exception {
-        BudgetYearDao.insertNewBudgetYear(pdfPath);
+    public void insertNewBudgetYear(final String pdfPath,
+            final java.util.function.Consumer<String> logger) throws Exception {
+        BudgetYearDao.insertNewBudgetYear(pdfPath, logger);
     }
 }
