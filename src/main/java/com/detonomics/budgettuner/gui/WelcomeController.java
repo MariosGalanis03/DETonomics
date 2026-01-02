@@ -72,4 +72,23 @@ public final class WelcomeController {
 
                 window.show();
         }
+
+        @FXML
+                public void onCompareClick(javafx.event.ActionEvent event) throws java.io.IOException {
+                // 1. Φόρτωση του νέου FXML αρχείου
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("comparison-view.fxml"));
+                javafx.scene.Parent root = loader.load();
+                
+                // 2. Δημιουργία της νέας σκηνής
+                javafx.scene.Scene scene = new javafx.scene.Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                
+                // 3. Φόρτωση του CSS (για να είναι όμορφο)
+                String css = java.util.Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                scene.getStylesheets().add(css);
+
+                // 4. Εμφάνιση στο υπάρχον παράθυρο
+                javafx.stage.Stage window = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                window.setScene(scene);
+                window.show();
+        }
 }

@@ -135,21 +135,17 @@
 }
 
 .menu-button {
-    -fx-background-color: white;
-    -fx-text-fill: #1565C0;
-    -fx-font-size: 20px;
+    -fx-background-color: #1565c0; /* Το μπλε χρώμα */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-background-radius: 50;
-    /* Circle/Pill */
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
-    -fx-padding: 8 16;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
     -fx-cursor: hand;
 }
 
 .menu-button:hover {
-    -fx-background-color: #f5f5f5;
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
+    -fx-background-color: #0d47a1; /* Λίγο πιο σκούρο όταν περνάει το ποντίκι */
 }
 
 .details-scroll {

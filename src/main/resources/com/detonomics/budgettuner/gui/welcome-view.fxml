@@ -28,15 +28,16 @@
 
     <Region minHeight="25.0" />
 
-    <Button text="Επιλογή Υπάρχοντος Προϋπολογισμού" onAction="#onSelectBudgetClick" styleClass="btn-blue" prefWidth="400" />
+    <Button onAction="#onSelectBudgetClick" prefWidth="400" styleClass="menu-button" text="Επιλογή Υπάρχοντος Προϋπολογισμού" />
 
-    <Button text="Εισαγωγή Νέου Προϋπολογισμού" onAction="#onImportNewBudgetClick" styleClass="btn-white" prefWidth="400" />
+    <Button onAction="#onImportNewBudgetClick" prefWidth="400" styleClass="menu-button" text="Εισαγωγή Νέου Προϋπολογισμού" />
+    
+    <Button onAction="#onCompareClick" prefWidth="400" styleClass="menu-button" text="Σύγκριση Προϋπολογισμών" />
     
     <Region VBox.vgrow="ALWAYS" />
 
     <VBox alignment="CENTER" spacing="10.0" styleClass="about-us-box">
-         <Label text="Για Εμάς" styleClass="about-us-title" />
-         <Label wrapText="true" styleClass="about-us-text" 
-                text="Το Budget Tuner φέρνει την επανάσταση στον τρόπο που αλληλεπιδρούμε με τα δημόσια οικονομικά. Είναι η πρώτη πλατφόρμα που δεν προσφέρει απλώς διαφάνεια μέσω της προβολής του Κρατικού Προϋπολογισμού, αλλά δίνει τη δυνατότητα ουσιαστικής παρέμβασης. Μέσα από καινοτόμα εργαλεία προσομοίωσης, ο χρήστης μπορεί να ανακατανείμει πόρους, να τροποποιήσει δαπάνες και να δει άμεσα τον αντίκτυπο των αποφάσεων. Μετατρέπουμε τα πολύπλοκα δεδομένα σε προσβάσιμη γνώση, δίνοντας στον πολίτη τη δύναμη της κατανόησης." />
+         <Label styleClass="about-us-title" text="Για Εμάς" />
+         <Label styleClass="about-us-text" text="Το Budget Tuner φέρνει την επανάσταση στον τρόπο που αλληλεπιδρούμε με τα δημόσια οικονομικά. Είναι η πρώτη πλατφόρμα που δεν προσφέρει απλώς διαφάνεια μέσω της προβολής του Κρατικού Προϋπολογισμού, αλλά δίνει τη δυνατότητα ουσιαστικής παρέμβασης. Μέσα από καινοτόμα εργαλεία προσομοίωσης, ο χρήστης μπορεί να ανακατανείμει πόρους, να τροποποιήσει δαπάνες και να δει άμεσα τον αντίκτυπο των αποφάσεων. Μετατρέπουμε τα πολύπλοκα δεδομένα σε προσβάσιμη γνώση, δίνοντας στον πολίτη τη δύναμη της κατανόησης." wrapText="true" />
     </VBox>
 </VBox>

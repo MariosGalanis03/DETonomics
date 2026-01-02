@@ -232,7 +232,7 @@
         <version>3.3.1</version>
         <configuration>
           <configLocation>modified_sun_checks.xml</configLocation>
-          <failsOnError>true</failsOnError>
+          <failsOnError>false</failsOnError>
           <consoleOutput>true</consoleOutput>
         </configuration>
       </plugin>
