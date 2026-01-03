@@ -4,9 +4,14 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
 
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.gui.WelcomeController">
 
@@ -14,29 +19,162 @@
         <URL value="@styles.css" />
     </stylesheets>
 
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
+    <ScrollPane fx:id="welcomeScrollPane" fitToWidth="true" styleClass="details-scroll" VBox.vgrow="ALWAYS" focusTraversable="true">
+        <content>
+            <VBox alignment="CENTER" spacing="20.0">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                </padding>
 
-    <Region VBox.vgrow="ALWAYS" />
+                <Region minHeight="20.0" />
 
-    <Label text="Καλώς Ορίσατε στο Budget Tuner" textFill="#1565c0">
-        <font>
-            <Font name="Segoe UI Bold" size="24.0" />
-        </font>
-    </Label>
+                <Label text="Καλοσωρίσατε στο Budget Tuner" styleClass="welcome-title" />
+                
+                <Label text="Η δύναμη του κρατικού προϋπολογισμού στα χέρια σας: Αναλύστε, επεξεργαστείτε και κατανοήστε τα δημόσια οικονομικά της Ελλάδας με απλά βήματα." styleClass="welcome-subtitle" wrapText="true" maxWidth="500" textAlignment="CENTER"/>
 
-    <Region minHeight="25.0" />
+                <Region minHeight="25.0" />
 
-    <Button text="Επιλογή Υπάρχοντος Προϋπολογισμού" onAction="#onSelectBudgetClick" styleClass="btn-blue" prefWidth="400" />
+                <!-- Charts Section -->
+                <VBox spacing="30.0" alignment="CENTER" maxWidth="Infinity">
+                     <HBox spacing="10.0" alignment="CENTER">
+                                <!-- Revenue Chart -->
+                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                    <Label text="Πορεία Εσόδων Ελληνικού Κράτους" styleClass="section-title" />
+                                    <BarChart fx:id="revenueChart" prefHeight="450.0" legendVisible="false" animated="false">
+                                        <xAxis><CategoryAxis label="Έτος" /></xAxis>
+                                        <yAxis><NumberAxis label="Ποσό" /></yAxis>
+                                    </BarChart>
+                                </VBox>
 
-    <Button text="Εισαγωγή Νέου Προϋπολογισμού" onAction="#onImportNewBudgetClick" styleClass="btn-white" prefWidth="400" />
-    
-    <Region VBox.vgrow="ALWAYS" />
+                                <!-- Expense Chart -->
+                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                    <Label text="Πορεία Εξόδων Ελληνικού Κράτους" styleClass="section-title" />
+                                    <BarChart fx:id="expenseChart" prefHeight="450.0" legendVisible="false" animated="false">
+                                        <xAxis><CategoryAxis label="Έτος" /></xAxis>
+                                        <yAxis><NumberAxis label="Ποσό" /></yAxis>
+                                    </BarChart>
+                                </VBox>
 
-    <VBox alignment="CENTER" spacing="10.0" styleClass="about-us-box">
-         <Label text="Για Εμάς" styleClass="about-us-title" />
-         <Label wrapText="true" styleClass="about-us-text" 
-                text="Το Budget Tuner φέρνει την επανάσταση στον τρόπο που αλληλεπιδρούμε με τα δημόσια οικονομικά. Είναι η πρώτη πλατφόρμα που δεν προσφέρει απλώς διαφάνεια μέσω της προβολής του Κρατικού Προϋπολογισμού, αλλά δίνει τη δυνατότητα ουσιαστικής παρέμβασης. Μέσα από καινοτόμα εργαλεία προσομοίωσης, ο χρήστης μπορεί να ανακατανείμει πόρους, να τροποποιήσει δαπάνες και να δει άμεσα τον αντίκτυπο των αποφάσεων. Μετατρέπουμε τα πολύπλοκα δεδομένα σε προσβάσιμη γνώση, δίνοντας στον πολίτη τη δύναμη της κατανόησης." />
-    </VBox>
+                                <!-- Difference Chart -->
+                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                    <Label text="Πορεία Ισοζυγίου Ελληνικού Κράτους" styleClass="section-title" />
+                                    <BarChart fx:id="differenceChart" prefHeight="450.0" legendVisible="false" animated="false">
+                                        <xAxis><CategoryAxis label="Έτος" /></xAxis>
+                                        <yAxis><NumberAxis /></yAxis>
+                                    </BarChart>
+                                </VBox>
+                     </HBox>
+                </VBox>
+
+                <Region minHeight="30.0" />
+
+                <!-- Statistics Section -->
+                <VBox alignment="CENTER" maxWidth="600" styleClass="stats-card">
+                     <children>
+                          <Label text="Καταγεγραμμένα Στοιχεία Βάσης Δεδομένων" styleClass="section-title" />
+                          <Region minHeight="10.0" />
+                          <javafx.scene.layout.GridPane hgap="20.0" vgap="10.0" alignment="CENTER">
+                               <columnConstraints>
+                                    <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" halignment="LEFT" />
+                                    <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" halignment="RIGHT" />
+                               </columnConstraints>
+                               <children>
+                                    <Label text="Αποθηκευμένοι Προϋπολογισμοί:" styleClass="stats-label-key" />
+                                    <Label fx:id="statsBudgetsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" />
+                                    
+                                    <Label text="Κατηγορίες Εσόδων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="1" />
+                                    <Label fx:id="statsRevCatsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="1" />
+                                    
+                                    <Label text="Κατηγορίες Εξόδων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="2" />
+                                    <Label fx:id="statsExpCatsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="2" />
+                                    
+                                    <Label text="Φορεις:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="3" />
+                                    <Label fx:id="statsMinistriesLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="3" />
+                                    
+                                    <Label text="Έξοδα Φορέων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="4" />
+                                    <Label fx:id="statsMinExpLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="4" />
+                               </children>
+                          </javafx.scene.layout.GridPane>
+                     </children>
+                </VBox>
+
+                <Region minHeight="30.0" />
+
+                <!-- Navigation Cards -->
+                <HBox spacing="20.0" alignment="TOP_CENTER" fillHeight="false">
+                     <Button onAction="#onSelectBudgetClick" styleClass="action-card-btn" 
+                             maxWidth="Infinity" minWidth="250.0" prefWidth="0" maxHeight="200.0" HBox.hgrow="ALWAYS">
+                          <graphic>
+                               <VBox spacing="20.0" alignment="TOP_CENTER">
+                                   <Label text="Επιλογή Υπάρχοντος Προϋπολογισμού" styleClass="action-card-title" 
+                                          maxWidth="Infinity" alignment="CENTER"
+                                          wrapText="true" textAlignment="CENTER" />
+                                   
+                                   <Region VBox.vgrow="ALWAYS" />
+
+                                   <Label text="Επιλογή ενός από τους υπάρχοντες στην βάση προϋπολογισμούς για προβολή εσόδων, εξόδων και δαπανών κρατικών φορέων με διαδραστικά γραφήματα και καταχώρηση αλλαγών." 
+                                          styleClass="action-card-desc" 
+                                          maxWidth="Infinity" alignment="CENTER_LEFT"
+                                          wrapText="true" textAlignment="LEFT" />
+                               </VBox>
+                          </graphic>
+                     </Button>
+
+                     <Button onAction="#onCompareBudgetsClick" styleClass="action-card-btn" 
+                             maxWidth="Infinity" minWidth="250.0" prefWidth="0" maxHeight="200.0" HBox.hgrow="ALWAYS">
+                          <graphic>
+                               <VBox spacing="20.0" alignment="TOP_CENTER">
+                                   <Label text="Σύγκριση Προϋπολογισμών" styleClass="action-card-title" 
+                                          maxWidth="Infinity" alignment="CENTER"
+                                          wrapText="true" textAlignment="CENTER" />
+
+                                   <Region VBox.vgrow="ALWAYS" />
+
+                                   <Label text="Επιλογή δύο προϋπολογισμών της βάσης για σύγκριση εσόδων, εξόδων και δαπανών κρατικών φορέων με διαδραστικά γραφήματα." 
+                                          styleClass="action-card-desc" 
+                                          maxWidth="Infinity" alignment="CENTER_LEFT"
+                                          wrapText="true" textAlignment="LEFT" />
+                               </VBox>
+                          </graphic>
+                     </Button>
+
+                     <Button onAction="#onImportNewBudgetClick" styleClass="action-card-btn" 
+                             maxWidth="Infinity" minWidth="250.0" prefWidth="0" maxHeight="200.0" HBox.hgrow="ALWAYS">
+                          <graphic>
+                               <VBox spacing="20.0" alignment="TOP_CENTER">
+                                   <Label text="Εισαγωγή Νέου Προϋπολογισμού" styleClass="action-card-title" 
+                                          maxWidth="Infinity" alignment="CENTER"
+                                          wrapText="true" textAlignment="CENTER" />
+                                   
+                                   <Region VBox.vgrow="ALWAYS" />
+
+                                   <Label text="Εισαγωγή ενός νέου προϋπολογισμού στην βάση από το PDF του ώστε να μπορεί να προβληθεί διαδραστικά, να τεθεί σε επεξεργασία και να συμμετέχει σε σύγκριση." 
+                                          styleClass="action-card-desc" 
+                                          maxWidth="Infinity" alignment="CENTER_LEFT"
+                                          wrapText="true" textAlignment="LEFT" />
+                               </VBox>
+                          </graphic>
+                     </Button>
+                </HBox>
+                
+                <Region minHeight="30.0" />
+                
+                <HBox alignment="CENTER" spacing="20.0" styleClass="about-us-box">
+                     <!-- Left Side: Title -->
+                     <HBox alignment="CENTER_RIGHT">
+                         <Label text="Για Εμάς" styleClass="about-us-title" alignment="CENTER_RIGHT" wrapText="false" minWidth="-Infinity"/>
+                     </HBox>
+                     
+                     <!-- Center: Separator -->
+                     <Region style="-fx-background-color: #1565C0; -fx-min-width: 4px; -fx-max-width: 4px;" VBox.vgrow="ALWAYS" />
+                     
+                     <!-- Right Side: Text -->
+                     <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                         <Label wrapText="true" styleClass="about-us-text" 
+                                text="Το Budget Tuner φέρνει την επανάσταση στον τρόπο που αλληλεπιδρούμε με τα δημόσια οικονομικά. Είναι η πρώτη πλατφόρμα που δεν προσφέρει απλώς διαφάνεια μέσω της προβολής του Ελληνικού Κρατικού Προϋπολογισμού, αλλά δίνει τη δυνατότητα ουσιαστικής παρέμβασης. Μέσα από καινοτόμα εργαλεία προσομοίωσης, ο χρήστης μπορεί να ανακατανείμει πόρους, να τροποποιήσει δαπάνες και να δει άμεσα τον αντίκτυπο των αποφάσεων. Μετατρέπουμε τα πολύπλοκα δεδομένα σε προσβάσιμη γνώση, δίνοντας στον πολίτη τη δύναμη της κατανόησης." />
+                     </HBox>
+                </HBox>
+            </VBox>
+        </content>
+    </ScrollPane>
 </VBox>

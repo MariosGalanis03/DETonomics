@@ -19,6 +19,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
 
 public final class AnalysisController {
@@ -204,6 +205,24 @@ public final class AnalysisController {
             String label = String.format("Άλλα (%,d €)", otherAmount);
             pieChart.getData().add(new javafx.scene.chart.PieChart.Data(label, otherAmount));
         }
+
+        // Add Tooltips
+        for (
+
+        javafx.scene.chart.PieChart.Data data : pieChart.getData()) {
+            String tooltipText = data.getName(); // Text is already formatted as "Name (Amount €)"
+            Tooltip tooltip = new Tooltip(tooltipText);
+            tooltip.setText(tooltipText); // Ensure text is set
+            Tooltip.install(data.getNode(), tooltip);
+
+            // Add hover effect
+            data.getNode().setOnMouseEntered(event -> {
+                data.getNode().setStyle("-fx-opacity: 0.8; -fx-cursor: hand;");
+            });
+            data.getNode().setOnMouseExited(event -> {
+                data.getNode().setStyle("-fx-opacity: 1.0; -fx-cursor: default;");
+            });
+        }
     }
 
     private static class DataPoint {
@@ -214,6 +233,7 @@ public final class AnalysisController {
             this.name = name;
             this.amount = amount;
         }
+
     }
 
     private void setupList() {

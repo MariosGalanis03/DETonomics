@@ -1,0 +1,114 @@
+package com.detonomics.budgettuner.gui;
+
+import com.detonomics.budgettuner.model.Summary;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+public class GuiUtils {
+
+    /**
+     * Sets up a BarChart with the provided data.
+     *
+     * @param chart          The chart to populate.
+     * @param seriesName     The name of the data series.
+     * @param data           The list of Summary objects to plot.
+     * @param valueExtractor Function to extract the Number value from a Summary.
+     * @param colorCondition Predicate to determine if a specific data point should
+     *                       be highlighted (e.g. current year).
+     *                       Returns true for highlight color (Red), false for
+     *                       default color (Blue).
+     */
+    public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
+            Function<Summary, Number> valueExtractor, Predicate<Summary> colorCondition) {
+        chart.getData().clear();
+
+        // Fix: Explicitly set axis categories if it's a CategoryAxis.
+        // This prevents the "bunched up labels" glitch by ensuring the axis knows the
+        // range.
+        if (chart.getXAxis() instanceof javafx.scene.chart.CategoryAxis) {
+            javafx.scene.chart.CategoryAxis xAxis = (javafx.scene.chart.CategoryAxis) chart.getXAxis();
+            // Extract unique years from data, sorted
+            List<String> categories = data.stream()
+                    .map(s -> String.valueOf(s.getBudgetYear()))
+                    .distinct()
+                    .sorted()
+                    .toList();
+            xAxis.setCategories(javafx.collections.FXCollections.observableArrayList(categories));
+        }
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(seriesName);
+
+        for (Summary s : data) {
+            String category = String.valueOf(s.getBudgetYear());
+            XYChart.Data<String, Number> chartData = new XYChart.Data<>(
+                    category,
+                    valueExtractor.apply(s));
+
+            // Add listener to apply styles once the node is attached to the scene graph
+            chartData.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                if (newNode != null) {
+                    if (colorCondition.test(s)) {
+                        newNode.setStyle("-fx-bar-fill: #D32F2F;"); // Highlight (Red)
+                    } else {
+                        newNode.setStyle("-fx-bar-fill: #1565C0;"); // Default (Blue)
+                    }
+                    // Optional: Add tooltip or other interactivity here
+                }
+            });
+
+            series.getData().add(chartData);
+        }
+        chart.getData().add(series);
+    }
+
+    /**
+     * Overload for simple blue charts (no special highlight condition).
+     */
+    public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
+            Function<Summary, Number> valueExtractor) {
+        setupChart(chart, seriesName, data, valueExtractor, s -> false);
+    }
+
+    /**
+     * Navigates to a new view defined by fxmlPath.
+     *
+     * @param event    The ActionEvent that triggered navigation (to get the
+     *                 Window).
+     * @param fxmlPath The path to the FXML file (relative to this package).
+     * @throws IOException If FXML loading fails.
+     */
+    public static void navigate(ActionEvent event, String fxmlPath) throws IOException {
+        final FXMLLoader loader = new FXMLLoader(GuiUtils.class.getResource(fxmlPath));
+        final Parent root = loader.load();
+
+        final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+        final String css = Objects.requireNonNull(GuiUtils.class.getResource("styles.css")).toExternalForm();
+        scene.getStylesheets().add(css);
+
+        final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        window.setScene(scene);
+
+        // Maintain full screen / bounds logic
+        javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+        window.setX(bounds.getMinX());
+        window.setY(bounds.getMinY());
+        window.setWidth(bounds.getWidth());
+        window.setHeight(bounds.getHeight());
+        window.setResizable(false);
+
+        window.show();
+    }
+}
