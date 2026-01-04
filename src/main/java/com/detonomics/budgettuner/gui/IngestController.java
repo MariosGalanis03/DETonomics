@@ -202,4 +202,9 @@ public class IngestController {
 
         window.show();
     }
+
+    @FXML
+    public void onExitClick(ActionEvent event) {
+        System.exit(0);
+    }
 }

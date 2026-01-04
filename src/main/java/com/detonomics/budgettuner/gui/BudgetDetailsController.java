@@ -350,4 +350,9 @@ public final class BudgetDetailsController {
 
                 window.show();
         }
+
+        @FXML
+        public void onExitClick(final ActionEvent event) {
+                System.exit(0);
+        }
 }

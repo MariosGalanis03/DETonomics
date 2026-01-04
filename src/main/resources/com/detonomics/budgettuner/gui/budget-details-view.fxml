@@ -187,6 +187,7 @@
             <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
                  <children>
                      <Button mnemonicParsing="false" onAction="#onBackButtonClick" styleClass="btn-white" text="Επιστροφή" />
+                     <Button mnemonicParsing="false" onAction="#onExitClick" styleClass="btn-white" text="Έξοδος" style="-fx-background-color: #1565C0; -fx-text-fill: white;" />
                  </children>
                  <padding>
                      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

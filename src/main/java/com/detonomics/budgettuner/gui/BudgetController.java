@@ -174,4 +174,9 @@ public final class BudgetController {
 
                 window.show();
         }
+
+        @FXML
+        public void onExitClick(final ActionEvent event) {
+                System.exit(0);
+        }
 }

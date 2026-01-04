@@ -101,57 +101,42 @@
                 <Region minHeight="30.0" />
 
                 <!-- Navigation Cards -->
-                <HBox spacing="20.0" alignment="TOP_CENTER" fillHeight="false">
-                     <Button onAction="#onSelectBudgetClick" styleClass="action-card-btn" 
-                             maxWidth="Infinity" minWidth="250.0" prefWidth="0" maxHeight="200.0" HBox.hgrow="ALWAYS">
+                <HBox spacing="20.0" alignment="CENTER" fillHeight="true">
+                     <Button onAction="#onSelectBudgetClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS">
                           <graphic>
-                               <VBox spacing="20.0" alignment="TOP_CENTER">
+                               <VBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20;">
                                    <Label text="Επιλογή Υπάρχοντος Προϋπολογισμού" styleClass="action-card-title" 
-                                          maxWidth="Infinity" alignment="CENTER"
-                                          wrapText="true" textAlignment="CENTER" />
+                                          alignment="CENTER" wrapText="true" textAlignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
                                    
-                                   <Region VBox.vgrow="ALWAYS" />
-
                                    <Label text="Επιλογή ενός από τους υπάρχοντες στην βάση προϋπολογισμούς για προβολή εσόδων, εξόδων και δαπανών κρατικών φορέων με διαδραστικά γραφήματα και καταχώρηση αλλαγών." 
-                                          styleClass="action-card-desc" 
-                                          maxWidth="Infinity" alignment="CENTER_LEFT"
-                                          wrapText="true" textAlignment="LEFT" />
+                                          styleClass="action-card-desc" alignment="CENTER"
+                                          wrapText="true" textAlignment="CENTER" style="-fx-font-size: 14px;" />
                                </VBox>
                           </graphic>
                      </Button>
 
-                     <Button onAction="#onCompareBudgetsClick" styleClass="action-card-btn" 
-                             maxWidth="Infinity" minWidth="250.0" prefWidth="0" maxHeight="200.0" HBox.hgrow="ALWAYS">
+                     <Button onAction="#onCompareBudgetsClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS">
                           <graphic>
-                               <VBox spacing="20.0" alignment="TOP_CENTER">
+                               <VBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20;">
                                    <Label text="Σύγκριση Προϋπολογισμών" styleClass="action-card-title" 
-                                          maxWidth="Infinity" alignment="CENTER"
-                                          wrapText="true" textAlignment="CENTER" />
-
-                                   <Region VBox.vgrow="ALWAYS" />
+                                          alignment="CENTER" wrapText="true" textAlignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
 
                                    <Label text="Επιλογή δύο προϋπολογισμών της βάσης για σύγκριση εσόδων, εξόδων και δαπανών κρατικών φορέων με διαδραστικά γραφήματα." 
-                                          styleClass="action-card-desc" 
-                                          maxWidth="Infinity" alignment="CENTER_LEFT"
-                                          wrapText="true" textAlignment="LEFT" />
+                                          styleClass="action-card-desc" alignment="CENTER"
+                                          wrapText="true" textAlignment="CENTER" style="-fx-font-size: 14px;" />
                                </VBox>
                           </graphic>
                      </Button>
 
-                     <Button onAction="#onImportNewBudgetClick" styleClass="action-card-btn" 
-                             maxWidth="Infinity" minWidth="250.0" prefWidth="0" maxHeight="200.0" HBox.hgrow="ALWAYS">
+                     <Button onAction="#onImportNewBudgetClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS">
                           <graphic>
-                               <VBox spacing="20.0" alignment="TOP_CENTER">
+                               <VBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20;">
                                    <Label text="Εισαγωγή Νέου Προϋπολογισμού" styleClass="action-card-title" 
-                                          maxWidth="Infinity" alignment="CENTER"
-                                          wrapText="true" textAlignment="CENTER" />
+                                          alignment="CENTER" wrapText="true" textAlignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
                                    
-                                   <Region VBox.vgrow="ALWAYS" />
-
                                    <Label text="Εισαγωγή ενός νέου προϋπολογισμού στην βάση από το PDF του ώστε να μπορεί να προβληθεί διαδραστικά, να τεθεί σε επεξεργασία και να συμμετέχει σε σύγκριση." 
-                                          styleClass="action-card-desc" 
-                                          maxWidth="Infinity" alignment="CENTER_LEFT"
-                                          wrapText="true" textAlignment="LEFT" />
+                                          styleClass="action-card-desc" alignment="CENTER"
+                                          wrapText="true" textAlignment="CENTER" style="-fx-font-size: 14px;" />
                                </VBox>
                           </graphic>
                      </Button>
