@@ -33,7 +33,6 @@
                 <Label text="Η δύναμη του κρατικού προϋπολογισμού στα χέρια σας: Αναλύστε, επεξεργαστείτε και κατανοήστε τα δημόσια οικονομικά της Ελλάδας με απλά βήματα." styleClass="welcome-subtitle" wrapText="true" maxWidth="500" textAlignment="CENTER"/>
 
                 <Region minHeight="25.0" />
-
                 <!-- Charts Section -->
                 <VBox spacing="30.0" alignment="CENTER" maxWidth="Infinity">
                      <HBox spacing="10.0" alignment="CENTER">

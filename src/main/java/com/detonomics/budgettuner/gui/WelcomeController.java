@@ -101,5 +101,5 @@ public final class WelcomeController {
         protected void onCompareBudgetsClick(final ActionEvent event) throws IOException {
                 GuiUtils.navigate(event, "budget-comparison-view.fxml");
         }
-
+  
 }
