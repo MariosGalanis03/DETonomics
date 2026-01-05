@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="main-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.gui.ComparisonController">
+
+    <stylesheets>
+        <URL value="@styles.css" />
+    </stylesheets>
+
+    <top>
+        <BorderPane styleClass="details-topbar">
+            <left>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#onBackClick" styleClass="menu-button" text="←" />
+                        <Label styleClass="app-name" text="Budget Tuner" />
+                    </children>
+                </HBox>
+            </left>
+            <center>
+                <Label styleClass="details-title" text="Σύγκριση Προϋπολογισμών">
+                    <font>
+                        <Font name="Segoe UI Bold" size="24.0" />
+                    </font>
+                </Label>
+            </center>
+            <padding>
+                <Insets bottom="14.0" left="14.0" right="18.0" top="14.0" />
+            </padding>
+        </BorderPane>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="details-scroll">
+            <content>
+                <VBox alignment="TOP_CENTER" spacing="20.0">
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                    </padding>
+
+                    <HBox alignment="CENTER" spacing="50.0">
+                        <VBox alignment="CENTER" spacing="10.0">
+                            <Label styleClass="section-title" text="Προϋπολογισμός Α" />
+                            <ComboBox fx:id="yearSelectorA" prefWidth="200.0" promptText="Επιλέξτε Έτος" />
+                        </VBox>
+                        <Label style="-fx-font-size: 20px; -fx-text-fill: #666;" text="VS" />
+                        <VBox alignment="CENTER" spacing="10.0">
+                            <Label styleClass="section-title" text="Προϋπολογισμός Β" />
+                            <ComboBox fx:id="yearSelectorB" prefWidth="200.0" promptText="Επιλέξτε Έτος" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox alignment="CENTER" spacing="20.0">
+                        <VBox alignment="CENTER" spacing="5.0" styleClass="dashboard-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
+                            <Label styleClass="card-label-sm" text="Σύνολο Εσόδων" />
+                            <HBox alignment="CENTER" spacing="15.0">
+                                <Label fx:id="revALabel" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="-" />
+                                <Label text="vs" />
+                                <Label fx:id="revBLabel" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="-" />
+                            </HBox>
+                            <Label fx:id="revDiffLabel" style="-fx-font-size: 14px;" text="Διαφορά: -" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="5.0" styleClass="dashboard-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
+                            <Label styleClass="card-label-sm" text="Σύνολο Εξόδων" />
+                            <HBox alignment="CENTER" spacing="15.0">
+                                <Label fx:id="expALabel" style="-fx-font-weight: bold; -fx-text-fill: #c0392b;" text="-" />
+                                <Label text="vs" />
+                                <Label fx:id="expBLabel" style="-fx-font-weight: bold; -fx-text-fill: #c0392b;" text="-" />
+                            </HBox>
+                            <Label fx:id="expDiffLabel" style="-fx-font-size: 14px;" text="Διαφορά: -" />
+                        </VBox>
+                    </HBox>
+
+                    <VBox styleClass="chart-card" VBox.vgrow="ALWAYS">
+                        <Label styleClass="section-title" text="Οπτική Σύγκριση" />
+                        <BarChart fx:id="comparisonChart" animated="true" legendSide="BOTTOM" minHeight="400.0">
+                            <xAxis>
+                                <CategoryAxis label="Κατηγορία" side="BOTTOM" />
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Ποσό (€)" side="LEFT" />
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
