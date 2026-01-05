@@ -1,7 +1,8 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.dao.BudgetYearDao;
 import com.detonomics.budgettuner.dao.SummaryDao;
+import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.Summary;
@@ -24,6 +25,11 @@ import javafx.scene.control.Tooltip;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+/**
+ * Controller for the Analysis View.
+ * Handles the display of budget analysis charts and lists (Revenue, Expense,
+ * Ministry).
+ */
 public final class AnalysisController {
 
     @FXML
@@ -50,6 +56,14 @@ public final class AnalysisController {
     private AnalysisType analysisType;
     private Popup popup = new Popup();
 
+    /**
+     * Initializes the controller with the necessary context.
+     *
+     * @param budgetIn The budget year object to analyze.
+     * @param dbPathIn The path to the database.
+     * @param typeIn   The type of analysis to perform (Revenue, Expense, or
+     *                 Ministry).
+     */
     public void setContext(final BudgetYear budgetIn, final String dbPathIn,
             final AnalysisType typeIn) {
         this.budget = budgetIn;
@@ -424,6 +438,13 @@ public final class AnalysisController {
         return hbox;
     }
 
+    /**
+     * Handles the "Back" button click event.
+     * Navigates back to the Budget Details view.
+     *
+     * @param event The action event triggered by the button click.
+     * @throws IOException If the FXML file for the previous view cannot be loaded.
+     */
     @FXML
     public void onBackClick(final ActionEvent event) throws IOException {
         // Navigate back to Budget Details View

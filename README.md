@@ -26,7 +26,7 @@ This project is a application for reviewing, processing and analyzing the state 
 
 ### Entry Point (Main)
 
-Το σημείο εισόδου της εφαρμογής γραφικής διεπαφής είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
+Το σημείο εισόδου της εφαρμογής γραφικής διεπαφής είναι η κλάση `com.detonomics.budgettuner.controller.GuiApp`.
 Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn javafx:run`) όπως περιγράφεται παρακάτω.
 
 ### Dao package
@@ -43,8 +43,7 @@ This project is a application for reviewing, processing and analyzing the state 
 
 ### Util package
 
-Αποτελείται από κλάσεις που παρέχουν χρήσιμες εργαλεία για την εφαρμογή. Εκτελούν πολύ συγκεκριμένες λειτουργίες
-
+Αποτελείται από κλάσεις που παρέχουν χρήσιμες εργαλεία για την εφαρμογή (π.χ. `GuiUtils`, `LogarithmicAxis`). Εκτελούν πολύ συγκεκριμένες λειτουργίες.
 
 ## Χρήση GitHub
 
@@ -85,7 +84,9 @@ git branch -d feature/my-new-feature # Διαγραφή του τοπικού κ
 Αφού κατεβάσετε το αποθετήριο τρέξτε απευθείας:
 - mvn clean install 
 - mvn exec:java
-Η πρώτη εντολή κατεβάζει τα dependencies και τον κώδικα της εφαρμογής. Η δεύτερη εντολή τρέχει την εφαρμογή.
+Η πρώτη εντολή κατεβάζει τα dependencies και τον κώδικα της εφαρμογής. Η δεύτερη εντολή τρέχει την εφαρμογή (CLI).
+Για το GUI: `mvn javafx:run`
+
 
 ### Εισαγωγή ξένων πακέτων
 

@@ -11,9 +11,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
-<?import com.detonomics.budgettuner.gui.LogarithmicAxis?>
+<?import com.detonomics.budgettuner.util.LogarithmicAxis?>
 
-<BorderPane styleClass="main-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.gui.AnalysisController">
+<BorderPane styleClass="main-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.controller.AnalysisController">
 
     <stylesheets>
         <URL value="@styles.css" />

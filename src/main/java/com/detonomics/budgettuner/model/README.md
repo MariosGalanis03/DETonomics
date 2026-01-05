@@ -8,5 +8,6 @@ This package contains the data models for the application. These classes represe
 - `BudgetYear`
 - `Summary`
 - `SqlSequence`
+- `AnalysisType`: Enum defining types of budget analysis (Revenue, Expense, Ministry).
 
 These models are used to transfer data between the database (DAO layer) and the application logic.

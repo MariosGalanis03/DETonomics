@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.util;
 
 import com.detonomics.budgettuner.model.Summary;
 import javafx.event.ActionEvent;
@@ -91,11 +91,16 @@ public class GuiUtils {
      * @throws IOException If FXML loading fails.
      */
     public static void navigate(ActionEvent event, String fxmlPath) throws IOException {
-        final FXMLLoader loader = new FXMLLoader(GuiUtils.class.getResource(fxmlPath));
+        // Use GuiApp.class to load resources from the controller package
+        final FXMLLoader loader = new FXMLLoader(
+                com.detonomics.budgettuner.controller.GuiApp.class.getResource(fxmlPath));
         final Parent root = loader.load();
 
-        final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-        final String css = Objects.requireNonNull(GuiUtils.class.getResource("styles.css")).toExternalForm();
+        final Scene scene = new Scene(root, com.detonomics.budgettuner.controller.GuiApp.DEFAULT_WIDTH,
+                com.detonomics.budgettuner.controller.GuiApp.DEFAULT_HEIGHT);
+        final String css = Objects
+                .requireNonNull(com.detonomics.budgettuner.controller.GuiApp.class.getResource("styles.css"))
+                .toExternalForm();
         scene.getStylesheets().add(css);
 
         final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();

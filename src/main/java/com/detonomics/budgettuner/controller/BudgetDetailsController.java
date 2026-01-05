@@ -1,8 +1,10 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.dao.SummaryDao;
+import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.util.GuiUtils;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -15,7 +17,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;

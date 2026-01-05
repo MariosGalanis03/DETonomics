@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
@@ -32,6 +32,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import com.detonomics.budgettuner.dao.BudgetYearDao;
 
+/**
+ * Controller for the Budget Selection View.
+ * allowing users to view a list of available budgets and select one to view
+ * details.
+ */
 public final class BudgetController {
 
         @FXML
@@ -44,6 +49,10 @@ public final class BudgetController {
         private List<Summary> budgetSummaries;
         private ObservableList<String> items;
 
+        /**
+         * Initializes the controller.
+         * Loads the list of available budget years from the database.
+         */
         @FXML
         public void initialize() {
                 loadBudgetsFromDatabase();
@@ -97,6 +106,13 @@ public final class BudgetController {
                 budgetList.setItems(items);
         }
 
+        /**
+         * Handles the selection of a budget from the list (via mouse click).
+         *
+         * @param event The mouse event triggered by the selection.
+         * @throws IOException If the FXML file for the Budget Details view cannot be
+         *                     loaded.
+         */
         @FXML
         public void onBudgetSelect(final javafx.scene.input.MouseEvent event)
                         throws IOException {
@@ -206,6 +222,12 @@ public final class BudgetController {
                 window.show();
         }
 
+        /**
+         * Handles the search button click event.
+         * Filters the list of budgets based on the text entered in the search field.
+         *
+         * @param event The action event triggered by the button click.
+         */
         @FXML
         public void onSearchClick(final ActionEvent event) {
                 final String searchText = searchField.getText().toLowerCase();
@@ -223,6 +245,14 @@ public final class BudgetController {
                 budgetList.setItems(filteredList);
         }
 
+        /**
+         * Handles the "Open" button click event.
+         * Opens the details view for the currently selected budget in the list.
+         *
+         * @param event The action event triggered by the button click.
+         * @throws IOException If the FXML file for the Budget Details view cannot be
+         *                     loaded.
+         */
         @FXML
         public void onOpenBudgetClick(final ActionEvent event) throws IOException {
                 final int selectedIdx = budgetList.getSelectionModel().getSelectedIndex();
@@ -244,6 +274,13 @@ public final class BudgetController {
                 }
         }
 
+        /**
+         * Handles the "Back" button click event.
+         * Navigates back to the Welcome View.
+         *
+         * @param event The action event triggered by the button click.
+         * @throws IOException If the FXML file for the Welcome view cannot be loaded.
+         */
         @FXML
         public void onBackButtonClick(final ActionEvent event) throws IOException {
                 final FXMLLoader loader = new FXMLLoader(getClass()

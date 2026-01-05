@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
 import javafx.application.Platform;

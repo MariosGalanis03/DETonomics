@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.util;
 
 import javafx.scene.chart.ValueAxis;
 

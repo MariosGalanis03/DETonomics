@@ -10,3 +10,4 @@ Key classes include:
 - `MinistryDao`: Handles loading of ministry data.
 - `MinistryExpenseDao`: Handles loading of ministry expenses.
 - `SqlSequenceDao`: Retrieves database sequence statistics.
+- `BudgetTotalsDao`: Handles loading of budget totals and statistics.

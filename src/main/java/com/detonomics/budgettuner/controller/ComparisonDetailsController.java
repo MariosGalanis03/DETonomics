@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.dao.DaoConfig;
 import com.detonomics.budgettuner.dao.ExpenseCategoryDao;
@@ -7,7 +7,9 @@ import com.detonomics.budgettuner.dao.RevenueCategoryDao;
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.model.RevenueCategory;
+import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.util.GuiUtils;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.DatabaseManager;
 

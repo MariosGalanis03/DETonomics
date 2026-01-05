@@ -1,6 +1,7 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.dao.SummaryDao;
+import com.detonomics.budgettuner.util.GuiUtils;
 import com.detonomics.budgettuner.model.Summary;
 
 import java.io.IOException;
