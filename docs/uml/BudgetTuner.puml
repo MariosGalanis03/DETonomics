@@ -1,0 +1,501 @@
+@startuml BudgetTuner
+
+title Budget Tuner Class Diagram
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+
+' Package colors
+skinparam package<<controller>> {
+    BackgroundColor lightblue
+    BorderColor darkblue
+}
+skinparam package<<service>> {
+    BackgroundColor lightgreen
+    BorderColor darkgreen
+}
+skinparam package<<model>> {
+    BackgroundColor lightyellow
+    BorderColor orange
+}
+skinparam package<<dao>> {
+    BackgroundColor lightcoral
+    BorderColor darkred
+}
+skinparam package<<util>> {
+    BackgroundColor lightgray
+    BorderColor gray
+}
+skinparam package<<ingestion>> {
+    BackgroundColor lavender
+    BorderColor purple
+}
+
+
+' ========== CONTROLLER LAYER ==========
+package "com.detonomics.budgettuner.controller" <<controller>> {
+    class GuiApp {
+        + {static} DEFAULT_WIDTH : int
+        + {static} DEFAULT_HEIGHT : int
+        + start(stage : Stage) : void
+        + {static} main(args : String[]) : void
+    }
+    
+    class WelcomeController {
+        - dataService : BudgetDataService
+        + initialize() : void
+        + onSelectBudgetClick(event : ActionEvent) : void
+        + onImportNewBudgetClick(event : ActionEvent) : void
+        + onCompareBudgetsClick(event : ActionEvent) : void
+    }
+    
+    class BudgetController {
+        - dataService : BudgetDataServiceImpl
+        + initialize() : void
+        + onBudgetSelect(event : MouseEvent) : void
+        + onOpenBudgetClick(event : ActionEvent) : void
+        + onBackButtonClick(event : ActionEvent) : void
+    }
+    
+    class BudgetDetailsController {
+        - budget : BudgetYear
+        - dbPath : String
+        + setContext(budget : BudgetYear, dbPath : String) : void
+        + onRevenueAnalysisClick(event : ActionEvent) : void
+        + onExpenseAnalysisClick(event : ActionEvent) : void
+        + onMinistryAnalysisClick(event : ActionEvent) : void
+        + onModifyExpenseClick(event : ActionEvent) : void
+    }
+    
+    class AnalysisController {
+        - budget : BudgetYear
+        - dbPath : String
+        - analysisType : AnalysisType
+        + setContext(budget : BudgetYear, dbPath : String, type : AnalysisType) : void
+        + onBackClick(event : ActionEvent) : void
+    }
+    
+    class BudgetComparisonController {
+        + initialize() : void
+        + setPreselectedYears(s1 : Summary, s2 : Summary) : void
+        + onRevenueAnalysisClick(event : ActionEvent) : void
+        + onExpenseAnalysisClick(event : ActionEvent) : void
+        + onMinistryAnalysisClick(event : ActionEvent) : void
+    }
+    
+    class ComparisonDetailsController {
+        + setContext(s1 : Summary, s2 : Summary, type : ComparisonType) : void
+        + onBackClick(event : ActionEvent) : void
+    }
+    
+    class BudgetModificationController {
+        - budget : BudgetYear
+        + setContext(budget : BudgetYear) : void
+        + onSaveClick(event : ActionEvent) : void
+        + onCancelClick(event : ActionEvent) : void
+    }
+    
+    class IngestController {
+        + onSelectFileClick(event : ActionEvent) : void
+        + onStartClick(event : ActionEvent) : void
+        + onBackClick(event : ActionEvent) : void
+    }
+    
+    class BudgetTunerCLI {
+        - BudgetTunerCLI()
+        + {static} main(args : String[]) : void
+    }
+    
+    ' Hybrid Internal Stacking
+    GuiApp -[hidden]right-> WelcomeController
+    WelcomeController -[hidden]right-> BudgetController
+    BudgetController -[hidden]down-> BudgetDetailsController
+    BudgetDetailsController -[hidden]right-> AnalysisController
+    AnalysisController -[hidden]right-> BudgetComparisonController
+    BudgetComparisonController -[hidden]down-> ComparisonDetailsController
+    ComparisonDetailsController -[hidden]right-> BudgetModificationController
+    BudgetModificationController -[hidden]right-> IngestController
+    IngestController -[hidden]right-> BudgetTunerCLI
+}
+
+' ========== SERVICE LAYER ==========
+package "com.detonomics.budgettuner.service" <<service>> {
+    interface BudgetDataService {
+        + loadStatistics() : SqlSequence
+        + loadBudgetYears() : ArrayList
+        + loadBudgetIDByYear(year : int) : int
+        + loadBudgetYear(budgetID : int) : BudgetYear
+        + insertNewBudgetYear(pdfPath : String, logger : Consumer) : void
+        + cloneBudget(sourceBudgetID : int, targetBudgetID : int) : void
+    }
+    
+    class BudgetDataServiceImpl {
+        + loadStatistics() : SqlSequence
+        + loadBudgetYears() : ArrayList
+        + loadBudgetIDByYear(year : int) : int
+        + loadBudgetYear(budgetID : int) : BudgetYear
+        + insertNewBudgetYear(pdfPath : String, logger : Consumer) : void
+        + cloneBudget(sourceBudgetID : int, targetBudgetID : int) : void
+    }
+    
+    class IngestBudgetPdf {
+        + {static} process(pdfPath : String, logger : Consumer) : void
+        + {static} main(args : String[]) : void
+    }
+    
+    ' Hybrid Internal Stacking
+    BudgetDataService -[hidden]right-> BudgetDataServiceImpl
+    BudgetDataServiceImpl -[hidden]down-> IngestBudgetPdf
+}
+
+' ========== MODEL LAYER ==========
+package "com.detonomics.budgettuner.model" <<model>> {
+    class BudgetYear {
+        - summary : Summary
+        - revenues : ArrayList
+        - expenses : ArrayList
+        - ministries : ArrayList
+        - ministryExpenses : ArrayList
+        + getSummary() : Summary
+        + getRevenues() : ArrayList
+        + getExpenses() : ArrayList
+        + getMinistries() : ArrayList
+        + getMinistryExpenses() : ArrayList
+    }
+
+    class Summary {
+        - budgetID : int
+        - sourceTitle : String
+        - sourceDate : String
+        - budgetYear : int
+        - currency : String
+        - locale : String
+        - totalRevenues : long
+        - totalExpenses : long
+        - budgetResult : long
+        - coverageWithCashReserves : long
+        + getBudgetID() : int
+        + getSourceTitle() : String
+        + getBudgetYear() : int
+        + getTotalRevenues() : long
+        + getTotalExpenses() : long
+        + getBudgetResult() : long
+    }
+
+    class RevenueCategory {
+        - revenueID : int
+        - code : long
+        - name : String
+        - amount : long
+        - parentID : Integer
+        + getRevenueID() : int
+        + getCode() : long
+        + getName() : String
+        + getAmount() : long
+        + getParentID() : Integer
+    }
+
+    class ExpenseCategory {
+        - expenseID : int
+        - code : long
+        - name : String
+        - amount : long
+        + getExpenseID() : int
+        + getCode() : long
+        + getName() : String
+        + getAmount() : long
+    }
+    
+    class Ministry {
+        - ministryID : int
+        - code : long
+        - name : String
+        - regularBudget : long
+        - publicInvestmentBudget : long
+        - totalBudget : long
+        + getMinistryID() : int
+        + getCode() : long
+        + getName() : String
+        + getTotalBudget() : long
+    }
+
+    class MinistryExpense {
+        - ministryExpenseID : int
+        - ministryID : int
+        - expenseCategoryID : int
+        - amount : long
+        + getMinistryExpenseID() : int
+        + getMinistryID() : int
+        + getExpenseCategoryID() : int
+        + getAmount() : long
+    }
+    
+    class SqlSequence {
+        - budgets : int
+        - revenueCategories : int
+        - expenseCategories : int
+        - ministries : int
+        - ministryExpenses : int
+        + getBudgets() : int
+        + getRevenueCategories() : int
+        + getExpenseCategories() : int
+        + getMinistries() : int
+        + getMinistryExpenses() : int
+    }
+    
+    class BudgetTotals <<record>> {
+        + year : int
+        + totalRevenues : double
+        + totalExpenses : double
+        + budgetResult : double
+    }
+    
+    enum AnalysisType {
+        REVENUE
+        EXPENSE
+        MINISTRY
+    }
+    
+    ' Hybrid Internal Stacking
+    BudgetYear -[hidden]right-> Summary
+    Summary -[hidden]down-> RevenueCategory
+    RevenueCategory -[hidden]right-> ExpenseCategory
+    ExpenseCategory -[hidden]down-> Ministry
+    Ministry -[hidden]right-> MinistryExpense
+    MinistryExpense -[hidden]down-> SqlSequence
+    SqlSequence -[hidden]right-> BudgetTotals
+    BudgetTotals -[hidden]right-> AnalysisType
+}
+
+' ========== DAO LAYER ==========
+package "com.detonomics.budgettuner.dao" <<dao>> {
+    class DaoConfig {
+        - {static} dbPath : String
+        + {static} getDbPath() : String
+        + {static} setDbPath(path : String) : void
+    }
+
+    class BudgetYearDao {
+        + loadBudgetYearsList() : ArrayList
+        + loadBudgetIDByYear(year : int) : int
+        + loadBudgetYear(budgetID : int) : BudgetYear
+        + insertNewBudgetYear(pdfPath : String, logger : Consumer) : void
+        + {static} deleteBudget(budgetID : int) : void
+    }
+
+    class SummaryDao {
+        + loadSummary(budgetID : int) : Summary
+        + loadAllSummaries() : List
+    }
+
+    class RevenueCategoryDao {
+        + loadRevenues(budgetID : int) : ArrayList
+        + {static} setRevenueAmount(budgetID : int, code : long, amount : long) : int
+        + {static} cloneRevenueCategories(sourceBudgetID : int, targetBudgetID : int) : void
+    }
+    
+    class ExpenseCategoryDao {
+        + loadExpenses(budgetID : int) : ArrayList
+    }
+    
+    class MinistryDao {
+        + loadMinistries(budgetID : int) : ArrayList
+    }
+    
+    class MinistryExpenseDao {
+        + loadMinistryExpenses(budgetID : int) : ArrayList
+    }
+
+    class SqlSequenceDao {
+        + {static} loadSqliteSequence() : SqlSequence
+    }
+    
+    class BudgetTotalsDao {
+        + loadAllBudgetTotals() : List
+    }
+    
+    ' Hybrid Internal Stacking
+    DaoConfig -[hidden]right-> BudgetYearDao
+    BudgetYearDao -[hidden]right-> SummaryDao
+    SummaryDao -[hidden]down-> RevenueCategoryDao
+    RevenueCategoryDao -[hidden]right-> ExpenseCategoryDao
+    ExpenseCategoryDao -[hidden]right-> MinistryDao
+    MinistryDao -[hidden]down-> MinistryExpenseDao
+    MinistryExpenseDao -[hidden]right-> SqlSequenceDao
+    SqlSequenceDao -[hidden]right-> BudgetTotalsDao
+}
+
+' ========== UTILITY LAYER ==========
+package "com.detonomics.budgettuner.util" <<util>> {
+    class DatabaseManager {
+        + {static} executeUpdate(dbPath : String, sql : String, params : Object[]) : int
+        + {static} executeQuery(dbPath : String, sql : String, params : Object[]) : List
+    }
+
+    class BudgetFormatter {
+        + {static} formatAmount(amount : long) : String
+        + {static} getFormattedRevenues(revenues : ArrayList) : String
+        + {static} getFormattedExpenditures(expenditures : ArrayList) : String
+        + {static} getFormattedMinistries(ministries : ArrayList) : String
+    }
+    
+    class GuiUtils {
+        + {static} setupChart(chart : BarChart, seriesName : String, data : List, valueExtractor : Function) : void
+        + {static} navigate(event : ActionEvent, fxmlPath : String) : void
+    }
+    
+    class LogarithmicAxis {
+        + LogarithmicAxis()
+    }
+    
+    class PlotlyHelper {
+        + {static} generatePlot() : String
+    }
+    
+    ' Hybrid Internal Stacking
+    DatabaseManager -[hidden]right-> BudgetFormatter
+    BudgetFormatter -[hidden]down-> GuiUtils
+    GuiUtils -[hidden]right-> LogarithmicAxis
+    LogarithmicAxis -[hidden]right-> PlotlyHelper
+}
+
+' ========== INGESTION LAYER ==========
+package "com.detonomics.budgettuner.util.ingestion" <<ingestion>> {
+    interface IPdfToText {
+        + extractAndSaveText(pdfPath : String) : void
+    }
+    
+    class PdfToText {
+        + extractAndSaveText(pdfPath : String) : void
+    }
+    
+    interface ITextToJson {
+        + textFileToJson(inTxt : Path, outJson : Path) : void
+    }
+
+    class TextToJson {
+        + {static} textFileToJson(inTxt : Path, outJson : Path) : void
+    }
+    
+    interface IJsonToSQLite {
+        + processAndStoreBudget(jsonFilePath : String) : void
+    }
+
+    class JsonToSQLite {
+        + processAndStoreBudget(jsonFilePath : String) : void
+    }
+    
+    ' Hybrid Internal Stacking
+    IPdfToText -[hidden]right-> PdfToText
+    PdfToText -[hidden]down-> ITextToJson
+    ITextToJson -[hidden]right-> TextToJson
+    TextToJson -[hidden]down-> IJsonToSQLite
+    IJsonToSQLite -[hidden]right-> JsonToSQLite
+}
+
+' ========== RELATIONSHIPS ==========
+
+' Service Layer Relationships
+BudgetDataServiceImpl ..|> BudgetDataService
+BudgetDataServiceImpl ..> BudgetYearDao : delegates to
+BudgetDataServiceImpl ..> SqlSequenceDao : loads statistics
+BudgetDataServiceImpl ..> RevenueCategoryDao : clones budgets
+
+' Controller to Service
+WelcomeController ..> BudgetDataService : loads data
+WelcomeController ..> SummaryDao : queries summaries
+WelcomeController ..> GuiUtils : renders charts
+BudgetController ..> BudgetDataServiceImpl : loads budgets
+BudgetController ..> SummaryDao : queries titles
+BudgetDetailsController ..> GuiUtils : displays charts
+BudgetDetailsController ..> SummaryDao : fetches trends
+AnalysisController ..> SummaryDao : compares years
+AnalysisController ..> AnalysisType : filters by
+BudgetComparisonController ..> SummaryDao : loads pairs
+BudgetComparisonController ..> GuiUtils : renders comparison
+ComparisonDetailsController ..> RevenueCategoryDao : loads revenues
+ComparisonDetailsController ..> ExpenseCategoryDao : loads expenses
+ComparisonDetailsController ..> MinistryDao : loads ministries
+BudgetModificationController ..> BudgetYearDao : clones and saves
+BudgetModificationController ..> RevenueCategoryDao : updates amounts
+BudgetModificationController ..> SummaryDao : recalculates totals
+IngestController ..> BudgetDataServiceImpl : imports PDF
+
+' Controller Navigation
+GuiApp ..> WelcomeController : launches
+WelcomeController ..> BudgetController : navigates to
+BudgetController ..> BudgetDetailsController : opens
+BudgetDetailsController ..> AnalysisController : drills down
+BudgetDetailsController ..> BudgetModificationController : edits in
+BudgetComparisonController ..> ComparisonDetailsController : analyzes in
+
+' Model Relationships
+BudgetYear *-- Summary : contains
+BudgetYear o-- RevenueCategory : contains
+BudgetYear o-- ExpenseCategory : contains
+BudgetYear o-- Ministry : contains
+BudgetYear o-- MinistryExpense : contains
+
+' DAO to Model
+BudgetYearDao ..> BudgetYear : creates
+BudgetYearDao ..> SummaryDao : loads summary
+BudgetYearDao ..> RevenueCategoryDao : loads revenues
+BudgetYearDao ..> ExpenseCategoryDao : loads expenses
+BudgetYearDao ..> MinistryDao : loads ministries
+BudgetYearDao ..> MinistryExpenseDao : loads expenses
+BudgetYearDao ..> IngestBudgetPdf : triggers import
+SummaryDao ..> Summary : creates
+RevenueCategoryDao ..> RevenueCategory : creates
+ExpenseCategoryDao ..> ExpenseCategory : creates
+MinistryDao ..> Ministry : creates
+MinistryExpenseDao ..> MinistryExpense : creates
+SqlSequenceDao ..> SqlSequence : creates
+BudgetTotalsDao ..> BudgetTotals : creates
+
+' DAO to Database
+BudgetYearDao ..> DatabaseManager : executes queries
+SummaryDao ..> DatabaseManager : executes queries
+RevenueCategoryDao ..> DatabaseManager : executes queries
+ExpenseCategoryDao ..> DatabaseManager : executes queries
+MinistryDao ..> DatabaseManager : executes queries
+MinistryExpenseDao ..> DatabaseManager : executes queries
+SqlSequenceDao ..> DatabaseManager : executes queries
+BudgetTotalsDao ..> DatabaseManager : executes queries
+BudgetYearDao ..> DaoConfig : reads DB path
+SummaryDao ..> DaoConfig : reads DB path
+RevenueCategoryDao ..> DaoConfig : reads DB path
+ExpenseCategoryDao ..> DaoConfig : reads DB path
+MinistryDao ..> DaoConfig : reads DB path
+MinistryExpenseDao ..> DaoConfig : reads DB path
+SqlSequenceDao ..> DaoConfig : reads DB path
+BudgetTotalsDao ..> DaoConfig : reads DB path
+
+' Ingestion Pipeline
+IngestBudgetPdf ..> PdfToText : extracts text
+IngestBudgetPdf ..> TextToJson : parses to JSON
+IngestBudgetPdf ..> JsonToSQLite : stores data
+PdfToText ..|> IPdfToText
+TextToJson ..|> ITextToJson
+JsonToSQLite ..|> IJsonToSQLite
+
+' CLI
+BudgetTunerCLI ..> BudgetYearDao : loads budgets
+BudgetTunerCLI ..> SqlSequenceDao : queries stats
+BudgetTunerCLI ..> BudgetFormatter : formats output
+
+' ========== BALANCED 16:9 GRID LAYOUT (2 rows x 3 columns) ==========
+' Row 1 (Top): Controllers, Service, Ingestion
+WelcomeController -[hidden]right-> BudgetDataService
+BudgetDataService -[hidden]right-> IPdfToText
+
+' Row 2 (Bottom): Model, DAO, Utilities
+BudgetYear -[hidden]right-> BudgetYearDao
+BudgetYearDao -[hidden]right-> DatabaseManager
+
+' Row-to-Row Spacing
+WelcomeController -[hidden]down-> BudgetYear
+BudgetDataService -[hidden]down-> BudgetYearDao
+IPdfToText -[hidden]down-> DatabaseManager
+
+@enduml
