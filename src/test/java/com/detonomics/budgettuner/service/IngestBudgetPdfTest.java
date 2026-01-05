@@ -1,7 +1,9 @@
 package com.detonomics.budgettuner.service;
 
 import com.detonomics.budgettuner.util.ingestion.JsonToSQLite;
-import com.detonomics.budgettuner.util.ingestion.PdfToText;
+import com.detonomics.budgettuner.util.ingestion.IPdfToText;
+import com.detonomics.budgettuner.util.ingestion.ITextToJson;
+import com.detonomics.budgettuner.util.ingestion.IJsonToSQLite;
 import com.detonomics.budgettuner.util.ingestion.TextToJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +22,13 @@ import static org.mockito.Mockito.times;
 class IngestBudgetPdfTest {
 
     @Mock
-    private PdfToText pdfToText;
+    private IPdfToText pdfToText;
 
     @Mock
-    private TextToJson textToJson;
+    private ITextToJson textToJson;
 
     @Mock
-    private JsonToSQLite jsonToSQLite;
+    private IJsonToSQLite jsonToSQLite;
 
     private IngestBudgetPdf ingestBudgetPdf;
 

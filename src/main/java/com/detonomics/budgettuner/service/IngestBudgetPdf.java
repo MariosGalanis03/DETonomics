@@ -3,6 +3,9 @@ package com.detonomics.budgettuner.service;
 import java.io.File;
 import java.nio.file.Path;
 
+import com.detonomics.budgettuner.util.ingestion.IPdfToText;
+import com.detonomics.budgettuner.util.ingestion.ITextToJson;
+import com.detonomics.budgettuner.util.ingestion.IJsonToSQLite;
 import com.detonomics.budgettuner.util.ingestion.PdfToText;
 import com.detonomics.budgettuner.util.ingestion.TextToJson;
 import com.detonomics.budgettuner.util.ingestion.JsonToSQLite;
@@ -56,8 +59,8 @@ public final class IngestBudgetPdf {
      * @param logger       A consumer to accept log messages.
      * @throws Exception If any step in the pipeline fails (I/O, Parsing, SQL).
      */
-    public void process(final String pdfPath, final PdfToText pdfToText,
-            final TextToJson textToJson, final JsonToSQLite jsonToSQLite,
+    public void process(final String pdfPath, final IPdfToText pdfToText,
+            final ITextToJson textToJson, final IJsonToSQLite jsonToSQLite,
             final java.util.function.Consumer<String> logger)
             throws Exception {
         // --- Step 1: PDF to Text ---
@@ -106,6 +109,8 @@ public final class IngestBudgetPdf {
             System.exit(1);
         }
         try {
+            // Configure PDFBox loggers
+            PdfToText.configureLoggers();
             IngestBudgetPdf ingestor = new IngestBudgetPdf();
             ingestor.process(args[0], new PdfToText(), new TextToJson(),
                     new JsonToSQLite(), System.out::println);

@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * a SQLite database. It can be called from other parts of an application
  * or run as a standalone tool.
  */
-public class JsonToSQLite {
+public class JsonToSQLite implements IJsonToSQLite {
 
     /**
      * Default constructor.
