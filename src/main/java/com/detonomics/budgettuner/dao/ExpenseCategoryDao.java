@@ -50,4 +50,17 @@ public final class ExpenseCategoryDao {
         }
         return expenses;
     }
+
+    /**
+     * Updates an expense category amount.
+     *
+     * @param budgetId The budget ID.
+     * @param expenseCode The expense category code.
+     * @param newAmount The new amount.
+     * @return Number of rows affected.
+     */
+    public static int updateExpenseCategoryAmount(final int budgetId, final String expenseCode, final long newAmount) {
+        String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND code = ?";
+        return DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newAmount, budgetId, expenseCode);
+    }
 }

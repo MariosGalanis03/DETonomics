@@ -54,6 +54,19 @@ public final class SummaryDao {
                                 .toList();
         }
 
+        /**
+         * Updates budget summary totals.
+         *
+         * @param budgetId The budget ID.
+         * @param totalExpenses The new total expenses.
+         * @param budgetResult The new budget result.
+         * @return Number of rows affected.
+         */
+        public static int updateBudgetSummary(final int budgetId, final long totalExpenses, final long budgetResult) {
+                String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = ? WHERE budget_id = ?";
+                return DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, totalExpenses, budgetResult, budgetId);
+        }
+
         private static Summary mapRowToSummary(final Map<String, Object> row) {
                 final String sourceTitle = (String) row.get("source_title");
                 final String currency = (String) row.get("currency");

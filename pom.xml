@@ -146,28 +146,16 @@
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.0.8</version>
-        <executions>
-          <execution>
-            <!-- Default configuration for running with: mvn clean javafx:run -->
-            <id>default-cli</id>
-            <configuration>
-              <mainClass>com.detonomics.budgettuner.gui.GuiApp</mainClass>
-              <launcher>app</launcher>
-              <jlinkZipName>app</jlinkZipName>
-              <jlinkImageName>app</jlinkImageName>
-              <noManPages>true</noManPages>
-              <stripDebug>true</stripDebug>
-              <noHeaderFiles>true</noHeaderFiles>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <mainClass>com.detonomics.budgettuner.gui.GuiApp</mainClass>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>
         <configuration>
-          <mainClass>com.detonomics.budgettuner.controller.BudgetTunerCLI</mainClass>
+          <mainClass>com.detonomics.budgettuner.gui.GuiApp</mainClass>
           <arguments>
             <argument>-Dfile.encoding=UTF-8</argument>
           </arguments>
@@ -286,7 +274,7 @@
             <configuration>
               <target>
                 <mkdir dir="data/output"/>
-                <copy file="src/main/resources/com/detonomics/budgettuner/database/BudgetDB.db" tofile="data/output/BudgetDB.db" overwrite="true"/>
+                <copy file="src/main/resources/com/detonomics/budgettuner/database/BudgetDB.db" tofile="data/output/BudgetDB.db" overwrite="false"/>
               </target>
             </configuration>
           </execution>

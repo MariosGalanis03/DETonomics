@@ -19,6 +19,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
 
 public final class AnalysisController {
@@ -92,14 +93,20 @@ public final class AnalysisController {
         totalTitleLabel.setText("Σύνολο");
         totalAmountLabel.setText(String.format("%,d €", totalAmount));
 
-        // Calculate difference vs previous year
+        // Calculate difference vs previous year (only non-modified budgets)
         int prevYear = currentYear - 1;
-        int prevBudgetID = BudgetYearDao.loadBudgetIDByYear(prevYear);
+        
+        // Find previous year budget with matching source_title pattern
+        List<Summary> allSummaries = SummaryDao.loadAllSummaries();
+        Summary prevSummary = allSummaries.stream()
+                .filter(s -> s.getBudgetYear() == prevYear)
+                .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                .findFirst()
+                .orElse(null);
 
         diffTitleLabel.setText("Διαφορά (vs " + prevYear + ")");
 
-        if (prevBudgetID != -1) {
-            Summary prevSummary = SummaryDao.loadSummary(prevBudgetID);
+        if (prevSummary != null) {
             long prevAmount = 0;
 
             if (analysisType == AnalysisType.REVENUE) {
@@ -204,6 +211,24 @@ public final class AnalysisController {
             String label = String.format("Άλλα (%,d €)", otherAmount);
             pieChart.getData().add(new javafx.scene.chart.PieChart.Data(label, otherAmount));
         }
+
+        // Add Tooltips
+        for (
+
+        javafx.scene.chart.PieChart.Data data : pieChart.getData()) {
+            String tooltipText = data.getName(); // Text is already formatted as "Name (Amount €)"
+            Tooltip tooltip = new Tooltip(tooltipText);
+            tooltip.setText(tooltipText); // Ensure text is set
+            Tooltip.install(data.getNode(), tooltip);
+
+            // Add hover effect
+            data.getNode().setOnMouseEntered(event -> {
+                data.getNode().setStyle("-fx-opacity: 0.8; -fx-cursor: hand;");
+            });
+            data.getNode().setOnMouseExited(event -> {
+                data.getNode().setStyle("-fx-opacity: 1.0; -fx-cursor: default;");
+            });
+        }
     }
 
     private static class DataPoint {
@@ -214,6 +239,7 @@ public final class AnalysisController {
             this.name = name;
             this.amount = amount;
         }
+
     }
 
     private void setupList() {

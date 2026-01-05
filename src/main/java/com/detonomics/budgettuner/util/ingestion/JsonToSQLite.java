@@ -118,9 +118,9 @@ public final class JsonToSQLite {
         String sqlBudgets = """
                 CREATE TABLE IF NOT EXISTS Budgets (
                     budget_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    source_title TEXT NOT NULL,
+                    source_title TEXT NOT NULL UNIQUE,
                     source_date TEXT,
-                    budget_year INTEGER NOT NULL UNIQUE,
+                    budget_year INTEGER NOT NULL,
                     currency TEXT,
                     locale TEXT,
                     total_revenue REAL,
@@ -246,8 +246,10 @@ public final class JsonToSQLite {
                 + "total_expenses, budget_result, "
                 + "coverage_with_cash_reserves) VALUES(?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, budgetFile.getMetadata().getSourceTitle());
-            pstmt.setString(2, budgetFile.getMetadata().getSourceDate());
+            // Enforce default source_title naming convention
+            String sourceTitle = "Προϋπολογισμός " + budgetFile.getMetadata().getBudgetYear();
+            pstmt.setString(1, sourceTitle);
+            pstmt.setString(2, "0000-00-00");
             pstmt.setInt(3, budgetFile.getMetadata().getBudgetYear());
             pstmt.setString(4, budgetFile.getMetadata().getCurrency());
             pstmt.setString(5, budgetFile.getMetadata().getLocale());

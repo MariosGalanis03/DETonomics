@@ -49,4 +49,16 @@ public final class MinistryExpenseDao {
         }
         return expenses;
     }
+
+    /**
+     * Updates a ministry expense amount.
+     *
+     * @param ministryExpenseId The ministry expense ID.
+     * @param newAmount The new amount.
+     * @return Number of rows affected.
+     */
+    public static int updateExpenseAmount(final int ministryExpenseId, final long newAmount) {
+        String sql = "UPDATE MinistryExpenses SET amount = ? WHERE ministry_expense_id = ?";
+        return DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newAmount, ministryExpenseId);
+    }
 }

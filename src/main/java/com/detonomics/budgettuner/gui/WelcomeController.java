@@ -1,94 +1,105 @@
 package com.detonomics.budgettuner.gui;
 
+import com.detonomics.budgettuner.dao.SummaryDao;
+import com.detonomics.budgettuner.model.Summary;
+
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.scene.chart.BarChart;
 
 public final class WelcomeController {
 
-        // Helper method to load view
         @FXML
-        protected void onSelectBudgetClick(final ActionEvent event)
-                        throws IOException {
-                System.out.println("Μετάβαση στη λίστα προϋπολογισμών...");
+        private BarChart<String, Number> revenueChart;
+        @FXML
+        private BarChart<String, Number> expenseChart;
+        @FXML
+        private BarChart<String, Number> differenceChart;
 
-                // 1. Load FXML
-                final Parent budgetViewParent = FXMLLoader.load(
-                                Objects.requireNonNull(getClass()
-                                                .getResource("budget-view.fxml")));
+        @FXML
+        private javafx.scene.control.Label statsBudgetsLabel;
+        @FXML
+        private javafx.scene.control.Label statsRevCatsLabel;
+        @FXML
+        private javafx.scene.control.Label statsExpCatsLabel;
+        @FXML
+        private javafx.scene.control.Label statsMinistriesLabel;
+        @FXML
+        private javafx.scene.control.Label statsMinExpLabel;
+        @FXML
+        private javafx.scene.control.ScrollPane welcomeScrollPane;
 
-                // 2. Create Scene
-                final Scene budgetViewScene = new Scene(budgetViewParent,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+        private final com.detonomics.budgettuner.service.BudgetDataService dataService = new com.detonomics.budgettuner.service.BudgetDataServiceImpl();
 
-                // 3. Add CSS
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                budgetViewScene.getStylesheets().add(css);
+        @FXML
+        public void initialize() {
+                // Ensure view starts scrolled to the top immediately
+                javafx.application.Platform.runLater(() -> {
+                        welcomeScrollPane.setVvalue(0.0);
+                        welcomeScrollPane.requestFocus();
+                });
 
-                // 4. Get Window
-                final Stage window = (Stage) ((Node) event.getSource())
-                                .getScene().getWindow();
+                // Load data asynchronously to prevent UI lag
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                        try {
+                                // Load statistics
+                                final com.detonomics.budgettuner.model.SqlSequence stats = dataService.loadStatistics();
 
-                // 5. Change Scene
-                // 5. Change Scene and Enforce Manual Fullscreen
-                window.setScene(budgetViewScene);
+                                // Load summaries for charts
+                                final List<Summary> allSummaries = SummaryDao.loadAllSummaries();
 
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
+                                // Update UI on JavaFX Application Thread
+                                javafx.application.Platform.runLater(() -> {
+                                        // Update Statistics Labels
+                                        statsBudgetsLabel.setText(String.valueOf(stats.getBudgets()));
+                                        statsRevCatsLabel.setText(String.valueOf(stats.getRevenueCategories()));
+                                        statsExpCatsLabel.setText(String.valueOf(stats.getExpenseCategories()));
+                                        statsMinistriesLabel.setText(String.valueOf(stats.getMinistries()));
+                                        statsMinExpLabel.setText(String.valueOf(stats.getMinistryExpenses()));
 
-                window.show();
+                                        // Setup Charts using Helper
+                                        setupCharts(allSummaries);
+                                });
+                        } catch (Exception e) {
+                                System.err.println("Error loading data: " + e.getMessage());
+                                e.printStackTrace();
+                        }
+                });
+        }
+
+        private void setupCharts(List<Summary> allSummaries) {
+                // Filter to show only non-modified budgets (where source_title equals "Προϋπολογισμός {year}")
+                List<Summary> originalBudgets = allSummaries.stream()
+                        .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                        .toList();
+                
+                // Revenue Chart (Blue)
+                GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", originalBudgets, Summary::getTotalRevenues);
+
+                // Expense Chart (Blue)
+                GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", originalBudgets, Summary::getTotalExpenses);
+
+                // Difference Chart (Blue for positive, Red for negative)
+                GuiUtils.setupChart(differenceChart, "Ισοζύγιο", originalBudgets, Summary::getBudgetResult,
+                                s -> s.getBudgetResult() < 0);
+        }
+
+        @FXML
+        protected void onSelectBudgetClick(final ActionEvent event) throws IOException {
+                GuiUtils.navigate(event, "budget-view.fxml");
         }
 
         @FXML
         protected void onImportNewBudgetClick(final ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass().getResource("ingest-view.fxml"));
-                final Parent root = loader.load();
-
-                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
+                GuiUtils.navigate(event, "ingest-view.fxml");
         }
 
         @FXML
-                public void onCompareClick(javafx.event.ActionEvent event) throws java.io.IOException {
-                // 1. Φόρτωση του νέου FXML αρχείου
-                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("comparison-view.fxml"));
-                javafx.scene.Parent root = loader.load();
-                
-                // 2. Δημιουργία της νέας σκηνής
-                javafx.scene.Scene scene = new javafx.scene.Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                
-                // 3. Φόρτωση του CSS (για να είναι όμορφο)
-                String css = java.util.Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                // 4. Εμφάνιση στο υπάρχον παράθυρο
-                javafx.stage.Stage window = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-                window.setScene(scene);
-                window.show();
+        protected void onCompareBudgetsClick(final ActionEvent event) throws IOException {
+                GuiUtils.navigate(event, "budget-comparison-view.fxml");
         }
+  
 }

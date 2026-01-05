@@ -36,6 +36,8 @@ public final class BudgetDetailsController {
         @FXML
         private BarChart<String, Number> expenseChart;
         @FXML
+        private BarChart<String, Number> differenceChart;
+        @FXML
         private javafx.scene.layout.VBox topRevenuesBox;
         @FXML
         private javafx.scene.layout.VBox topExpensesBox;
@@ -61,8 +63,7 @@ public final class BudgetDetailsController {
                         return;
                 }
 
-                titleLabel.setText("Προϋπολογισμός "
-                                + budget.getSummary().getBudgetYear());
+                titleLabel.setText(budget.getSummary().getSourceTitle());
                 revenuesValue.setText(String.format("%,d €",
                                 budget.getSummary().getTotalRevenues()));
                 expensesValue.setText(String.format("%,d €",
@@ -81,53 +82,55 @@ public final class BudgetDetailsController {
         }
 
         private void setupCharts() {
-                // Load all summaries for trend analysis
-                List<Summary> allSummaries = SummaryDao.loadAllSummaries();
-                int currentYear = budget.getSummary().getBudgetYear();
+                final int currentYear = budget.getSummary().getBudgetYear();
 
-                // Revenue Chart (Trend over years)
-                revenueChart.getData().clear();
-                final XYChart.Series<String, Number> revSeries = new XYChart.Series<>();
-                revSeries.setName("Συνολικά Έσοδα");
+                // Load data asynchronously
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                        try {
+                                // Load only non-modified budgets for trend analysis
+                                final List<Summary> allSummaries = SummaryDao.loadAllSummaries().stream()
+                                        .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                                        .toList();
 
-                for (Summary s : allSummaries) {
-                        XYChart.Data<String, Number> data = new XYChart.Data<>(
-                                        String.valueOf(s.getBudgetYear()),
-                                        s.getTotalRevenues());
-                        data.nodeProperty().addListener((obs, oldNode, newNode) -> {
-                                if (newNode != null) {
-                                        if (s.getBudgetYear() == currentYear) {
-                                                newNode.setStyle("-fx-bar-fill: #ff0000ff;"); // Orange for selected
-                                        } else {
-                                                newNode.setStyle("-fx-bar-fill: #1565C0;"); // Blue for others
+                                // Update charts on UI thread
+                                javafx.application.Platform.runLater(() -> {
+                                        // Revenue Chart
+                                        GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", allSummaries,
+                                                        Summary::getTotalRevenues,
+                                                        s -> s.getBudgetYear() == currentYear);
+
+                                        // Expense Chart
+                                        GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", allSummaries,
+                                                        Summary::getTotalExpenses,
+                                                        s -> s.getBudgetYear() == currentYear);
+
+                                        // Difference Chart
+                                        if (differenceChart != null) {
+                                                GuiUtils.setupChart(differenceChart, "Ισοζύγιο (Έσοδα - Έξοδα)",
+                                                                allSummaries,
+                                                                Summary::getBudgetResult,
+                                                                s -> {
+                                                                        // Logic: Highlight if negative OR if current
+                                                                        // year
+                                                                        // Wait, original logic was:
+                                                                        // If current year -> Blue (Override)
+                                                                        // Else if negative -> Red
+                                                                        // Else -> Blue
+                                                                        //
+                                                                        // My GuiUtils takes a predicate for "Highlight
+                                                                        // Color" (Red).
+                                                                        // So we return true (Red) ONLY if:
+                                                                        // (NOT current year) AND (Negative)
+                                                                        return (s.getBudgetYear() != currentYear)
+                                                                                        && (s.getBudgetResult() < 0);
+                                                                });
                                         }
-                                }
-                        });
-                        revSeries.getData().add(data);
-                }
-                revenueChart.getData().add(revSeries);
-
-                // Expense Chart (Trend over years)
-                expenseChart.getData().clear();
-                final XYChart.Series<String, Number> expSeries = new XYChart.Series<>();
-                expSeries.setName("Συνολικά Έξοδα");
-
-                for (Summary s : allSummaries) {
-                        XYChart.Data<String, Number> data = new XYChart.Data<>(
-                                        String.valueOf(s.getBudgetYear()),
-                                        s.getTotalExpenses());
-                        data.nodeProperty().addListener((obs, oldNode, newNode) -> {
-                                if (newNode != null) {
-                                        if (s.getBudgetYear() == currentYear) {
-                                                newNode.setStyle("-fx-bar-fill: #ff0000ff;"); // Orange for selected
-                                        } else {
-                                                newNode.setStyle("-fx-bar-fill: #1565C0;"); // Blue for others
-                                        }
-                                }
-                        });
-                        expSeries.getData().add(data);
-                }
-                expenseChart.getData().add(expSeries);
+                                });
+                        } catch (Exception e) {
+                                System.err.println("Error loading charts: " + e.getMessage());
+                                e.printStackTrace();
+                        }
+                });
         }
 
         private void setupLists() {
@@ -208,6 +211,50 @@ public final class BudgetDetailsController {
         }
 
         @FXML
+        public void onMenuImportBudgetClick(final ActionEvent event) throws IOException {
+                final FXMLLoader loader = new FXMLLoader(getClass().getResource("ingest-view.fxml"));
+                final Parent root = loader.load();
+
+                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                scene.getStylesheets().add(css);
+
+                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                window.setScene(scene);
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(false);
+
+                window.show();
+        }
+
+        @FXML
+        public void onMenuCompareBudgetsClick(final ActionEvent event) throws IOException {
+                final FXMLLoader loader = new FXMLLoader(getClass().getResource("budget-comparison-view.fxml"));
+                final Parent root = loader.load();
+
+                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                scene.getStylesheets().add(css);
+
+                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                window.setScene(scene);
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(true);
+
+                window.show();
+        }
+
+        @FXML
         public void onRevenueAnalysisClick(final ActionEvent event) throws IOException {
                 openAnalysis(event, AnalysisType.REVENUE);
         }
@@ -220,6 +267,25 @@ public final class BudgetDetailsController {
         @FXML
         public void onMinistryAnalysisClick(final ActionEvent event) throws IOException {
                 openAnalysis(event, AnalysisType.MINISTRY);
+        }
+
+        @FXML
+        public void onModifyExpenseClick(final ActionEvent event) {
+                try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("expense-editor-view.fxml"));
+                        Parent root = loader.load();
+                        
+                        MinistryAnalysisController controller = loader.getController();
+                        Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        controller.setContext(budget, dbPath, currentStage);
+                        
+                        Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                        scene.getStylesheets().add(css);
+                        currentStage.setScene(scene);
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
         }
 
         @FXML
@@ -278,5 +344,36 @@ public final class BudgetDetailsController {
 
                 window.setResizable(false);
                 window.show();
+        }
+
+        @FXML
+        public void onBackButtonClick(final ActionEvent event) throws IOException {
+                final FXMLLoader loader = new FXMLLoader(getClass()
+                                .getResource("budget-view.fxml"));
+                final Parent root = loader.load();
+
+                final Scene scene = new Scene(root,
+                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                final String css = Objects.requireNonNull(getClass()
+                                .getResource("styles.css")).toExternalForm();
+                scene.getStylesheets().add(css);
+
+                final Stage window = (Stage) ((Node) event.getSource())
+                                .getScene().getWindow();
+                window.setScene(scene);
+
+                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+                window.setX(bounds.getMinX());
+                window.setY(bounds.getMinY());
+                window.setWidth(bounds.getWidth());
+                window.setHeight(bounds.getHeight());
+                window.setResizable(true);
+
+                window.show();
+        }
+
+        @FXML
+        public void onExitClick(final ActionEvent event) {
+                System.exit(0);
         }
 }

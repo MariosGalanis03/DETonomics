@@ -25,7 +25,12 @@ public final class MinistryExpense {
         this.amount = amount;
     }
 
-    int getMinistryExpenseID() {
+    /**
+     * Gets the ministry expense ID.
+     *
+     * @return The ministry expense ID.
+     */
+    public int getMinistryExpenseID() {
         return ministryExpenseID;
     }
 

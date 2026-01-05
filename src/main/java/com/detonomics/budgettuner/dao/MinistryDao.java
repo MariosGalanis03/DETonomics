@@ -50,4 +50,17 @@ public final class MinistryDao {
         }
         return ministries;
     }
+
+    /**
+     * Updates a ministry's total budget.
+     *
+     * @param budgetId The budget ID.
+     * @param ministryCode The ministry code.
+     * @param newTotalBudget The new total budget.
+     * @return Number of rows affected.
+     */
+    public static int updateMinistryTotalBudget(final int budgetId, final String ministryCode, final long newTotalBudget) {
+        String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND code = ?";
+        return DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newTotalBudget, budgetId, ministryCode);
+    }
 }
