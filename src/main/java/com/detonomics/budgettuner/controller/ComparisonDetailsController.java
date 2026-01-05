@@ -7,9 +7,8 @@ import com.detonomics.budgettuner.dao.RevenueCategoryDao;
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.model.RevenueCategory;
-import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
-import com.detonomics.budgettuner.util.GuiUtils;
+
 import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
@@ -60,12 +59,12 @@ public class ComparisonDetailsController {
             case EXPENSE -> "Ανάλυση Εξόδων: ";
             case MINISTRY -> "Ανάλυση Υπουργείων: ";
         };
-        titleLabel.setText(title + s1.getBudgetYear() + " vs " + s2.getBudgetYear());
+        titleLabel.setText(title + s1.getSourceTitle() + " vs " + s2.getSourceTitle());
 
         itemsBox.getChildren().clear();
-        
+
         // Add header row
-        createHeaderRow(s1.getBudgetYear(), s2.getBudgetYear());
+        createHeaderRow(s1.getSourceTitle(), s2.getSourceTitle());
 
         Map<Long, String> names = new HashMap<>();
         Map<Long, Long> amounts1 = new HashMap<>();
@@ -138,7 +137,7 @@ public class ComparisonDetailsController {
         }
     }
 
-    private void createHeaderRow(int year1, int year2) {
+    private void createHeaderRow(String title1, String title2) {
         HBox headerRow = new HBox(15);
         headerRow.setAlignment(Pos.CENTER_LEFT);
         headerRow.setStyle("-fx-background-color: #f5f5f5; -fx-padding: 15; -fx-background-radius: 5;");
@@ -151,7 +150,7 @@ public class ComparisonDetailsController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label year1Lbl = new Label(String.valueOf(year1));
+        Label year1Lbl = new Label(title1);
         year1Lbl.setStyle("-fx-text-fill: #FF8C00; -fx-font-weight: bold; -fx-font-size: 14px;");
         year1Lbl.setMinWidth(100);
         year1Lbl.setAlignment(Pos.CENTER);
@@ -159,7 +158,7 @@ public class ComparisonDetailsController {
         Label vsLbl = new Label("vs");
         vsLbl.setStyle("-fx-text-fill: #888; -fx-font-weight: bold;");
 
-        Label year2Lbl = new Label(String.valueOf(year2));
+        Label year2Lbl = new Label(title2);
         year2Lbl.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 14px;");
         year2Lbl.setMinWidth(100);
         year2Lbl.setAlignment(Pos.CENTER);
@@ -200,11 +199,11 @@ public class ComparisonDetailsController {
         val2.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold;");
         val2.setMinWidth(100);
         val2.setAlignment(Pos.CENTER_RIGHT);
-        
+
         // Calculate percentage change
         String percentText;
         String percentColor;
-        
+
         if (v1 == 0 && v2 != 0) {
             percentText = "+Ꝏ%";
             percentColor = "#4CAF50"; // Green for positive infinity
@@ -212,11 +211,11 @@ public class ComparisonDetailsController {
             percentText = "0.0%";
             percentColor = "#888"; // Gray for no change
         } else {
-            double percentChange = ((double)(v2 - v1) / v1) * 100;
+            double percentChange = ((double) (v2 - v1) / v1) * 100;
             percentText = String.format("%+.1f%%", percentChange);
             percentColor = percentChange >= 0 ? "#4CAF50" : "#F44336";
         }
-        
+
         Label percentLbl = new Label(percentText);
         percentLbl.setStyle("-fx-text-fill: " + percentColor + "; -fx-font-weight: bold;");
         percentLbl.setMinWidth(120);
@@ -238,7 +237,7 @@ public class ComparisonDetailsController {
             }
 
             Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-            String css = Objects.requireNonNull(GuiUtils.class.getResource("styles.css")).toExternalForm();
+            String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
             scene.getStylesheets().add(css);
 
             Stage window = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();

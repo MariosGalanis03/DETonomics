@@ -266,7 +266,7 @@ public class BudgetComparisonController {
             controller.setContext(year1ComboBox.getValue(), year2ComboBox.getValue(), type);
 
             Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-            String css = Objects.requireNonNull(GuiUtils.class.getResource("styles.css")).toExternalForm();
+            String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
             scene.getStylesheets().add(css);
 
             Stage window = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();

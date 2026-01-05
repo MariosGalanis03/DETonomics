@@ -1,4 +1,4 @@
-package com.detonomics.budgettuner.gui;
+package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.dao.*;
 import com.detonomics.budgettuner.model.*;
@@ -291,14 +291,6 @@ public final class BudgetModificationController {
         String sql = "SELECT COUNT(*) as count FROM Budgets WHERE source_title = ?";
         var results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, sourceTitle);
         return !results.isEmpty() && ((Number) results.get(0).get("count")).intValue() > 0;
-    }
-
-    private void showErrorDialog(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     private void saveChangesAndNavigateToWelcome(String sourceTitle) {

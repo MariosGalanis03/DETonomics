@@ -1,6 +1,5 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.BudgetYearDao;
 import com.detonomics.budgettuner.dao.SummaryDao;
 import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
@@ -21,7 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -112,7 +111,7 @@ public final class AnalysisController {
 
         // Calculate difference vs previous year (only non-modified budgets)
         int prevYear = currentYear - 1;
-        
+
         // Find previous year budget with matching source_title pattern
         List<Summary> allSummaries = SummaryDao.loadAllSummaries();
         Summary prevSummary = allSummaries.stream()

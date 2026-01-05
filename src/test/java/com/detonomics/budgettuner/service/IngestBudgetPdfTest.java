@@ -1,10 +1,8 @@
 package com.detonomics.budgettuner.service;
 
-import com.detonomics.budgettuner.util.ingestion.JsonToSQLite;
 import com.detonomics.budgettuner.util.ingestion.IPdfToText;
 import com.detonomics.budgettuner.util.ingestion.ITextToJson;
 import com.detonomics.budgettuner.util.ingestion.IJsonToSQLite;
-import com.detonomics.budgettuner.util.ingestion.TextToJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

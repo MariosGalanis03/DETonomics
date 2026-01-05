@@ -29,7 +29,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import com.detonomics.budgettuner.dao.BudgetYearDao;
 
 /**
@@ -139,59 +138,6 @@ public final class BudgetController {
                 }
 
                 int budgetId = (Integer) results.get(0).get("budget_id");
-                final BudgetYear budget = dataService.loadBudgetYear(budgetId);
-
-                final FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("budget-details-view.fxml"));
-                final Parent root = loader.load();
-
-                final BudgetDetailsController controller = loader.getController();
-                controller.setContext(budget,
-                                com.detonomics.budgettuner.dao.DaoConfig
-                                                .getDbPath());
-
-                final Scene scene = new Scene(root,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) sourceNode.getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
-        }
-
-        private void openBudgetDetails(final int year, final Node sourceNode)
-                        throws IOException {
-                // Find the budget ID for the selected year - but we need to handle multiple
-                // budgets per year
-                // Get all summaries and find the first one with matching year
-                List<Summary> summaries = SummaryDao.loadAllSummaries();
-                Summary selectedSummary = summaries.stream()
-                                .filter(s -> s.getBudgetYear() == year)
-                                .findFirst()
-                                .orElse(null);
-
-                if (selectedSummary == null) {
-                        System.err.println("No budget found for year " + year);
-                        return;
-                }
-
-                final int budgetId = dataService.loadBudgetIDByYear(year);
-                if (budgetId == -1) {
-                        System.err.println("Budget ID not found for year "
-                                        + year);
-                        return;
-                }
-
                 final BudgetYear budget = dataService.loadBudgetYear(budgetId);
 
                 final FXMLLoader loader = new FXMLLoader(getClass()
