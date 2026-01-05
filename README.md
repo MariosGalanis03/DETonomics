@@ -10,9 +10,6 @@ This project is a application for reviewing, processing and analyzing the state 
 
 ### Απαραίτητα
 
-- Αλλαγές στα έξοδα. Καταχώρηση αλλαγών στο χαμηλότερο επίπεδο (MinistryExpense) με ενημέρωση τιμών υψηλότερων επιπέδων.
-- Αλλαγές στα έσοδα. Καταχωρήσεις αλλαγών σε επίπεδα με ενημέρωση άλλων επιπέδων.
-- Επιλογή αποθήκευσης αλλαγών σε έσοδα και έξοδα σε νέο προϋπολογισμό στην SQLite βάση (με επιλογή ονόματος).
 - Ολοκλήρωση παραθύρου Γραφικής Διεπαφής με αλλαγή τιμών και αποθήκευση αλλαγών.
 - Επέκταση unit tests για υψηλότερο ποσοστό κάλυψης από JaCoCo.
 
@@ -27,12 +24,7 @@ This project is a application for reviewing, processing and analyzing the state 
 
 Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`BudgetTunerCLI.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
 
-### CLI Entry Point (Main)
-
-Το σημείο εισόδου της εφαρμογής γραμμής εντολών είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
-Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn exec:java`) όπως περιγράφεται παρακάτω.
-
-### GUI Entry Point (Main)
+### Entry Point (Main)
 
 Το σημείο εισόδου της εφαρμογής γραφικής διεπαφής είναι η κλάση `com.detonomics.budgettuner.controller.BudgetTunerCLI`.
 Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn javafx:run`) όπως περιγράφεται παρακάτω.
@@ -92,7 +84,7 @@ git branch -d feature/my-new-feature # Διαγραφή του τοπικού κ
 ## Πως τρέχω την εφαρμογή
 Αφού κατεβάσετε το αποθετήριο τρέξτε απευθείας:
 - mvn clean install 
-- mvn exec:java -Dexec.mainClass="com.detonomics.budgettuner.controller.App"
+- mvn exec:java"
 Η πρώτη εντολή κατεβάζει τα dependencies και τον κώδικα της εφαρμογής. Η δεύτερη εντολή τρέχει την εφαρμογή.
 
 ### Εισαγωγή ξένων πακέτων
