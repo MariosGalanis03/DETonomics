@@ -71,14 +71,19 @@ public final class WelcomeController {
         }
 
         private void setupCharts(List<Summary> allSummaries) {
+                // Filter to show only non-modified budgets (where source_title equals "Προϋπολογισμός {year}")
+                List<Summary> originalBudgets = allSummaries.stream()
+                        .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                        .toList();
+                
                 // Revenue Chart (Blue)
-                GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", allSummaries, Summary::getTotalRevenues);
+                GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", originalBudgets, Summary::getTotalRevenues);
 
                 // Expense Chart (Blue)
-                GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", allSummaries, Summary::getTotalExpenses);
+                GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", originalBudgets, Summary::getTotalExpenses);
 
                 // Difference Chart (Blue for positive, Red for negative)
-                GuiUtils.setupChart(differenceChart, "Ισοζύγιο", allSummaries, Summary::getBudgetResult,
+                GuiUtils.setupChart(differenceChart, "Ισοζύγιο", originalBudgets, Summary::getBudgetResult,
                                 s -> s.getBudgetResult() < 0);
         }
 

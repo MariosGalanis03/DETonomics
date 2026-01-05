@@ -1,6 +1,7 @@
 package com.detonomics.budgettuner.service;
 
 import com.detonomics.budgettuner.dao.BudgetYearDao;
+import com.detonomics.budgettuner.dao.RevenueCategoryDao;
 import com.detonomics.budgettuner.dao.SqlSequenceDao;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.SqlSequence;
@@ -33,5 +34,10 @@ public final class BudgetDataServiceImpl implements BudgetDataService {
     public void insertNewBudgetYear(final String pdfPath,
             final java.util.function.Consumer<String> logger) throws Exception {
         BudgetYearDao.insertNewBudgetYear(pdfPath, logger);
+    }
+
+    @Override
+    public void cloneBudget(final int sourceBudgetID, final int targetBudgetID) {
+        RevenueCategoryDao.cloneRevenueCategories(sourceBudgetID, targetBudgetID);
     }
 }

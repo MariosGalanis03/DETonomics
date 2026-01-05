@@ -63,8 +63,7 @@ public final class BudgetDetailsController {
                         return;
                 }
 
-                titleLabel.setText("Προϋπολογισμός "
-                                + budget.getSummary().getBudgetYear());
+                titleLabel.setText(budget.getSummary().getSourceTitle());
                 revenuesValue.setText(String.format("%,d €",
                                 budget.getSummary().getTotalRevenues()));
                 expensesValue.setText(String.format("%,d €",
@@ -88,7 +87,10 @@ public final class BudgetDetailsController {
                 // Load data asynchronously
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                         try {
-                                final List<Summary> allSummaries = SummaryDao.loadAllSummaries();
+                                // Load only non-modified budgets for trend analysis
+                                final List<Summary> allSummaries = SummaryDao.loadAllSummaries().stream()
+                                        .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                                        .toList();
 
                                 // Update charts on UI thread
                                 javafx.application.Platform.runLater(() -> {
@@ -265,6 +267,25 @@ public final class BudgetDetailsController {
         @FXML
         public void onMinistryAnalysisClick(final ActionEvent event) throws IOException {
                 openAnalysis(event, AnalysisType.MINISTRY);
+        }
+
+        @FXML
+        public void onModifyExpenseClick(final ActionEvent event) {
+                try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("expense-editor-view.fxml"));
+                        Parent root = loader.load();
+                        
+                        MinistryAnalysisController controller = loader.getController();
+                        Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        controller.setContext(budget, dbPath, currentStage);
+                        
+                        Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
+                        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
+                        scene.getStylesheets().add(css);
+                        currentStage.setScene(scene);
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
         }
 
         @FXML

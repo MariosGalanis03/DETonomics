@@ -212,4 +212,61 @@ public final class RevenueCategoryDao {
 
         return rowsAffected;
     }
+
+    /**
+     * Clones revenue categories from source budget to target budget with proper parent ID mapping.
+     *
+     * @param sourceBudgetID The source budget ID.
+     * @param targetBudgetID The target budget ID.
+     */
+    public static void cloneRevenueCategories(final int sourceBudgetID, final int targetBudgetID) {
+        ArrayList<RevenueCategory> sourceCategories = loadRevenues(sourceBudgetID);
+        
+        // Clone top-level categories first
+        for (RevenueCategory category : sourceCategories) {
+            if (category.getParentID() == 0) {
+                insertRevenueCategory(targetBudgetID, category.getCode(), 
+                    category.getName(), category.getAmount(), 0);
+            }
+        }
+        
+        // Clone child categories with placeholder parent_id = 0
+        for (RevenueCategory category : sourceCategories) {
+            if (category.getParentID() != 0) {
+                insertRevenueCategory(targetBudgetID, category.getCode(), 
+                    category.getName(), category.getAmount(), 0);
+            }
+        }
+        
+        // Fix parent IDs by finding original parent's code and mapping to new parent ID
+        for (RevenueCategory category : sourceCategories) {
+            if (category.getParentID() != 0) {
+                long parentCode = findCodeByID(sourceCategories, category.getParentID());
+                int newParentID = findNewCategoryIDByCode(targetBudgetID, parentCode);
+                updateParentID(targetBudgetID, category.getCode(), newParentID);
+            }
+        }
+    }
+    
+    private static void insertRevenueCategory(final int budgetID, final long code, 
+            final String name, final long amount, final int parentID) {
+        String sql = "INSERT INTO RevenueCategories (budget_id, code, name, amount, parent_id) VALUES (?, ?, ?, ?, ?)";
+        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetID, String.valueOf(code), name, amount, 
+            parentID == 0 ? null : parentID);
+    }
+    
+    private static long findCodeByID(final ArrayList<RevenueCategory> categories, final int id) {
+        return categories.stream().filter(c -> c.getRevenueID() == id).findFirst().map(RevenueCategory::getCode).orElse(0L);
+    }
+    
+    private static int findNewCategoryIDByCode(final int budgetID, final long code) {
+        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE budget_id = ? AND code = ?";
+        List<Map<String, Object>> results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, budgetID, String.valueOf(code));
+        return results.isEmpty() ? 0 : (Integer) results.getFirst().get("revenue_category_id");
+    }
+    
+    private static void updateParentID(final int budgetID, final long code, final int newParentID) {
+        String sql = "UPDATE RevenueCategories SET parent_id = ? WHERE budget_id = ? AND code = ?";
+        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newParentID, budgetID, String.valueOf(code));
+    }
 }

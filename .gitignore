@@ -3,7 +3,7 @@ target/
 pom.xml.tag
 pom.xml.versionsBackup
 dependency-reduced-pom.xml
-# Individual code config
+# Individual code environment config
 .vscode
 .cursor
 .idea

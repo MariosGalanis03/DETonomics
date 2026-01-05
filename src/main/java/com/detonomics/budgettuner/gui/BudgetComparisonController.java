@@ -67,8 +67,10 @@ public class BudgetComparisonController {
 
     @FXML
     public void initialize() {
-        // Load all summaries
-        allSummaries = SummaryDao.loadAllSummaries();
+        // Load only non-modified budgets (where source_title equals "Προϋπολογισμός {year}")
+        allSummaries = SummaryDao.loadAllSummaries().stream()
+                .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                .toList();
 
         // Setup StringConverter to display only the year
         StringConverter<Summary> converter = new StringConverter<>() {

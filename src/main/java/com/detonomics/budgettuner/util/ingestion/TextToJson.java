@@ -39,6 +39,11 @@ public final class TextToJson {
       decimals only if present. Example: "1.304.827.000.000" → 1304827000000.
       -Field language: Greek as defined in the schema. Category/Ministry
       names exactly as in source.
+      -For sourceTitle, always use the format "Προϋπολογισμός {year}" where
+      {year} is the budget year to ensure naming consistency.
+      -For sourceDate, extract the actual date when the budget document was
+      written/published from the document text in YYYY-MM-DD format. If no
+      date is found, use "0000-00-00".
       -If a field is missing, set null and record the reason in
       metadata.missing_fields.
       -Normalize separators: remove thousand dots/commas, treat comma as
@@ -58,8 +63,8 @@ public final class TextToJson {
 
       {
         "metadata": {
-          "sourceTitle": null,
-          "sourceDate": null,
+          "sourceTitle": "Προϋπολογισμός {year}",
+          "sourceDate": "YYYY-MM-DD",
           "budgetYear": null,
           "currency": "EUR",
           "locale": "Greece",

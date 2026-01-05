@@ -36,11 +36,14 @@
                     </HBox>
                 </left>
                 <center>
-                    <Label fx:id="titleLabel" text="Προϋπολογισμός" styleClass="details-title">
-                        <font>
-                            <Font name="Segoe UI Bold" size="28.0" />
-                        </font>
-                    </Label>
+                    <VBox alignment="CENTER" spacing="5.0">
+                        <Label fx:id="titleLabel" text="Προϋπολογισμός" styleClass="details-title">
+                            <font>
+                                <Font name="Segoe UI Bold" size="28.0" />
+                            </font>
+                        </Label>
+                        <Button mnemonicParsing="false" onAction="#onModifyExpenseClick" styleClass="action-btn-secondary" text="[TEMP] Τροποποίηση Εξόδων" />
+                    </VBox>
                 </center>
                 <padding>
                     <Insets bottom="14.0" left="14.0" right="18.0" top="14.0" />

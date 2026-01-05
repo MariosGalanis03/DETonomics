@@ -93,14 +93,20 @@ public final class AnalysisController {
         totalTitleLabel.setText("Σύνολο");
         totalAmountLabel.setText(String.format("%,d €", totalAmount));
 
-        // Calculate difference vs previous year
+        // Calculate difference vs previous year (only non-modified budgets)
         int prevYear = currentYear - 1;
-        int prevBudgetID = BudgetYearDao.loadBudgetIDByYear(prevYear);
+        
+        // Find previous year budget with matching source_title pattern
+        List<Summary> allSummaries = SummaryDao.loadAllSummaries();
+        Summary prevSummary = allSummaries.stream()
+                .filter(s -> s.getBudgetYear() == prevYear)
+                .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                .findFirst()
+                .orElse(null);
 
         diffTitleLabel.setText("Διαφορά (vs " + prevYear + ")");
 
-        if (prevBudgetID != -1) {
-            Summary prevSummary = SummaryDao.loadSummary(prevBudgetID);
+        if (prevSummary != null) {
             long prevAmount = 0;
 
             if (analysisType == AnalysisType.REVENUE) {

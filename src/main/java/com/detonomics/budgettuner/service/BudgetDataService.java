@@ -14,4 +14,6 @@ public interface BudgetDataService {
     BudgetYear loadBudgetYear(int budgetID);
 
     void insertNewBudgetYear(String pdfPath, java.util.function.Consumer<String> logger) throws Exception;
+
+    void cloneBudget(int sourceBudgetID, int targetBudgetID);
 }
