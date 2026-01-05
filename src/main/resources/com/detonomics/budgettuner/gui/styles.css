@@ -392,8 +392,7 @@
     -fx-border-radius: 4px;
     -fx-padding: 15px;
     -fx-cursor: hand;
-    -fx-alignment: TOP_CENTER;
-    /* Align button content to top */
+    -fx-alignment: CENTER;
 }
 
 .action-card-btn:hover {
@@ -401,9 +400,17 @@
     /* Solid Blue on Hover */
 }
 
+.action-card-btn:pressed {
+    -fx-background-color: #1565C0;
+}
+
+.action-card-btn:focused {
+    -fx-background-color: #1565C0;
+}
+
 .action-card-title {
     -fx-font-size: 24px;
-    /* Even Larger Title */
+    /* Larger Title */
     -fx-font-weight: bold;
     -fx-text-fill: #1565C0;
     -fx-wrap-text: true;
@@ -416,12 +423,17 @@
     /* Larger Description */
     -fx-text-fill: black;
     -fx-wrap-text: true;
-    -fx-text-alignment: LEFT;
-    /* Description Left Aligned */
+    -fx-text-alignment: CENTER;
+    /* Description Centered */
 }
 
 /* Hover Strings: Turn White */
-.action-card-btn:hover .action-card-title {
+.action-card-btn:hover .action-card-title,
+.action-card-btn:hover .action-card-desc,
+.action-card-btn:pressed .action-card-title,
+.action-card-btn:pressed .action-card-desc,
+.action-card-btn:focused .action-card-title,
+.action-card-btn:focused .action-card-desc {
     -fx-text-fill: white;
 }
 

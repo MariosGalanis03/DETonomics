@@ -14,7 +14,7 @@ import com.google.genai.types.Part;
 /**
  * Utility class to convert text to JSON using Google GenAI.
  */
-public final class TextToJson {
+public class TextToJson implements ITextToJson {
 
   /**
    * Default constructor.

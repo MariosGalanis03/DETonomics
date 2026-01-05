@@ -14,24 +14,25 @@ import org.apache.pdfbox.text.PDFTextStripper;
  * A class that handles the entire process of extracting text from a PDF
  * and saving it to a corresponding .txt file.
  */
-public final class PdfToText {
-
-    // Keep strong references to avoid GC of logger configuration
-    private static final java.util.logging.Logger PDFBOX_LOGGER =
-            java.util.logging.Logger.getLogger("org.apache.pdfbox");
-    private static final java.util.logging.Logger FONT_LOGGER =
-            java.util.logging.Logger.getLogger(
-                    "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
-
-    static {
-        PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
-        FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
-    }
+public class PdfToText implements IPdfToText {
 
     /**
      * Default constructor.
      */
     public PdfToText() {
+    }
+
+    /**
+     * Configures PDFBox loggers to reduce noise.
+     */
+    public static void configureLoggers() {
+        java.util.logging.Logger PDFBOX_LOGGER =
+                java.util.logging.Logger.getLogger("org.apache.pdfbox");
+        java.util.logging.Logger FONT_LOGGER =
+                java.util.logging.Logger.getLogger(
+                        "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
+        PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
+        FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
     }
 
     /**
