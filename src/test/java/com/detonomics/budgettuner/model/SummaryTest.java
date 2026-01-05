@@ -7,7 +7,7 @@ public class SummaryTest {
 
     @Test
     public void gettersAndToString() {
-        Summary s = new Summary("Source", "€", "el_GR", "2025-01-01", 2025, 1234L, 1000L, 234L, 50L);
+        Summary s = new Summary(1, "Source", "€", "el_GR", "2025-01-01", 2025, 1234L, 1000L, 234L, 50L);
         assertEquals("Source", s.getSourceTitle());
         assertEquals("€", s.getCurrency());
         assertEquals("el_GR", s.getLocale());

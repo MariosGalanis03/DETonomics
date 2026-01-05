@@ -13,6 +13,7 @@ import com.detonomics.budgettuner.util.BudgetFormatter;
  * </p>
  */
 public final class Summary {
+    private final int budgetID;
     private final String sourceTitle;
     private final String currency;
     private final String locale;
@@ -26,6 +27,7 @@ public final class Summary {
     /**
      * Constructs a new Summary instance with the specified budget details.
      *
+     * @param budgetID                 Unique identifier of the budget.
      * @param sourceTitle              Title of the budget source document.
      * @param currency                 Currency code (e.g., "EUR").
      * @param locale                   Locale string (e.g., "el_GR").
@@ -37,10 +39,11 @@ public final class Summary {
      * @param coverageWithCashReserves The coverage capability using cash
      *                                 reserves.
      */
-    public Summary(final String sourceTitle, final String currency,
+    public Summary(final int budgetID, final String sourceTitle, final String currency,
             final String locale, final String sourceDate, final int budgetYear,
             final long totalRevenues, final long totalExpenses,
             final long budgetResult, final long coverageWithCashReserves) {
+        this.budgetID = budgetID;
         this.sourceTitle = sourceTitle;
         this.currency = currency;
         this.locale = locale;
@@ -50,6 +53,15 @@ public final class Summary {
         this.totalExpenses = totalExpenses;
         this.budgetResult = budgetResult;
         this.coverageWithCashReserves = coverageWithCashReserves;
+    }
+
+    /**
+     * Gets the budget ID.
+     *
+     * @return The budget ID.
+     */
+    public int getBudgetID() {
+        return budgetID;
     }
 
     /**

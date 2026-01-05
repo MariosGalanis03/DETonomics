@@ -57,9 +57,9 @@ public final class SummaryDao {
         /**
          * Updates budget summary totals.
          *
-         * @param budgetId The budget ID.
+         * @param budgetId      The budget ID.
          * @param totalExpenses The new total expenses.
-         * @param budgetResult The new budget result.
+         * @param budgetResult  The new budget result.
          * @return Number of rows affected.
          */
         public static int updateBudgetSummary(final int budgetId, final long totalExpenses, final long budgetResult) {
@@ -68,6 +68,7 @@ public final class SummaryDao {
         }
 
         private static Summary mapRowToSummary(final Map<String, Object> row) {
+                final int budgetID = ((Number) row.get("budget_id")).intValue();
                 final String sourceTitle = (String) row.get("source_title");
                 final String currency = (String) row.get("currency");
                 final String locale = (String) row.get("locale");
@@ -91,8 +92,7 @@ public final class SummaryDao {
                                 ? ((Number) covObj).longValue()
                                 : 0;
 
-                return new Summary(sourceTitle, currency, locale, sourceDate,
-                                budgetYear, totalRevenues, totalExpenses,
-                                budgetResult, coverageWithCashReserves);
+                return new Summary(budgetID, sourceTitle, currency, locale, sourceDate, budgetYear, totalRevenues,
+                                totalExpenses, budgetResult, coverageWithCashReserves);
         }
 }

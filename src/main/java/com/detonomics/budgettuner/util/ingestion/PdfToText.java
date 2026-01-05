@@ -22,15 +22,15 @@ public class PdfToText implements IPdfToText {
     public PdfToText() {
     }
 
+    private static final java.util.logging.Logger PDFBOX_LOGGER = java.util.logging.Logger
+            .getLogger("org.apache.pdfbox");
+    private static final java.util.logging.Logger FONT_LOGGER = java.util.logging.Logger
+            .getLogger("org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
+
     /**
      * Configures PDFBox loggers to reduce noise.
      */
     public static void configureLoggers() {
-        java.util.logging.Logger PDFBOX_LOGGER =
-                java.util.logging.Logger.getLogger("org.apache.pdfbox");
-        java.util.logging.Logger FONT_LOGGER =
-                java.util.logging.Logger.getLogger(
-                        "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
         PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
         FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
     }
@@ -96,7 +96,14 @@ public class PdfToText implements IPdfToText {
      * Example: "document.pdf" -> "document.txt"
      */
     String getOutputFileName(final String pdfPath) {
-        String baseName = new File(pdfPath).getName();
+        // Handle both forward and backward slashes as separators
+        String normalized = pdfPath.replace('\\', '/');
+        String baseName = normalized;
+        int lastSlash = normalized.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            baseName = normalized.substring(lastSlash + 1);
+        }
+
         int dotIndex = baseName.lastIndexOf('.');
         if (dotIndex > 0) {
             baseName = baseName.substring(0, dotIndex);

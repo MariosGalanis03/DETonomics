@@ -22,6 +22,14 @@ public final class DatabaseManager {
         throw new AssertionError("Utility class");
     }
 
+    static {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Failed to load SQLite JDBC driver: " + e.getMessage());
+        }
+    }
+
     /**
      * Εκτέλεση ενημερωτικής εντολής (INSERT/UPDATE/DELETE) με παραμέτρους
      * (PreparedStatement).

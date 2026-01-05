@@ -89,8 +89,9 @@ public final class BudgetDetailsController {
                         try {
                                 // Load only non-modified budgets for trend analysis
                                 final List<Summary> allSummaries = SummaryDao.loadAllSummaries().stream()
-                                        .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
-                                        .toList();
+                                                .filter(s -> s.getSourceTitle()
+                                                                .equals("Προϋπολογισμός " + s.getBudgetYear()))
+                                                .toList();
 
                                 // Update charts on UI thread
                                 javafx.application.Platform.runLater(() -> {
@@ -274,11 +275,11 @@ public final class BudgetDetailsController {
                 try {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("expense-editor-view.fxml"));
                         Parent root = loader.load();
-                        
-                        MinistryAnalysisController controller = loader.getController();
+
+                        BudgetModificationController controller = loader.getController();
                         Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                        controller.setContext(budget, dbPath, currentStage);
-                        
+                        controller.setContext(budget);
+
                         Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
                         String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
                         scene.getStylesheets().add(css);
