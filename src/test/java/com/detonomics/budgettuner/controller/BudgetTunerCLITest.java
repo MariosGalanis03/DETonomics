@@ -44,7 +44,7 @@ class BudgetTunerCLITest {
     }
 
     private BudgetYear createDummyBudget(int year) {
-        Summary summary = new Summary("Budget " + year, "EUR", "el_GR", "2023-01-01", year, 1000L, 500L, 500L, 100L);
+        Summary summary = new Summary(1, "Budget " + year, "EUR", "el_GR", "2023-01-01", year, 1000L, 500L, 500L, 100L);
 
         ArrayList<RevenueCategory> revs = new ArrayList<>();
         // int revenueID, long code, String name, long amount, int parentID

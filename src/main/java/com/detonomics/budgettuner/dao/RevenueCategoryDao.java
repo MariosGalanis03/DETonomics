@@ -56,11 +56,11 @@ public final class RevenueCategoryDao {
      * @param code The code of the revenue category.
      * @return The ID of the revenue category.
      */
-    public static int loadRevenueCategoryIDFromCode(final long code) {
+    public static int loadRevenueCategoryIDFromCode(final int budgetID, final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories "
-                + "WHERE code = ?";
+                + "WHERE budget_id = ? AND code = ?";
         List<Map<String, Object>> queryResults = DatabaseManager
-                .executeQuery(DaoConfig.getDbPath(), sql, code);
+                .executeQuery(DaoConfig.getDbPath(), sql, budgetID, code);
         if (queryResults.isEmpty()) {
             throw new IllegalArgumentException(
                     "Δεν βρέθηκε ο κωδικός " + code);
@@ -131,10 +131,10 @@ public final class RevenueCategoryDao {
      * @param amount The new amount.
      * @return The number of rows affected.
      */
-    public static int setRevenueAmount(final long code, final long amount) {
+    public static int setRevenueAmount(final int budgetID, final long code, final long amount) {
         int rowsAffected = 0;
 
-        int revenueCategoryID = loadRevenueCategoryIDFromCode(code);
+        int revenueCategoryID = loadRevenueCategoryIDFromCode(budgetID, code);
         long oldAmount = loadRevenueAmount(revenueCategoryID);
 
         if (oldAmount == amount) {

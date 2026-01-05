@@ -20,7 +20,17 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ListCell;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import com.detonomics.budgettuner.dao.BudgetYearDao;
 
 public final class BudgetController {
 
@@ -37,6 +47,43 @@ public final class BudgetController {
         @FXML
         public void initialize() {
                 loadBudgetsFromDatabase();
+
+                budgetList.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+                        @Override
+                        public ListCell<String> call(ListView<String> param) {
+                                return new ListCell<String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                                super.updateItem(item, empty);
+                                                if (empty || item == null) {
+                                                        setText(null);
+                                                        setGraphic(null);
+                                                } else {
+                                                        HBox hbox = new HBox();
+                                                        Label label = new Label(item);
+                                                        Region spacer = new Region();
+                                                        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                                                        hbox.getChildren().addAll(label, spacer);
+
+                                                        // Heuristic: If title is NOT "Προϋπολογισμός YYYY", it's a
+                                                        // clone/modified budget
+                                                        if (!item.matches("Προϋπολογισμός \\d{4}")) {
+                                                                Button deleteBtn = new Button("X");
+                                                                deleteBtn.setStyle(
+                                                                                "-fx-background-color: #ff4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                                                                deleteBtn.setOnAction(event -> {
+                                                                        deleteBudget(item);
+                                                                });
+                                                                hbox.getChildren().add(deleteBtn);
+                                                        }
+
+                                                        setGraphic(hbox);
+                                                }
+                                        }
+                                };
+                        }
+                });
         }
 
         private void loadBudgetsFromDatabase() {
@@ -68,13 +115,13 @@ public final class BudgetController {
                 // Find budget ID by source_title
                 String sql = "SELECT budget_id FROM Budgets WHERE source_title = ? LIMIT 1";
                 var results = com.detonomics.budgettuner.util.DatabaseManager
-                        .executeQuery(com.detonomics.budgettuner.dao.DaoConfig.getDbPath(), sql, sourceTitle);
-                        
+                                .executeQuery(com.detonomics.budgettuner.dao.DaoConfig.getDbPath(), sql, sourceTitle);
+
                 if (results.isEmpty()) {
                         System.err.println("Budget not found for source_title: " + sourceTitle);
                         return;
                 }
-                
+
                 int budgetId = (Integer) results.get(0).get("budget_id");
                 final BudgetYear budget = dataService.loadBudgetYear(budgetId);
 
@@ -108,19 +155,20 @@ public final class BudgetController {
 
         private void openBudgetDetails(final int year, final Node sourceNode)
                         throws IOException {
-                // Find the budget ID for the selected year - but we need to handle multiple budgets per year
+                // Find the budget ID for the selected year - but we need to handle multiple
+                // budgets per year
                 // Get all summaries and find the first one with matching year
                 List<Summary> summaries = SummaryDao.loadAllSummaries();
                 Summary selectedSummary = summaries.stream()
-                        .filter(s -> s.getBudgetYear() == year)
-                        .findFirst()
-                        .orElse(null);
-                        
+                                .filter(s -> s.getBudgetYear() == year)
+                                .findFirst()
+                                .orElse(null);
+
                 if (selectedSummary == null) {
                         System.err.println("No budget found for year " + year);
                         return;
                 }
-                
+
                 final int budgetId = dataService.loadBudgetIDByYear(year);
                 if (budgetId == -1) {
                         System.err.println("Budget ID not found for year "
@@ -181,15 +229,16 @@ public final class BudgetController {
                 if (selectedIdx < 0) {
                         return;
                 }
-                
+
                 String selectedItem = budgetList.getSelectionModel().getSelectedItem();
-                if (selectedItem == null) return;
-                
+                if (selectedItem == null)
+                        return;
+
                 // Find the summary with matching source title
                 Summary selectedSummary = budgetSummaries.stream()
-                        .filter(s -> s.getSourceTitle().equals(selectedItem))
-                        .findFirst().orElse(null);
-                        
+                                .filter(s -> s.getSourceTitle().equals(selectedItem))
+                                .findFirst().orElse(null);
+
                 if (selectedSummary != null) {
                         openBudgetDetailsBySourceTitle(selectedSummary.getSourceTitle(), (Node) event.getSource());
                 }
@@ -224,5 +273,26 @@ public final class BudgetController {
         @FXML
         public void onExitClick(final ActionEvent event) {
                 System.exit(0);
+        }
+
+        private void deleteBudget(String sourceTitle) {
+                try {
+                        String sql = "SELECT budget_id FROM Budgets WHERE source_title = ? LIMIT 1";
+                        var results = com.detonomics.budgettuner.util.DatabaseManager
+                                        .executeQuery(com.detonomics.budgettuner.dao.DaoConfig.getDbPath(), sql,
+                                                        sourceTitle);
+
+                        if (!results.isEmpty()) {
+                                int budgetId = (Integer) results.get(0).get("budget_id");
+                                BudgetYearDao.deleteBudget(budgetId);
+                                loadBudgetsFromDatabase(); // Refresh list
+                        }
+                } catch (Exception e) {
+                        System.err.println("Error deleting budget: " + e.getMessage());
+                        Alert error = new Alert(Alert.AlertType.ERROR);
+                        error.setTitle("Σφάλμα");
+                        error.setContentText("Αποτυχία διαγραφής: " + e.getMessage());
+                        error.show();
+                }
         }
 }

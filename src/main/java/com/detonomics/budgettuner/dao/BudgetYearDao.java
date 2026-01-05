@@ -106,4 +106,60 @@ public final class BudgetYearDao {
                                 new com.detonomics.budgettuner.util.ingestion.JsonToSQLite(),
                                 logger);
         }
+
+        /**
+         * Deletes a budget and all associated data.
+         * 
+         * @param budgetID The ID of the budget to delete.
+         */
+        public static void deleteBudget(final int budgetID) {
+                // Delete Ministry Expenses
+                String sql = "DELETE FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
+                DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetID);
+
+                // Delete Ministries
+                sql = "DELETE FROM Ministries WHERE budget_id = ?";
+                DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetID);
+
+                // Delete Revenue Categories
+                sql = "DELETE FROM RevenueCategories WHERE budget_id = ?";
+                DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetID);
+
+                // Delete Expense Categories
+                sql = "DELETE FROM ExpenseCategories WHERE budget_id = ?";
+                DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetID);
+
+                // Delete Budget
+                sql = "DELETE FROM Budgets WHERE budget_id = ?";
+                DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetID);
+
+                // Check if any budgets remain
+                ArrayList<Integer> remaining = loadBudgetYearsList();
+                if (remaining.isEmpty()) {
+                        // Reset sequence completely if table empty
+                        DatabaseManager.executeUpdate(DaoConfig.getDbPath(),
+                                        "DELETE FROM sqlite_sequence WHERE name='Budgets'");
+                } else {
+                        // Update sequence for Budgets
+                        updateSequence("Budgets", "budget_id");
+
+                        // Update sequences for related tables
+                        updateSequence("Ministries", "ministry_id");
+                        updateSequence("RevenueCategories", "revenue_category_id");
+                        updateSequence("ExpenseCategories", "expense_category_id");
+                        updateSequence("MinistryExpenses", "ministry_expense_id");
+                }
+        }
+
+        private static void updateSequence(String tableName, String idColumn) {
+                String updateSeq = "UPDATE sqlite_sequence SET seq = (SELECT COALESCE(MAX(" + idColumn + "), 0) FROM "
+                                + tableName + ") WHERE name = '" + tableName + "'";
+                try {
+                        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), updateSeq);
+                } catch (Exception e) {
+                        System.err.println("Warning: Could not update sqlite_sequence for " + tableName + ": "
+                                        + e.getMessage());
+                }
+        }
+
 }

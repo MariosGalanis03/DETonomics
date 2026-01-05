@@ -67,22 +67,20 @@ public class BudgetComparisonController {
 
     @FXML
     public void initialize() {
-        // Load only non-modified budgets (where source_title equals "Προϋπολογισμός {year}")
-        allSummaries = SummaryDao.loadAllSummaries().stream()
-                .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
-                .toList();
+        // Load ALL budgets (including clones)
+        allSummaries = SummaryDao.loadAllSummaries();
 
-        // Setup StringConverter to display only the year
+        // Setup StringConverter to display source_title
         StringConverter<Summary> converter = new StringConverter<>() {
             @Override
             public String toString(Summary object) {
-                return object == null ? "" : String.valueOf(object.getBudgetYear());
+                return object == null ? "" : object.getSourceTitle();
             }
 
             @Override
             public Summary fromString(String string) {
                 return year1ComboBox.getItems().stream()
-                        .filter(s -> String.valueOf(s.getBudgetYear()).equals(string))
+                        .filter(s -> s.getSourceTitle().equals(string))
                         .findFirst().orElse(null);
             }
         };
@@ -138,17 +136,17 @@ public class BudgetComparisonController {
     private void updateYear1Options() {
         Summary selectedYear2 = year2ComboBox.getValue();
         List<Summary> availableOptions = allSummaries.stream()
-                .filter(s -> selectedYear2 == null || s.getBudgetYear() != selectedYear2.getBudgetYear())
+                .filter(s -> selectedYear2 == null || s.getBudgetID() != selectedYear2.getBudgetID())
                 .toList();
-        
+
         Summary currentSelection = year1ComboBox.getValue();
         year1ComboBox.getItems().clear();
         year1ComboBox.getItems().addAll(availableOptions);
-        
+
         // Restore selection if still available
         if (currentSelection != null) {
             for (Summary s : availableOptions) {
-                if (s.getBudgetYear() == currentSelection.getBudgetYear()) {
+                if (s.getBudgetID() == currentSelection.getBudgetID()) {
                     year1ComboBox.setValue(s);
                     break;
                 }
@@ -159,17 +157,17 @@ public class BudgetComparisonController {
     private void updateYear2Options() {
         Summary selectedYear1 = year1ComboBox.getValue();
         List<Summary> availableOptions = allSummaries.stream()
-                .filter(s -> selectedYear1 == null || s.getBudgetYear() != selectedYear1.getBudgetYear())
+                .filter(s -> selectedYear1 == null || s.getBudgetID() != selectedYear1.getBudgetID())
                 .toList();
-        
+
         Summary currentSelection = year2ComboBox.getValue();
         year2ComboBox.getItems().clear();
         year2ComboBox.getItems().addAll(availableOptions);
-        
+
         // Restore selection if still available
         if (currentSelection != null) {
             for (Summary s : availableOptions) {
-                if (s.getBudgetYear() == currentSelection.getBudgetYear()) {
+                if (s.getBudgetID() == currentSelection.getBudgetID()) {
                     year2ComboBox.setValue(s);
                     break;
                 }
@@ -201,7 +199,7 @@ public class BudgetComparisonController {
         revAnalysisBtn.setDisable(!bothSelected);
         expAnalysisBtn.setDisable(!bothSelected);
         minAnalysisBtn.setDisable(!bothSelected);
-        
+
         updateChart(s1, s2);
     }
 
@@ -209,42 +207,42 @@ public class BudgetComparisonController {
         revenueChart.getData().clear();
         expenseChart.getData().clear();
         balanceChart.getData().clear();
-        
+
         if (s1 == null || s2 == null) {
             return;
         }
-        
+
         // Revenue Chart
         XYChart.Series<String, Number> revSeries1 = new XYChart.Series<>();
-        revSeries1.setName(String.valueOf(s1.getBudgetYear()));
+        revSeries1.setName(s1.getSourceTitle());
         revSeries1.getData().add(new XYChart.Data<>("Έσοδα", s1.getTotalRevenues()));
-        
+
         XYChart.Series<String, Number> revSeries2 = new XYChart.Series<>();
-        revSeries2.setName(String.valueOf(s2.getBudgetYear()));
+        revSeries2.setName(s2.getSourceTitle());
         revSeries2.getData().add(new XYChart.Data<>("Έσοδα", s2.getTotalRevenues()));
-        
+
         revenueChart.getData().addAll(revSeries1, revSeries2);
-        
+
         // Expense Chart
         XYChart.Series<String, Number> expSeries1 = new XYChart.Series<>();
-        expSeries1.setName(String.valueOf(s1.getBudgetYear()));
+        expSeries1.setName(s1.getSourceTitle());
         expSeries1.getData().add(new XYChart.Data<>("Έξοδα", s1.getTotalExpenses()));
-        
+
         XYChart.Series<String, Number> expSeries2 = new XYChart.Series<>();
-        expSeries2.setName(String.valueOf(s2.getBudgetYear()));
+        expSeries2.setName(s2.getSourceTitle());
         expSeries2.getData().add(new XYChart.Data<>("Έξοδα", s2.getTotalExpenses()));
-        
+
         expenseChart.getData().addAll(expSeries1, expSeries2);
-        
+
         // Balance Chart
         XYChart.Series<String, Number> balSeries1 = new XYChart.Series<>();
-        balSeries1.setName(String.valueOf(s1.getBudgetYear()));
+        balSeries1.setName(s1.getSourceTitle());
         balSeries1.getData().add(new XYChart.Data<>("Ισοζύγιο", s1.getBudgetResult()));
-        
+
         XYChart.Series<String, Number> balSeries2 = new XYChart.Series<>();
-        balSeries2.setName(String.valueOf(s2.getBudgetYear()));
+        balSeries2.setName(s2.getSourceTitle());
         balSeries2.getData().add(new XYChart.Data<>("Ισοζύγιο", s2.getBudgetResult()));
-        
+
         balanceChart.getData().addAll(balSeries1, balSeries2);
     }
 

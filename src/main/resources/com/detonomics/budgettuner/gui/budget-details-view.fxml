@@ -42,7 +42,7 @@
                                 <Font name="Segoe UI Bold" size="28.0" />
                             </font>
                         </Label>
-                        <Button mnemonicParsing="false" onAction="#onModifyExpenseClick" styleClass="action-btn-secondary" text="[TEMP] Τροποποίηση Εξόδων" />
+                        <Button mnemonicParsing="false" onAction="#onModifyExpenseClick" styleClass="action-btn-secondary" text="Τροποποίηση Προϋπολογισμού" />
                     </VBox>
                 </center>
                 <padding>
