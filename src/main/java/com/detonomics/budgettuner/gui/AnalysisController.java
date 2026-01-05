@@ -19,7 +19,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 public final class AnalysisController {
@@ -46,6 +48,7 @@ public final class AnalysisController {
     private BudgetYear budget;
     private String dbPath;
     private AnalysisType analysisType;
+    private Popup popup = new Popup();
 
     public void setContext(final BudgetYear budgetIn, final String dbPathIn,
             final AnalysisType typeIn) {
@@ -213,20 +216,22 @@ public final class AnalysisController {
         }
 
         // Add Tooltips
-        for (
-
-        javafx.scene.chart.PieChart.Data data : pieChart.getData()) {
-            String tooltipText = data.getName(); // Text is already formatted as "Name (Amount €)"
-            Tooltip tooltip = new Tooltip(tooltipText);
-            tooltip.setText(tooltipText); // Ensure text is set
-            Tooltip.install(data.getNode(), tooltip);
-
-            // Add hover effect
+        for (javafx.scene.chart.PieChart.Data data : pieChart.getData()) {
+            // Add hover effect with floating label at cursor
             data.getNode().setOnMouseEntered(event -> {
                 data.getNode().setStyle("-fx-opacity: 0.8; -fx-cursor: hand;");
+
+                // Show floating label at mouse position
+                String text = getFormattedText(data);
+                Label label = new Label(text);
+                label.setStyle("-fx-background-color: rgba(0,0,0,0.8); -fx-text-fill: white; -fx-padding: 5;");
+                popup.getContent().clear();
+                popup.getContent().add(label);
+                popup.show(data.getNode().getScene().getWindow(), event.getScreenX() + 10, event.getScreenY() + 10);
             });
             data.getNode().setOnMouseExited(event -> {
                 data.getNode().setStyle("-fx-opacity: 1.0; -fx-cursor: default;");
+                popup.hide();
             });
         }
     }
@@ -240,6 +245,15 @@ public final class AnalysisController {
             this.amount = amount;
         }
 
+    }
+
+    private String getFormattedText(javafx.scene.chart.PieChart.Data data) {
+        String fullName = data.getName();
+        String name = fullName;
+        if (fullName.contains(" (")) {
+            name = fullName.substring(0, fullName.lastIndexOf(" ("));
+        }
+        return name + ": " + String.format("%,d€", (long) data.getPieValue());
     }
 
     private void setupList() {

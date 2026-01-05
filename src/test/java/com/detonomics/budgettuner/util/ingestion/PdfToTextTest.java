@@ -40,8 +40,8 @@ public class PdfToTextTest {
         assertEquals("budget.txt", pdfToText.getOutputFileName("/home/user/budget.pdf"));
         assertEquals("file.txt", pdfToText.getOutputFileName("file"));
         assertEquals("test.txt", pdfToText.getOutputFileName("test."));
-        // On Linux, backslashes are not path separators, so "C:\path\to\document.pdf" is treated as one filename
-        assertEquals("C:\\path\\to\\document.txt", pdfToText.getOutputFileName("C:\\path\\to\\document.pdf"));
+        // On Windows, backslashes are path separators, so "C:\path\to\document.pdf" gives "document.pdf" then "document.txt"
+        assertEquals("document.txt", pdfToText.getOutputFileName("C:\\path\\to\\document.pdf"));
         assertEquals("document.txt", pdfToText.getOutputFileName("/unix/path/document.pdf"));
     }
 

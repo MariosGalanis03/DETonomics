@@ -14,7 +14,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
  * A class that handles the entire process of extracting text from a PDF
  * and saving it to a corresponding .txt file.
  */
-public final class PdfToText {
+public class PdfToText {
 
     // Keep strong references to avoid GC of logger configuration
     private static final java.util.logging.Logger PDFBOX_LOGGER =
