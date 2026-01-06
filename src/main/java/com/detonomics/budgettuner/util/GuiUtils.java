@@ -30,20 +30,32 @@ public class GuiUtils {
      *                       Returns true for highlight color (Red), false for
      *                       default color (Blue).
      */
+    /**
+     * Sets up a BarChart with the provided data.
+     *
+     * @param chart             The chart to populate.
+     * @param seriesName        The name of the data series.
+     * @param data              The list of Summary objects to plot.
+     * @param valueExtractor    Function to extract the Number value from a Summary.
+     * @param categoryExtractor Function to extract the category (String) from a
+     *                          Summary (X-Axis label).
+     * @param colorCondition    Predicate to determine if a specific data point
+     *                          should
+     *                          be highlighted (e.g. current year).
+     *                          Returns true for highlight color (Red), false for
+     *                          default color (Blue).
+     */
     public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
-            Function<Summary, Number> valueExtractor, Predicate<Summary> colorCondition) {
+            Function<Summary, Number> valueExtractor, Function<Summary, String> categoryExtractor,
+            Predicate<Summary> colorCondition) {
         chart.getData().clear();
 
         // Fix: Explicitly set axis categories if it's a CategoryAxis.
-        // This prevents the "bunched up labels" glitch by ensuring the axis knows the
-        // range.
         if (chart.getXAxis() instanceof javafx.scene.chart.CategoryAxis) {
             javafx.scene.chart.CategoryAxis xAxis = (javafx.scene.chart.CategoryAxis) chart.getXAxis();
-            // Extract unique years from data, sorted
             List<String> categories = data.stream()
-                    .map(s -> String.valueOf(s.getBudgetYear()))
+                    .map(categoryExtractor)
                     .distinct()
-                    .sorted()
                     .toList();
             xAxis.setCategories(javafx.collections.FXCollections.observableArrayList(categories));
         }
@@ -52,7 +64,7 @@ public class GuiUtils {
         series.setName(seriesName);
 
         for (Summary s : data) {
-            String category = String.valueOf(s.getBudgetYear());
+            String category = categoryExtractor.apply(s);
             XYChart.Data<String, Number> chartData = new XYChart.Data<>(
                     category,
                     valueExtractor.apply(s));
@@ -69,8 +81,8 @@ public class GuiUtils {
 
                     // Create Tooltip
                     javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(
-                            String.format("%d%n%s%n%,d €",
-                                    s.getBudgetYear(),
+                            String.format("%s%n%s%n%,d €",
+                                    category,
                                     seriesName,
                                     valueExtractor.apply(s).longValue()));
 
@@ -85,11 +97,19 @@ public class GuiUtils {
     }
 
     /**
+     * Overload for charts using Budget Year as default category.
+     */
+    public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
+            Function<Summary, Number> valueExtractor, Predicate<Summary> colorCondition) {
+        setupChart(chart, seriesName, data, valueExtractor, s -> String.valueOf(s.getBudgetYear()), colorCondition);
+    }
+
+    /**
      * Overload for simple blue charts (no special highlight condition).
      */
     public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
             Function<Summary, Number> valueExtractor) {
-        setupChart(chart, seriesName, data, valueExtractor, s -> false);
+        setupChart(chart, seriesName, data, valueExtractor, s -> String.valueOf(s.getBudgetYear()), s -> false);
     }
 
     /**
