@@ -83,8 +83,6 @@ public final class BudgetDetailsController {
         }
 
         private void setupCharts() {
-                final int currentYear = budget.getSummary().getBudgetYear();
-
                 // Load data asynchronously
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                         try {
@@ -96,35 +94,56 @@ public final class BudgetDetailsController {
 
                                 // Update charts on UI thread
                                 javafx.application.Platform.runLater(() -> {
+                                        // If the current budget is NOT in the filtered list (i.e. it's a custom budget
+                                        // or modified version),
+                                        // we want to append it to the end so it shows up in the charts.
+                                        List<Summary> displaySummaries = new java.util.ArrayList<>(allSummaries);
+                                        boolean isCustom = displaySummaries.stream()
+                                                        .noneMatch(s -> s.getBudgetID() == budget.getSummary()
+                                                                        .getBudgetID());
+
+                                        if (isCustom) {
+                                                displaySummaries.add(budget.getSummary());
+                                        }
+
+                                        // Define Category Extractor:
+                                        // If it's this specific custom budget, use its Source Title.
+                                        // Otherwise, use the Year.
+                                        java.util.function.Function<Summary, String> categoryExtractor = s -> {
+                                                if (s.getBudgetID() == budget.getSummary().getBudgetID() && isCustom) {
+                                                        return s.getSourceTitle();
+                                                } else {
+                                                        return String.valueOf(s.getBudgetYear());
+                                                }
+                                        };
+
                                         // Revenue Chart
-                                        GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", allSummaries,
+                                        GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", displaySummaries,
                                                         Summary::getTotalRevenues,
-                                                        s -> s.getBudgetYear() == currentYear);
+                                                        categoryExtractor,
+                                                        s -> s.getBudgetID() == budget.getSummary().getBudgetID());
 
                                         // Expense Chart
-                                        GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", allSummaries,
+                                        GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", displaySummaries,
                                                         Summary::getTotalExpenses,
-                                                        s -> s.getBudgetYear() == currentYear);
+                                                        categoryExtractor,
+                                                        s -> s.getBudgetID() == budget.getSummary().getBudgetID());
 
                                         // Difference Chart
                                         if (differenceChart != null) {
                                                 GuiUtils.setupChart(differenceChart, "Ισοζύγιο (Έσοδα - Έξοδα)",
-                                                                allSummaries,
+                                                                displaySummaries,
                                                                 Summary::getBudgetResult,
+                                                                categoryExtractor,
                                                                 s -> {
-                                                                        // Logic: Highlight if negative OR if current
-                                                                        // year
-                                                                        // Wait, original logic was:
-                                                                        // If current year -> Blue (Override)
-                                                                        // Else if negative -> Red
-                                                                        // Else -> Blue
-                                                                        //
-                                                                        // My GuiUtils takes a predicate for "Highlight
-                                                                        // Color" (Red).
-                                                                        // So we return true (Red) ONLY if:
-                                                                        // (NOT current year) AND (Negative)
-                                                                        return (s.getBudgetYear() != currentYear)
-                                                                                        && (s.getBudgetResult() < 0);
+                                                                        // Highlight if current budget (regardless of
+                                                                        // value)
+                                                                        if (s.getBudgetID() == budget.getSummary()
+                                                                                        .getBudgetID()) {
+                                                                                return true;
+                                                                        }
+                                                                        // Otherwise highlight if negative
+                                                                        return s.getBudgetResult() < 0;
                                                                 });
                                         }
                                 });

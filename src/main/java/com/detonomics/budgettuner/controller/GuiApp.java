@@ -6,6 +6,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.awt.Taskbar;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -24,6 +26,25 @@ public class GuiApp extends Application {
         scene.getStylesheets().add(css);
 
         stage.setTitle("Budget Tuner");
+
+        // Set Dock Icon for macOS
+        try {
+            if (Taskbar.isTaskbarSupported()) {
+                var taskbar = Taskbar.getTaskbar();
+                if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                    java.awt.Image image = Toolkit.getDefaultToolkit()
+                            .getImage(getClass().getResource("Budget_Tuner.png"));
+                    taskbar.setIconImage(image);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to set dock icon: " + e.getMessage());
+        }
+
+        // Set Window Icon (for Task Switcher / other OS)
+        stage.getIcons().add(new javafx.scene.image.Image(
+                Objects.requireNonNull(getClass().getResourceAsStream("Budget_Tuner.png"))));
+
         stage.setScene(scene);
 
         // Manual maximization logic for WSL
