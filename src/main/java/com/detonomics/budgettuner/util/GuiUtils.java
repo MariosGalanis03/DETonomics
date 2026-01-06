@@ -57,7 +57,8 @@ public class GuiUtils {
                     category,
                     valueExtractor.apply(s));
 
-            // Add listener to apply styles once the node is attached to the scene graph
+            // Add listener to apply styles and tooltips once the node is attached to the
+            // scene graph
             chartData.nodeProperty().addListener((obs, oldNode, newNode) -> {
                 if (newNode != null) {
                     if (colorCondition.test(s)) {
@@ -65,7 +66,16 @@ public class GuiUtils {
                     } else {
                         newNode.setStyle("-fx-bar-fill: #1565C0;"); // Default (Blue)
                     }
-                    // Optional: Add tooltip or other interactivity here
+
+                    // Create Tooltip
+                    javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(
+                            String.format("%d%n%s%n%,d €",
+                                    s.getBudgetYear(),
+                                    seriesName,
+                                    valueExtractor.apply(s).longValue()));
+
+                    tooltip.setShowDelay(javafx.util.Duration.millis(50));
+                    javafx.scene.control.Tooltip.install(newNode, tooltip);
                 }
             });
 
