@@ -30,10 +30,27 @@ java -jar target/budgettuner-0.1.0-SNAPSHOT.jar
 ```
 
 ### Usage Instructions
-1.  **Home Screen:** Choose to "View Budgets" to explore existing data or "Create Scenario" to clone and modify a budget.
-2.  **Navigation:** Use the sidebar to switch between Revenues, Expenses, Ministries, and Analysis views.
-3.  **Modification:** In "Create Scenario", double-click values to edit them. Calculations update automatically. Click "Save" to persist changes to the database.
-4.  **Comparison:** Use the "Compare Budgets" tool to select two budgets (original or modified) and visualize the differences in charts and tables.
+1.  **Main Menu Screen:**
+    The welcome screen serves as the central hub, offering three main functions:
+    *   **Choose Existing Budget**: Explore data for existing budgets (2019-2026) and any custom scenarios.
+    *   **Compare Budgets**: Compare two budgets (original or modified) to visualize differences.
+    *   **Import New Budget**: Insert a new budget from a PDF file.
+
+2.  **Exploring & Modifying Budgets:**
+    *   **Selection**: Selecting "Choose Existing Budget" opens a list of available budgets. Clicking on one opens the **Budget View**.
+    *   **Budget View**: This screen displays the financial overview with charts. It includes buttons for detailed analysis of **Revenues**, **Expenses**, and **Ministries**.
+    *   **Modification**: The **"Budget Modification"** button allows you to edit the values of the current budget. You can adjust specific expenses or revenues and save the result as a new custom budget.
+
+3.  **Comparing Budgets:**
+    *   The **"Compare Budgets"** screen is designed for comparative analysis.
+    *   **Dropdown Selection**: Use the dropdowns to select any two budgets (e.g., an original year vs. a modified scenario).
+    *   **Analysis**: The screen displays side-by-side graphs and numerical differences for Totals.
+    *   **Deep Dive**: Buttons for **Revenues**, **Expenses**, and **Ministries** allow you to analyze the specific differences between the two selected budgets in detail.
+
+4.  **Importing New Budgets:**
+    *   **Select File**: Click **"Import New Budget"** on the main menu. Use the file chooser to select a valid State Budget PDF.
+    *   **Process**: Click **Start** to begin the ingestion pipeline. The application will convert the PDF to text, use AI to parse the data into JSON, and finally store it in the database.
+    *   **Status**: Follow the progress bar and status messages. Once complete, the new budget will be available for selection in the Exploratory and Comparison screens.
 
 ### Repository Structure Presentation
 *   **src/main/java/com/detonomics/budgettuner**: Main source code.
@@ -45,7 +62,7 @@ java -jar target/budgettuner-0.1.0-SNAPSHOT.jar
 * src/main/resources: Contains the FXML files for the JavaFX views and the immutable SQLite database shipped with the application.
 *   **src/test/java**: Unit tests for the application.
 *   **data**: Contains the mutable SQLite database that the client can modify and PDF input files.
-*   **docs**: Documentation and UML diagrams.
+*   **docs**: DatabaseDocumentation, UML diagrams and Jacoco report.
 
 ### UML Diagram regarding code design
 The detailed UML Class diagram for the project's design is available in the `docs` folder.
@@ -66,9 +83,9 @@ The detailed UML Class diagram for the project's design is available in the `doc
     mvn javadoc:javadoc
     ```
     (Found in `target/site/apidocs/`)
-*   **Test Coverage:** Main Jacoco report image is available in the `docs` folder.
+*   **Test Coverage:** Main Jacoco report is available in the `docs` folder as an image.
     ![Jacoco Report](docs/jacoco/jacoco.png)
-    Additional Jacoco reports for test coverage are available after running tests:
+    Detailed Jacoco reports for test coverage are available after running tests:
     ```bash
     mvn test
     ```
