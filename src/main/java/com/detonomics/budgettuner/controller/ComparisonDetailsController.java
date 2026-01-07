@@ -88,14 +88,14 @@ public class ComparisonDetailsController {
         Map<Long, Long> amounts2 = new HashMap<>();
 
         if (type == ComparisonType.REVENUE) {
-            loadRevenueData(s1.getBudgetYear(), amounts1, names);
-            loadRevenueData(s2.getBudgetYear(), amounts2, names);
+            loadRevenueData(s1.getBudgetID(), amounts1, names);
+            loadRevenueData(s2.getBudgetID(), amounts2, names);
         } else if (type == ComparisonType.EXPENSE) {
-            loadExpenseData(s1.getBudgetYear(), amounts1, names);
-            loadExpenseData(s2.getBudgetYear(), amounts2, names);
+            loadExpenseData(s1.getBudgetID(), amounts1, names);
+            loadExpenseData(s2.getBudgetID(), amounts2, names);
         } else {
-            loadMinistryData(s1.getBudgetYear(), amounts1, names);
-            loadMinistryData(s2.getBudgetYear(), amounts2, names);
+            loadMinistryData(s1.getBudgetID(), amounts1, names);
+            loadMinistryData(s2.getBudgetID(), amounts2, names);
         }
 
         Set<Long> allCodes = new HashSet<>();
@@ -112,15 +112,10 @@ public class ComparisonDetailsController {
         }
     }
 
-    private int getBudgetIdByYear(int year) {
-        return dataService.loadBudgetIDByYear(year);
-    }
-
-    private void loadRevenueData(int year, Map<Long, Long> amounts, Map<Long, String> names) {
-        int id = getBudgetIdByYear(year);
-        if (id == -1)
+    private void loadRevenueData(int budgetId, Map<Long, Long> amounts, Map<Long, String> names) {
+        if (budgetId == -1)
             return;
-        for (RevenueCategory rc : dataService.loadRevenues(id)) {
+        for (RevenueCategory rc : dataService.loadRevenues(budgetId)) {
             // Only include revenues without parent (parent_id = 0)
             if (rc.getParentID() == 0) {
                 amounts.put(rc.getCode(), rc.getAmount());
@@ -129,21 +124,19 @@ public class ComparisonDetailsController {
         }
     }
 
-    private void loadExpenseData(int year, Map<Long, Long> amounts, Map<Long, String> names) {
-        int id = getBudgetIdByYear(year);
-        if (id == -1)
+    private void loadExpenseData(int budgetId, Map<Long, Long> amounts, Map<Long, String> names) {
+        if (budgetId == -1)
             return;
-        for (ExpenseCategory ec : dataService.loadExpenses(id)) {
+        for (ExpenseCategory ec : dataService.loadExpenses(budgetId)) {
             amounts.put(ec.getCode(), ec.getAmount());
             names.putIfAbsent(ec.getCode(), ec.getName());
         }
     }
 
-    private void loadMinistryData(int year, Map<Long, Long> amounts, Map<Long, String> names) {
-        int id = getBudgetIdByYear(year);
-        if (id == -1)
+    private void loadMinistryData(int budgetId, Map<Long, Long> amounts, Map<Long, String> names) {
+        if (budgetId == -1)
             return;
-        for (Ministry m : dataService.loadMinistries(id)) {
+        for (Ministry m : dataService.loadMinistries(budgetId)) {
             amounts.put(m.getCode(), m.getTotalBudget());
             names.putIfAbsent(m.getCode(), m.getName());
         }

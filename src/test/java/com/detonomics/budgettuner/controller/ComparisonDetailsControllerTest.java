@@ -72,9 +72,6 @@ class ComparisonDetailsControllerTest {
                 Summary s1 = new Summary(1, "2020", "EUR", "el", "2020-01-01", 2020, 1000, 800, 200, 0);
                 Summary s2 = new Summary(2, "2021", "EUR", "el", "2021-01-01", 2021, 1200, 900, 300, 0);
 
-                when(dataService.loadBudgetIDByYear(2020)).thenReturn(1);
-                when(dataService.loadBudgetIDByYear(2021)).thenReturn(2);
-
                 // Mock Revenue Data
                 RevenueCategory r1 = new RevenueCategory(1, 1L, "Tax", 100L, 0);
                 RevenueCategory r2 = new RevenueCategory(2, 1L, "Tax", 120L, 0);
