@@ -73,7 +73,10 @@ public class GuiApp extends Application {
 
                 // Set Dock Icon for macOS
                 try {
-                        if (Taskbar.isTaskbarSupported()) {
+                        String os = System.getProperty("os.name").toLowerCase();
+                        // AWT Taskbar execution on Linux causes GDK warnings when mixed with JavaFX
+                        // so we explicitly skip it for Linux users
+                        if (!os.contains("linux") && Taskbar.isTaskbarSupported()) {
                                 var taskbar = Taskbar.getTaskbar();
                                 if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
                                         java.awt.Image image = Toolkit.getDefaultToolkit()
