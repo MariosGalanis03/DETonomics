@@ -83,14 +83,14 @@ The detailed UML Class diagram for the project's design is available in the `doc
     mvn javadoc:javadoc
     ```
     (Found in `target/site/apidocs/`)
-*   **Test Coverage:** Main Jacoco report is available in the `docs` folder as an image.
-    ![Jacoco Report](docs/jacoco/jacoco.png)
-    Detailed Jacoco reports for test coverage are available after running tests:
+*   **Test Coverage:** Detailed Jacoco reports for test coverage are available after running tests:
     ```bash
     mvn test
     ```
     (Found in `target/site/jacoco/`)
-* **More README files:** Additional folder specific README files are available.
+    Main Jacoco report is also available in the `docs` folder as an image.
+    ![Jacoco Report](docs/jacoco/jacoco.png)
+*   **More README files:** Additional folder specific README files are available.
 
 ---
 
