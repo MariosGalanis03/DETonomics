@@ -1,17 +1,22 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.SummaryDao;
-import com.detonomics.budgettuner.util.GuiUtils;
+import com.detonomics.budgettuner.model.SqlSequence;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.GuiUtils;
+import com.detonomics.budgettuner.util.ViewManager;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 
-public final class WelcomeController {
+public class WelcomeController {
 
         @FXML
         private BarChart<String, Number> revenueChart;
@@ -21,39 +26,46 @@ public final class WelcomeController {
         private BarChart<String, Number> differenceChart;
 
         @FXML
-        private javafx.scene.control.Label statsBudgetsLabel;
+        private Label statsBudgetsLabel;
         @FXML
-        private javafx.scene.control.Label statsRevCatsLabel;
+        private Label statsRevCatsLabel;
         @FXML
-        private javafx.scene.control.Label statsExpCatsLabel;
+        private Label statsExpCatsLabel;
         @FXML
-        private javafx.scene.control.Label statsMinistriesLabel;
+        private Label statsMinistriesLabel;
         @FXML
-        private javafx.scene.control.Label statsMinExpLabel;
+        private Label statsMinExpLabel;
         @FXML
-        private javafx.scene.control.ScrollPane welcomeScrollPane;
+        private ScrollPane welcomeScrollPane;
 
-        private final com.detonomics.budgettuner.service.BudgetDataService dataService = new com.detonomics.budgettuner.service.BudgetDataServiceImpl();
+        private final ViewManager viewManager;
+        private final BudgetDataService dataService;
+
+        @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+        public WelcomeController(ViewManager viewManager, BudgetDataService dataService) {
+                this.viewManager = viewManager;
+                this.dataService = dataService;
+        }
 
         @FXML
         public void initialize() {
                 // Ensure view starts scrolled to the top immediately
-                javafx.application.Platform.runLater(() -> {
+                Platform.runLater(() -> {
                         welcomeScrollPane.setVvalue(0.0);
                         welcomeScrollPane.requestFocus();
                 });
 
                 // Load data asynchronously to prevent UI lag
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                CompletableFuture.runAsync(() -> {
                         try {
                                 // Load statistics
-                                final com.detonomics.budgettuner.model.SqlSequence stats = dataService.loadStatistics();
+                                final SqlSequence stats = dataService.loadStatistics();
 
                                 // Load summaries for charts
-                                final List<Summary> allSummaries = SummaryDao.loadAllSummaries();
+                                final List<Summary> allSummaries = dataService.loadAllSummaries();
 
                                 // Update UI on JavaFX Application Thread
-                                javafx.application.Platform.runLater(() -> {
+                                Platform.runLater(() -> {
                                         // Update Statistics Labels
                                         statsBudgetsLabel.setText(String.valueOf(stats.getBudgets()));
                                         statsRevCatsLabel.setText(String.valueOf(stats.getRevenueCategories()));
@@ -72,11 +84,12 @@ public final class WelcomeController {
         }
 
         private void setupCharts(List<Summary> allSummaries) {
-                // Filter to show only non-modified budgets (where source_title equals "Προϋπολογισμός {year}")
+                // Filter to show only non-modified budgets (where source_title equals
+                // "Προϋπολογισμός {year}")
                 List<Summary> originalBudgets = allSummaries.stream()
-                        .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
-                        .toList();
-                
+                                .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
+                                .toList();
+
                 // Revenue Chart (Blue)
                 GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", originalBudgets, Summary::getTotalRevenues);
 
@@ -89,18 +102,17 @@ public final class WelcomeController {
         }
 
         @FXML
-        protected void onSelectBudgetClick(final ActionEvent event) throws IOException {
-                GuiUtils.navigate(event, "budget-view.fxml");
+        protected void onSelectBudgetClick(final ActionEvent event) {
+                viewManager.switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
         }
 
         @FXML
-        protected void onImportNewBudgetClick(final ActionEvent event) throws IOException {
-                GuiUtils.navigate(event, "ingest-view.fxml");
+        protected void onImportNewBudgetClick(final ActionEvent event) {
+                viewManager.switchScene("ingest-view.fxml", "Εισαγωγή Νέου Προϋπολογισμού");
         }
 
         @FXML
-        protected void onCompareBudgetsClick(final ActionEvent event) throws IOException {
-                GuiUtils.navigate(event, "budget-comparison-view.fxml");
+        protected void onCompareBudgetsClick(final ActionEvent event) {
+                viewManager.switchScene("budget-comparison-view.fxml", "Σύγκριση Προϋπολογισμών");
         }
-  
 }

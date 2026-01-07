@@ -9,10 +9,12 @@ import com.detonomics.budgettuner.util.DatabaseManager;
 /**
  * Data Access Object for SqlSequence.
  */
-public final class SqlSequenceDao {
+public class SqlSequenceDao {
 
-    private SqlSequenceDao() {
-        throw new AssertionError("Utility class");
+    private final DatabaseManager dbManager;
+
+    public SqlSequenceDao(DatabaseManager dbManager) {
+        this.dbManager = dbManager;
     }
 
     /**
@@ -20,10 +22,9 @@ public final class SqlSequenceDao {
      *
      * @return A SqlSequence object containing sequence values.
      */
-    public static SqlSequence loadSqliteSequence() {
+    public SqlSequence loadSqliteSequence() {
         String sql = "SELECT name, seq FROM sqlite_sequence";
-        List<Map<String, Object>> results = DatabaseManager
-                .executeQuery(DaoConfig.getDbPath(), sql);
+        List<Map<String, Object>> results = dbManager.executeQuery(sql);
 
         int budgets = 0;
         int revenueCategories = 0;
@@ -35,16 +36,25 @@ public final class SqlSequenceDao {
             String tableName = (String) resultRow.get("name");
             Integer sequenceValue = ((Number) resultRow.get("seq")).intValue();
 
-            if ("Budgets".equals(tableName)) {
-                budgets = sequenceValue;
-            } else if ("RevenueCategories".equals(tableName)) {
-                revenueCategories = sequenceValue;
-            } else if ("ExpenseCategories".equals(tableName)) {
-                expenseCategories = sequenceValue;
-            } else if ("Ministries".equals(tableName)) {
-                ministries = sequenceValue;
-            } else if ("MinistryExpenses".equals(tableName)) {
-                ministryExpenses = sequenceValue;
+            switch (tableName) {
+                case "Budgets":
+                    budgets = sequenceValue;
+                    break;
+                case "RevenueCategories":
+                    revenueCategories = sequenceValue;
+                    break;
+                case "ExpenseCategories":
+                    expenseCategories = sequenceValue;
+                    break;
+                case "Ministries":
+                    ministries = sequenceValue;
+                    break;
+                case "MinistryExpenses":
+                    ministryExpenses = sequenceValue;
+                    break;
+                default:
+                    // Ignore other tables if any
+                    break;
             }
         }
         return new SqlSequence(budgets, revenueCategories, expenseCategories,

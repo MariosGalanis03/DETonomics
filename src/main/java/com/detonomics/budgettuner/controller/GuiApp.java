@@ -1,9 +1,11 @@
 package com.detonomics.budgettuner.controller;
 
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
+import com.detonomics.budgettuner.service.BudgetModificationService;
+import com.detonomics.budgettuner.service.BudgetModificationServiceImpl;
+import com.detonomics.budgettuner.util.ViewManager;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.awt.Taskbar;
@@ -11,59 +13,99 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * The main entry point for the Budget Tuner application.
+ * Initializes the database, services, and launches the JavaFX interface.
+ */
 public class GuiApp extends Application {
-    public static final int DEFAULT_WIDTH = 1000;
-    public static final int DEFAULT_HEIGHT = 800;
+        public static final int DEFAULT_WIDTH = 1000;
+        public static final int DEFAULT_HEIGHT = 800;
 
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(GuiApp.class.getResource("welcome-view.fxml"));
-        // Loads the Welcome Controller
-        Parent root = fxmlLoader.load();
+        /**
+         * Starts the JavaFX application.
+         *
+         * @param stage The primary stage for this application.
+         * @throws IOException If loading FXML resources fails.
+         */
+        @Override
+        public void start(Stage stage) throws IOException {
+                // Initialize Database and DAOs
+                com.detonomics.budgettuner.util.DatabaseManager dbManager = new com.detonomics.budgettuner.util.DatabaseManager(
+                                com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
 
-        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-        scene.getStylesheets().add(css);
+                com.detonomics.budgettuner.dao.SummaryDao summaryDao = new com.detonomics.budgettuner.dao.SummaryDao(
+                                dbManager);
+                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao = new com.detonomics.budgettuner.dao.RevenueCategoryDao(
+                                dbManager);
+                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao = new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
+                                dbManager);
+                com.detonomics.budgettuner.dao.MinistryDao ministryDao = new com.detonomics.budgettuner.dao.MinistryDao(
+                                dbManager);
+                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao = new com.detonomics.budgettuner.dao.MinistryExpenseDao(
+                                dbManager);
+                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao = new com.detonomics.budgettuner.dao.BudgetTotalsDao(
+                                dbManager);
+                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao = new com.detonomics.budgettuner.dao.SqlSequenceDao(
+                                dbManager);
 
-        stage.setTitle("Budget Tuner");
+                com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao = new com.detonomics.budgettuner.dao.BudgetYearDao(
+                                dbManager, summaryDao, revenueCategoryDao, expenseCategoryDao, ministryDao,
+                                ministryExpenseDao);
 
-        // Set Dock Icon for macOS
-        try {
-            if (Taskbar.isTaskbarSupported()) {
-                var taskbar = Taskbar.getTaskbar();
-                if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-                    java.awt.Image image = Toolkit.getDefaultToolkit()
-                            .getImage(getClass().getResource("Budget_Tuner.png"));
-                    taskbar.setIconImage(image);
+                // Initialize Services
+                BudgetDataService dataService = new BudgetDataServiceImpl(budgetYearDao, revenueCategoryDao,
+                                expenseCategoryDao,
+                                ministryDao, ministryExpenseDao, summaryDao, budgetTotalsDao, sqlSequenceDao);
+                BudgetModificationService modificationService = new BudgetModificationServiceImpl(dbManager,
+                                budgetYearDao,
+                                revenueCategoryDao, expenseCategoryDao, ministryDao, ministryExpenseDao, summaryDao);
+
+                // Initialize ViewManager
+                ViewManager viewManager = new ViewManager(stage, dataService, modificationService);
+
+                // Set Dock Icon for macOS
+                try {
+                        if (Taskbar.isTaskbarSupported()) {
+                                var taskbar = Taskbar.getTaskbar();
+                                if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                                        java.awt.Image image = Toolkit.getDefaultToolkit()
+                                                        .getImage(getClass().getResource("Budget_Tuner.png"));
+                                        taskbar.setIconImage(image);
+                                }
+                        }
+                } catch (Exception e) {
+                        System.err.println("Failed to set dock icon: " + e.getMessage());
                 }
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to set dock icon: " + e.getMessage());
+
+                // Set Window Icon (for Task Switcher / other OS)
+                try {
+                        stage.getIcons().add(new javafx.scene.image.Image(
+                                        Objects.requireNonNull(getClass().getResourceAsStream("Budget_Tuner.png"))));
+                } catch (Exception e) {
+                        System.err.println("Failed to set window icon: " + e.getMessage());
+                }
+
+                // Load Initial Scene
+                viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
+
+                // Use standard maximized state which works better across platforms including
+                // WSL
+                stage.setMaximized(true);
+                // Ensure user can resize/minimize if they want
+                stage.setResizable(true);
+
+                stage.setOnCloseRequest(event -> {
+                        javafx.application.Platform.exit();
+                        System.exit(0);
+                });
         }
 
-        // Set Window Icon (for Task Switcher / other OS)
-        stage.getIcons().add(new javafx.scene.image.Image(
-                Objects.requireNonNull(getClass().getResourceAsStream("Budget_Tuner.png"))));
-
-        stage.setScene(scene);
-
-        // Manual maximization logic for WSL
-        javafx.geometry.Rectangle2D primaryScreenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-        stage.setX(primaryScreenBounds.getMinX());
-        stage.setY(primaryScreenBounds.getMinY());
-        stage.setWidth(primaryScreenBounds.getWidth());
-        stage.setHeight(primaryScreenBounds.getHeight());
-        stage.setResizable(false);
-
-        stage.show();
-
-        stage.setOnCloseRequest(event -> {
-            javafx.application.Platform.exit();
-            System.exit(0);
-        });
-    }
-
-    public static void main(final String[] args) {
-        launch();
-    }
+        /**
+         * The main method, serving as the entry point for the application.
+         *
+         * @param args Command line arguments.
+         */
+        public static void main(final String[] args) {
+                launch();
+        }
 }

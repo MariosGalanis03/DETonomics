@@ -1,25 +1,23 @@
 package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.model.BudgetYear;
-import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.ViewManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
+/**
+ * Controller for the Budget Comparison selection view.
+ * Allows users to select two budget years and view a side-by-side comparison.
+ */
 public class ComparisonController {
 
     @FXML
@@ -44,8 +42,25 @@ public class ComparisonController {
     @FXML
     private BarChart<String, Number> comparisonChart;
 
-    private final BudgetDataServiceImpl dataService = new BudgetDataServiceImpl();
+    private final ViewManager viewManager;
+    private final BudgetDataService dataService;
 
+    /**
+     * Constructs the ComparisonController.
+     *
+     * @param viewManager The manager for handling view transitions.
+     * @param dataService The service for budget data retrieval.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+    public ComparisonController(ViewManager viewManager, BudgetDataService dataService) {
+        this.viewManager = viewManager;
+        this.dataService = dataService;
+    }
+
+    /**
+     * Initializes the controller class.
+     * Loads available budget years into the dropdowns.
+     */
     @FXML
     public void initialize() {
         loadYears();
@@ -141,27 +156,14 @@ public class ComparisonController {
         comparisonChart.getData().addAll(seriesA, seriesB);
     }
 
+    /**
+     * Handles the back button click, returning to the welcome screen.
+     *
+     * @param event The action event.
+     */
     @FXML
-    public void onBackClick(ActionEvent event) throws IOException {
-        // Επιστροφή στο κεντρικό μενού (Welcome View) ή όπου αλλού θες
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("welcome-view.fxml"));
-        Parent root = loader.load();
-
-        Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-        scene.getStylesheets().add(css);
-
-        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        window.setScene(scene);
-
-        // Reset window geometry if needed (optional)
-        javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-        window.setX(bounds.getMinX());
-        window.setY(bounds.getMinY());
-        window.setWidth(bounds.getWidth());
-        window.setHeight(bounds.getHeight());
-        window.setResizable(false);
-
-        window.show();
+    public void onBackClick(ActionEvent event) {
+        // Επιστροφή στο κεντρικό μενού via ViewManager
+        viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 }

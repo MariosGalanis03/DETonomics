@@ -59,11 +59,11 @@ public final class Ministry {
         return name;
     }
 
-    long getRegularBudget() {
+    public long getRegularBudget() {
         return regularBudget;
     }
 
-    long getPublicInvestmentBudget() {
+    public long getPublicInvestmentBudget() {
         return publicInvestmentBudget;
     }
 
@@ -76,15 +76,15 @@ public final class Ministry {
         return totalBudget;
     }
 
-    void setRegularBudget(final long regularBudget) {
+    public void setRegularBudget(final long regularBudget) {
         this.regularBudget = regularBudget;
     }
 
-    void setPublicInvestmentBudget(final long publicInvestmentBudget) {
+    public void setPublicInvestmentBudget(final long publicInvestmentBudget) {
         this.publicInvestmentBudget = publicInvestmentBudget;
     }
 
-    void setTotalBudget(final long totalBudget) {
+    public void setTotalBudget(final long totalBudget) {
         this.totalBudget = totalBudget;
     }
 

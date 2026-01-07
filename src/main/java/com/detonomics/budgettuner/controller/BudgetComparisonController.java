@@ -1,30 +1,28 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.SummaryDao;
-import com.detonomics.budgettuner.util.GuiUtils;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.BudgetFormatter;
+import com.detonomics.budgettuner.util.ViewManager;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+/**
+ * Controller for the Budget Comparison View.
+ * Handles the logic for comparing two budget years, displaying charts and
+ * statistics.
+ */
 public class BudgetComparisonController {
 
     @FXML
@@ -66,10 +64,29 @@ public class BudgetComparisonController {
     private List<Summary> allSummaries;
     private boolean isUpdating = false;
 
+    private final ViewManager viewManager;
+    private final BudgetDataService dataService;
+
+    /**
+     * Constructs the BudgetComparisonController.
+     *
+     * @param viewManager The manager for handling view transitions.
+     * @param dataService The service for budget data retrieval.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+    public BudgetComparisonController(ViewManager viewManager, BudgetDataService dataService) {
+        this.viewManager = viewManager;
+        this.dataService = dataService;
+    }
+
+    /**
+     * Initializes the controller class.
+     * Loads available budgets into the combo boxes.
+     */
     @FXML
     public void initialize() {
         // Load ALL budgets (including clones)
-        allSummaries = SummaryDao.loadAllSummaries();
+        allSummaries = dataService.loadAllSummaries();
 
         // Setup StringConverter to display source_title
         StringConverter<Summary> converter = new StringConverter<>() {
@@ -111,6 +128,12 @@ public class BudgetComparisonController {
         });
     }
 
+    /**
+     * Sets the pre-selected years for comparison.
+     *
+     * @param s1 The summary for the first year.
+     * @param s2 The summary for the second year.
+     */
     public void setPreselectedYears(Summary s1, Summary s2) {
         if (s1 != null) {
             // Find the object in the items list that aligns (equals might rely on ref or
@@ -138,7 +161,7 @@ public class BudgetComparisonController {
         Summary selectedYear2 = year2ComboBox.getValue();
         List<Summary> availableOptions = allSummaries.stream()
                 .filter(s -> selectedYear2 == null || s.getBudgetID() != selectedYear2.getBudgetID())
-                .toList();
+                .collect(Collectors.toList());
 
         Summary currentSelection = year1ComboBox.getValue();
         year1ComboBox.getItems().clear();
@@ -159,7 +182,7 @@ public class BudgetComparisonController {
         Summary selectedYear1 = year1ComboBox.getValue();
         List<Summary> availableOptions = allSummaries.stream()
                 .filter(s -> selectedYear1 == null || s.getBudgetID() != selectedYear1.getBudgetID())
-                .toList();
+                .collect(Collectors.toList());
 
         Summary currentSelection = year2ComboBox.getValue();
         year2ComboBox.getItems().clear();
@@ -248,8 +271,8 @@ public class BudgetComparisonController {
     }
 
     @FXML
-    void onBackClick(ActionEvent event) throws IOException {
-        GuiUtils.navigate(event, "welcome-view.fxml");
+    void onBackClick(ActionEvent event) {
+        viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 
     @FXML
@@ -258,29 +281,9 @@ public class BudgetComparisonController {
     }
 
     private void navigateToAnalysis(ActionEvent event, ComparisonDetailsController.ComparisonType type) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("comparison-details-view.fxml"));
-            Parent root = loader.load();
-
-            ComparisonDetailsController controller = loader.getController();
-            controller.setContext(year1ComboBox.getValue(), year2ComboBox.getValue(), type);
-
-            Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-            String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-            scene.getStylesheets().add(css);
-
-            Stage window = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            window.setScene(scene);
-
-            // Maintain bounds
-            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-            window.setX(bounds.getMinX());
-            window.setY(bounds.getMinY());
-            window.setWidth(bounds.getWidth());
-            window.setHeight(bounds.getHeight());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        viewManager.switchScene("comparison-details-view.fxml", "Σύγκριση Ανάλυσης",
+                (ComparisonDetailsController controller) -> controller.setContext(year1ComboBox.getValue(),
+                        year2ComboBox.getValue(), type));
     }
 
     @FXML

@@ -2,25 +2,24 @@ package com.detonomics.budgettuner.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Utility class for database operations.
  */
-public final class DatabaseManager {
+public class DatabaseManager {
 
-    private DatabaseManager() {
-        throw new AssertionError("Utility class");
-    }
+    private final String dbPath;
 
     static {
         try {
@@ -31,55 +30,122 @@ public final class DatabaseManager {
     }
 
     /**
-     * Εκτέλεση ενημερωτικής εντολής (INSERT/UPDATE/DELETE) με παραμέτρους
-     * (PreparedStatement).
-     */
-    /**
-     * Executes an update (INSERT/UPDATE/DELETE) statement.
+     * Constructs a new DatabaseManager with the specified database path.
      *
-     * @param dbPath The database path.
+     * @param dbPath The path to the SQLite database file.
+     */
+    public DatabaseManager(String dbPath) {
+        this.dbPath = dbPath;
+    }
+
+    private Connection createConnection() throws SQLException {
+        String url = "jdbc:sqlite:" + dbPath;
+        return DriverManager.getConnection(url);
+    }
+
+    /**
+     * Executes a transactional operation.
+     *
+     * @param action The action to execute with the connection.
+     * @throws SQLException If an error occurs.
+     */
+    public void inTransaction(Consumer<Connection> action) throws SQLException {
+        try (Connection conn = createConnection()) {
+            boolean originalAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                action.accept(conn);
+                conn.commit();
+            } catch (Exception e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    // Logging ignored
+                }
+                throw new SQLException("Transaction failed: " + e.getMessage(), e);
+            } finally {
+                conn.setAutoCommit(originalAutoCommit);
+            }
+        }
+    }
+
+    /**
+     * Executes a transactional operation returning a result.
+     *
+     * @param action The function to execute with the connection.
+     * @param <T>    The type of the result.
+     * @return The result of the action.
+     * @throws SQLException If an error occurs.
+     */
+    public <T> T inTransaction(java.util.function.Function<Connection, T> action) throws SQLException {
+        try (Connection conn = createConnection()) {
+            boolean originalAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                T result = action.apply(conn);
+                conn.commit();
+                return result;
+            } catch (Exception e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    // Logging ignored
+                }
+                throw new SQLException("Transaction failed: " + e.getMessage(), e);
+            } finally {
+                conn.setAutoCommit(originalAutoCommit);
+            }
+        }
+    }
+
+    /**
+     * Executes an update (INSERT/UPDATE/DELETE) statement using a specific
+     * connection.
+     *
+     * @param conn   The database connection.
      * @param sql    The SQL statement.
      * @param params The parameters for the statement.
      * @return The number of rows affected.
      */
-    public static int executeUpdate(final String dbPath, final String sql,
-            final Object... params) {
-        String url = "jdbc:sqlite:" + dbPath;
-        try (Connection conn = DriverManager.getConnection(url);
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
+    public int executeUpdate(Connection conn, String sql, Object... params) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             bindParameters(ps, params);
             return ps.executeUpdate();
-
         } catch (SQLException e) {
-            System.err.println(
-                    "Σφάλμα κατά την εκτέλεση prepared update: "
-                            + e.getMessage());
+            System.err.println("Error executing update: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Executes an update (INSERT/UPDATE/DELETE) statement (creates a new
+     * connection).
+     *
+     * @param sql    The SQL statement.
+     * @param params The parameters for the statement.
+     * @return The number of rows affected.
+     */
+    public int executeUpdate(String sql, Object... params) {
+        try (Connection conn = createConnection()) {
+            return executeUpdate(conn, sql, params);
+        } catch (SQLException e) {
+            System.err.println("Error executing update: " + e.getMessage());
             return 0;
         }
     }
 
     /**
-     * Εκτέλεση ερωτήματος (SELECT) με παραμέτρους (PreparedStatement).
-     */
-    /**
-     * Executes a query (SELECT) statement.
+     * Executes a query (SELECT) statement using a specific connection.
      *
-     * @param dbPath The database path.
+     * @param conn   The database connection.
      * @param sql    The SQL statement.
      * @param params The parameters for the statement.
      * @return A list of maps representing the result rows.
      */
-    public static List<Map<String, Object>> executeQuery(final String dbPath,
-            final String sql, final Object... params) {
-        String url = "jdbc:sqlite:" + dbPath;
+    public List<Map<String, Object>> executeQuery(Connection conn, String sql, Object... params) {
         List<Map<String, Object>> results = new ArrayList<>();
-
-        try (Connection conn = DriverManager.getConnection(url);
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             bindParameters(ps, params);
-
             try (ResultSet rs = ps.executeQuery()) {
                 ResultSetMetaData md = rs.getMetaData();
                 int columnCount = md.getColumnCount();
@@ -92,18 +158,31 @@ public final class DatabaseManager {
                     results.add(row);
                 }
             }
-
         } catch (SQLException e) {
-            System.err.println(
-                    "Σφάλμα κατά την εκτέλεση prepared query: "
-                            + e.getMessage());
+            System.err.println("Error executing query: " + e.getMessage());
+            throw new RuntimeException(e);
         }
-
         return results;
     }
 
-    private static void bindParameters(final PreparedStatement ps,
-            final Object... params) throws SQLException {
+    /**
+     * Executes a query (SELECT) statement (creates a new connection).
+     *
+     * @param sql    The SQL statement.
+     * @param params The parameters for the statement.
+     * @return A list of maps representing the result rows.
+     */
+    public List<Map<String, Object>> executeQuery(String sql, Object... params) {
+        try (Connection conn = createConnection()) {
+            return executeQuery(conn, sql, params);
+        } catch (SQLException e) {
+            System.err.println("Error executing query: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    // Static helper to be used internally
+    private static void bindParameters(final PreparedStatement ps, final Object... params) throws SQLException {
         if (params == null) {
             return;
         }
@@ -130,5 +209,36 @@ public final class DatabaseManager {
                 ps.setString(idx, p.toString());
             }
         }
+    }
+
+    /**
+     * Legacy static method for backward compatibility during refactoring.
+     *
+     * @param dbPath The database path.
+     * @param sql    The SQL statement.
+     * @param params The parameters.
+     * @return The number of rows affected.
+     * @deprecated Use instance method executeUpdate(String sql, Object... params)
+     *             instead.
+     */
+    @Deprecated
+    public static int executeUpdate(final String dbPath, final String sql, final Object... params) {
+        return new DatabaseManager(dbPath).executeUpdate(sql, params);
+    }
+
+    /**
+     * Legacy static method for backward compatibility during refactoring.
+     *
+     * @param dbPath The database path.
+     * @param sql    The SQL statement.
+     * @param params The parameters.
+     * @return A list of result rows.
+     * @deprecated Use instance method executeQuery(String sql, Object... params)
+     *             instead.
+     */
+    @Deprecated
+    public static List<Map<String, Object>> executeQuery(final String dbPath, final String sql,
+            final Object... params) {
+        return new DatabaseManager(dbPath).executeQuery(sql, params);
     }
 }

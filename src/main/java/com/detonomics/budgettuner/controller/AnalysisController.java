@@ -1,72 +1,82 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.SummaryDao;
 import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.ViewManager;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
-
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
-import javafx.stage.Stage;
 
 /**
  * Controller for the Analysis View.
  * Handles the display of budget analysis charts and lists (Revenue, Expense,
  * Ministry).
  */
-public final class AnalysisController {
+public class AnalysisController {
 
     @FXML
-    private javafx.scene.control.Label titleLabel;
+    private Label titleLabel;
     @FXML
-    private javafx.scene.control.Label totalTitleLabel;
+    private Label totalTitleLabel;
     @FXML
-    private javafx.scene.control.Label diffTitleLabel;
+    private Label diffTitleLabel;
     @FXML
-    private javafx.scene.control.Label totalAmountLabel;
+    private Label totalAmountLabel;
     @FXML
-    private javafx.scene.control.Label diffAmountLabel;
+    private Label diffAmountLabel;
     @FXML
-    private javafx.scene.control.Label perfLabel;
+    private Label perfLabel;
     @FXML
-    private javafx.scene.control.Label chartTitleLabel;
+    private Label chartTitleLabel;
     @FXML
-    private javafx.scene.chart.PieChart pieChart;
+    private PieChart pieChart;
     @FXML
-    private javafx.scene.layout.VBox itemsBox;
+    private VBox itemsBox;
 
     private BudgetYear budget;
-    private String dbPath;
     private AnalysisType analysisType;
-    private Popup popup = new Popup();
+    private final Popup popup = new Popup();
+
+    private final ViewManager viewManager;
+    private final BudgetDataService dataService;
+
+    /**
+     * Constructs the AnalysisController.
+     *
+     * @param viewManager The manager for handling view transitions.
+     * @param dataService The service for retrieving budget data.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+    public AnalysisController(ViewManager viewManager, BudgetDataService dataService) {
+        this.viewManager = viewManager;
+        this.dataService = dataService;
+    }
 
     /**
      * Initializes the controller with the necessary context.
      *
      * @param budgetIn The budget year object to analyze.
-     * @param dbPathIn The path to the database.
      * @param typeIn   The type of analysis to perform (Revenue, Expense, or
      *                 Ministry).
      */
-    public void setContext(final BudgetYear budgetIn, final String dbPathIn,
-            final AnalysisType typeIn) {
+    public void setContext(final BudgetYear budgetIn, final AnalysisType typeIn) {
         this.budget = budgetIn;
-        this.dbPath = dbPathIn;
         this.analysisType = typeIn;
         loadAnalysisData();
     }
@@ -113,7 +123,7 @@ public final class AnalysisController {
         int prevYear = currentYear - 1;
 
         // Find previous year budget with matching source_title pattern
-        List<Summary> allSummaries = SummaryDao.loadAllSummaries();
+        List<Summary> allSummaries = dataService.loadAllSummaries();
         Summary prevSummary = allSummaries.stream()
                 .filter(s -> s.getBudgetYear() == prevYear)
                 .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
@@ -215,7 +225,7 @@ public final class AnalysisController {
         for (int i = 0; i < limit; i++) {
             DataPoint dp = dataPoints.get(i);
             String label = String.format("%s (%,d €)", dp.name, dp.amount);
-            pieChart.getData().add(new javafx.scene.chart.PieChart.Data(label, dp.amount));
+            pieChart.getData().add(new PieChart.Data(label, dp.amount));
             combinedTop5 += dp.amount;
         }
 
@@ -225,11 +235,11 @@ public final class AnalysisController {
 
         if (otherAmount > 0) {
             String label = String.format("Άλλα (%,d €)", otherAmount);
-            pieChart.getData().add(new javafx.scene.chart.PieChart.Data(label, otherAmount));
+            pieChart.getData().add(new PieChart.Data(label, otherAmount));
         }
 
         // Add Tooltips
-        for (javafx.scene.chart.PieChart.Data data : pieChart.getData()) {
+        for (PieChart.Data data : pieChart.getData()) {
             // Add hover effect with floating label at cursor
             data.getNode().setOnMouseEntered(event -> {
                 data.getNode().setStyle("-fx-opacity: 0.8; -fx-cursor: hand;");
@@ -260,7 +270,7 @@ public final class AnalysisController {
 
     }
 
-    private String getFormattedText(javafx.scene.chart.PieChart.Data data) {
+    private String getFormattedText(PieChart.Data data) {
         String fullName = data.getName();
         String name = fullName;
         if (fullName.contains(" (")) {
@@ -306,7 +316,7 @@ public final class AnalysisController {
                         List<MinistryExpense> mExpenses = budget.getMinistryExpenses().stream()
                                 .filter(me -> me.getMinistryID() == m.getMinistryID())
                                 .sorted((me1, me2) -> Long.compare(me2.getAmount(), me1.getAmount()))
-                                .collect(java.util.stream.Collectors.toList());
+                                .collect(Collectors.toList());
 
                         List<DataPoint> childItems = new ArrayList<>();
                         for (MinistryExpense me : mExpenses) {
@@ -323,10 +333,10 @@ public final class AnalysisController {
     private void addSimpleItem(String name, long amount) {
         javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
         hbox.setSpacing(10);
-        javafx.scene.control.Label nameLbl = new javafx.scene.control.Label(name);
+        Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
         nameLbl.setPrefWidth(300);
-        javafx.scene.control.Label amtLbl = new javafx.scene.control.Label(
+        Label amtLbl = new Label(
                 String.format("%,d €", amount));
         amtLbl.setStyle("-fx-font-weight: bold;");
         hbox.getChildren().addAll(nameLbl, amtLbl);
@@ -342,10 +352,10 @@ public final class AnalysisController {
         if (children == null || children.isEmpty()) {
             return createSimpleItemBox(cat.getName(), cat.getAmount());
         } else {
-            javafx.scene.control.TitledPane pane = createTitledPane(cat.getName(), cat.getAmount());
+            TitledPane pane = createTitledPane(cat.getName(), cat.getAmount());
 
             // Lazy Load: Set a placeholder initially
-            javafx.scene.layout.VBox placeholder = new javafx.scene.layout.VBox();
+            VBox placeholder = new VBox();
             pane.setContent(placeholder);
 
             pane.expandedProperty().addListener((obs, wasExpanded, isExpanded) -> {
@@ -353,7 +363,7 @@ public final class AnalysisController {
                     // Mark as loaded
                     pane.setUserData(Boolean.TRUE);
 
-                    javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
+                    VBox contentBox = new VBox();
                     contentBox.setSpacing(5);
                     contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
 
@@ -374,10 +384,10 @@ public final class AnalysisController {
             return createSimpleItemBox(title, amount);
         }
 
-        javafx.scene.control.TitledPane pane = createTitledPane(title, amount);
+        TitledPane pane = createTitledPane(title, amount);
 
         // Lazy Load: Set a placeholder initially
-        javafx.scene.layout.VBox placeholder = new javafx.scene.layout.VBox();
+        VBox placeholder = new VBox();
         pane.setContent(placeholder);
 
         pane.expandedProperty().addListener((obs, wasExpanded, isExpanded) -> {
@@ -385,7 +395,7 @@ public final class AnalysisController {
                 // Mark as loaded
                 pane.setUserData(Boolean.TRUE);
 
-                javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox();
+                VBox contentBox = new VBox();
                 contentBox.setSpacing(5);
                 contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
 
@@ -399,22 +409,22 @@ public final class AnalysisController {
         return pane;
     }
 
-    private javafx.scene.control.TitledPane createTitledPane(String title, long amount) {
+    private TitledPane createTitledPane(String title, long amount) {
         javafx.scene.layout.HBox headerBox = new javafx.scene.layout.HBox();
         headerBox.setSpacing(10);
         headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-        javafx.scene.control.Label titleLbl = new javafx.scene.control.Label(title);
+        Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
         titleLbl.setPrefWidth(280);
         // No inline bold (handled by CSS for collapsed state)
 
-        javafx.scene.control.Label amtLbl = new javafx.scene.control.Label(String.format("%,d €", amount));
+        Label amtLbl = new Label(String.format("%,d €", amount));
         amtLbl.setStyle("-fx-font-weight: bold;");
 
         headerBox.getChildren().addAll(titleLbl, amtLbl);
 
-        javafx.scene.control.TitledPane pane = new javafx.scene.control.TitledPane();
+        TitledPane pane = new TitledPane();
         pane.setGraphic(headerBox);
         pane.setExpanded(false);
         pane.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
@@ -427,10 +437,10 @@ public final class AnalysisController {
     private javafx.scene.layout.HBox createSimpleItemBox(String name, long amount) {
         javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
         hbox.setSpacing(10);
-        javafx.scene.control.Label nameLbl = new javafx.scene.control.Label(name);
+        Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
         nameLbl.setPrefWidth(300);
-        javafx.scene.control.Label amtLbl = new javafx.scene.control.Label(
+        Label amtLbl = new Label(
                 String.format("%,d €", amount));
         amtLbl.setStyle("-fx-font-weight: bold;");
         hbox.getChildren().addAll(nameLbl, amtLbl);
@@ -442,35 +452,11 @@ public final class AnalysisController {
      * Navigates back to the Budget Details view.
      *
      * @param event The action event triggered by the button click.
-     * @throws IOException If the FXML file for the previous view cannot be loaded.
      */
     @FXML
-    public void onBackClick(final ActionEvent event) throws IOException {
+    public void onBackClick(final ActionEvent event) {
         // Navigate back to Budget Details View
-        final FXMLLoader loader = new FXMLLoader(getClass()
-                .getResource("budget-details-view.fxml"));
-        final Parent root = loader.load();
-
-        final BudgetDetailsController controller = loader.getController();
-        controller.setContext(budget, dbPath);
-
-        final Scene scene = new Scene(root,
-                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-        final String css = Objects.requireNonNull(getClass()
-                .getResource("styles.css")).toExternalForm();
-        scene.getStylesheets().add(css);
-
-        final Stage window = (Stage) ((Node) event.getSource())
-                .getScene().getWindow();
-        window.setScene(scene);
-
-        javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-        window.setX(bounds.getMinX());
-        window.setY(bounds.getMinY());
-        window.setWidth(bounds.getWidth());
-        window.setHeight(bounds.getHeight());
-        window.setResizable(false);
-
-        window.show();
+        viewManager.switchScene("budget-details-view.fxml", "Λεπτομέρειες Προϋπολογισμού",
+                (BudgetDetailsController controller) -> controller.setContext(budget));
     }
 }

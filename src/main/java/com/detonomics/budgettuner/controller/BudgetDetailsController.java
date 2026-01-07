@@ -1,28 +1,31 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.SummaryDao;
 import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.GuiUtils;
+import com.detonomics.budgettuner.util.ViewManager;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.control.Label;
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
-public final class BudgetDetailsController {
+/**
+ * Controller for the Budget Details View.
+ * Displays detailed information about a selected budget year.
+ */
+public class BudgetDetailsController {
 
         @FXML
         private Label titleLabel;
@@ -39,23 +42,39 @@ public final class BudgetDetailsController {
         @FXML
         private BarChart<String, Number> differenceChart;
         @FXML
-        private javafx.scene.layout.VBox topRevenuesBox;
+        private VBox topRevenuesBox;
         @FXML
-        private javafx.scene.layout.VBox topExpensesBox;
+        private VBox topExpensesBox;
         @FXML
-        private javafx.scene.layout.VBox topMinistriesBox;
+        private VBox topMinistriesBox;
         @FXML
-        private javafx.scene.layout.Pane menuOverlay;
+        private Pane menuOverlay;
         @FXML
-        private javafx.scene.layout.VBox menuDrawer;
+        private VBox menuDrawer;
 
         private BudgetYear budget;
-        private String dbPath;
+        private final ViewManager viewManager;
+        private final BudgetDataService dataService;
 
-        public void setContext(final BudgetYear budgetIn,
-                        final String dbPathIn) {
+        /**
+         * Constructs the BudgetDetailsController.
+         *
+         * @param viewManager The manager for handling view transitions.
+         * @param dataService The service for budget data retrieval.
+         */
+        @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+        public BudgetDetailsController(ViewManager viewManager, BudgetDataService dataService) {
+                this.viewManager = viewManager;
+                this.dataService = dataService;
+        }
+
+        /**
+         * Sets the context for the controller explicitly.
+         *
+         * @param budgetIn The BudgetYear object to display details for.
+         */
+        public void setContext(final BudgetYear budgetIn) {
                 this.budget = budgetIn;
-                this.dbPath = dbPathIn;
                 updateUI();
         }
 
@@ -84,16 +103,16 @@ public final class BudgetDetailsController {
 
         private void setupCharts() {
                 // Load data asynchronously
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                CompletableFuture.runAsync(() -> {
                         try {
                                 // Load only non-modified budgets for trend analysis
-                                final List<Summary> allSummaries = SummaryDao.loadAllSummaries().stream()
+                                final List<Summary> allSummaries = dataService.loadAllSummaries().stream()
                                                 .filter(s -> s.getSourceTitle()
                                                                 .equals("Προϋπολογισμός " + s.getBudgetYear()))
                                                 .toList();
 
                                 // Update charts on UI thread
-                                javafx.application.Platform.runLater(() -> {
+                                Platform.runLater(() -> {
                                         // If the current budget is NOT in the filtered list (i.e. it's a custom budget
                                         // or modified version),
                                         // we want to append it to the end so it shows up in the charts.
@@ -109,7 +128,7 @@ public final class BudgetDetailsController {
                                         // Define Category Extractor:
                                         // If it's this specific custom budget, use its Source Title.
                                         // Otherwise, use the Year.
-                                        java.util.function.Function<Summary, String> categoryExtractor = s -> {
+                                        Function<Summary, String> categoryExtractor = s -> {
                                                 if (s.getBudgetID() == budget.getSummary().getBudgetID() && isCustom) {
                                                         return s.getSourceTitle();
                                                 } else {
@@ -193,6 +212,11 @@ public final class BudgetDetailsController {
                 return hbox;
         }
 
+        /**
+         * Opens the side menu drawer.
+         *
+         * @param event The action event.
+         */
         @FXML
         public void onMenuButtonClick(ActionEvent event) {
                 menuOverlay.setVisible(true);
@@ -200,199 +224,129 @@ public final class BudgetDetailsController {
                 menuDrawer.setTranslateX(0);
         }
 
+        /**
+         * Closes the side menu drawer when clicking the overlay.
+         *
+         * @param event The mouse event.
+         */
         @FXML
         public void onMenuOverlayClick(javafx.scene.input.MouseEvent event) {
                 menuOverlay.setVisible(false);
                 menuDrawer.setVisible(false);
         }
 
+        /**
+         * Exits the application from the menu.
+         *
+         * @param event The action event.
+         */
         @FXML
         public void onMenuExitClick(ActionEvent event) {
                 javafx.application.Platform.exit();
         }
 
+        /**
+         * Navigates to the Budget Selection view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onMenuSelectBudgetClick(ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass().getResource("budget-view.fxml"));
-                final Parent root = loader.load();
-                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
+        public void onMenuSelectBudgetClick(ActionEvent event) {
+                viewManager.switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
         }
 
+        /**
+         * Navigates to the Budget Import view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onMenuImportBudgetClick(final ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass().getResource("ingest-view.fxml"));
-                final Parent root = loader.load();
-
-                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
+        public void onMenuImportBudgetClick(final ActionEvent event) {
+                viewManager.switchScene("ingest-view.fxml", "Εισαγωγή Νέου Προϋπολογισμού");
         }
 
+        /**
+         * Navigates to the Budget Comparison view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onMenuCompareBudgetsClick(final ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass().getResource("budget-comparison-view.fxml"));
-                final Parent root = loader.load();
-
-                final Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(true);
-
-                window.show();
+        public void onMenuCompareBudgetsClick(final ActionEvent event) {
+                viewManager.switchScene("budget-comparison-view.fxml", "Σύγκριση Προϋπολογισμών");
         }
 
+        /**
+         * Opens the Revenue Analysis view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onRevenueAnalysisClick(final ActionEvent event) throws IOException {
+        public void onRevenueAnalysisClick(final ActionEvent event) {
                 openAnalysis(event, AnalysisType.REVENUE);
         }
 
+        /**
+         * Opens the Expense Analysis view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onExpenseAnalysisClick(final ActionEvent event) throws IOException {
+        public void onExpenseAnalysisClick(final ActionEvent event) {
                 openAnalysis(event, AnalysisType.EXPENSE);
         }
 
+        /**
+         * Opens the Ministry Analysis view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onMinistryAnalysisClick(final ActionEvent event) throws IOException {
+        public void onMinistryAnalysisClick(final ActionEvent event) {
                 openAnalysis(event, AnalysisType.MINISTRY);
         }
 
+        /**
+         * Opens the Expense Editor (Budget Modification) view.
+         *
+         * @param event The action event.
+         */
         @FXML
         public void onModifyExpenseClick(final ActionEvent event) {
-                try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("expense-editor-view.fxml"));
-                        Parent root = loader.load();
-
-                        BudgetModificationController controller = loader.getController();
-                        Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                        controller.setContext(budget);
-
-                        Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-                        scene.getStylesheets().add(css);
-                        currentStage.setScene(scene);
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
+                viewManager.switchScene("expense-editor-view.fxml", "Τροποποίηση Προϋπολογισμού",
+                                (BudgetModificationController controller) -> controller.setContext(budget));
         }
 
+        /**
+         * Handles the back click, returning to the Budget Selection view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onBackClick(final ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("budget-view.fxml"));
-                final Parent root = loader.load();
-                // Controller for budget-view is BudgetController.
-                // It initializes itself (loadBudgetsFromDatabase).
-
-                final Scene scene = new Scene(root,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource())
-                                .getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
+        public void onBackClick(final ActionEvent event) {
+                viewManager.switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
         }
 
-        private void openAnalysis(final ActionEvent event, final AnalysisType type)
-                        throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("analysis-view.fxml"));
-                final Parent root = loader.load();
-
-                final AnalysisController controller = loader.getController();
-                controller.setContext(budget, dbPath, type);
-
-                final Scene scene = new Scene(root,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource())
-                                .getScene().getWindow();
-                window.setScene(scene);
-
-                // Manual maximization for WSL compatibility
-                Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-                window.setX(primaryScreenBounds.getMinX());
-                window.setY(primaryScreenBounds.getMinY());
-                window.setWidth(primaryScreenBounds.getWidth());
-                window.setHeight(primaryScreenBounds.getHeight());
-
-                window.setResizable(false);
-                window.show();
+        private void openAnalysis(final ActionEvent event, final AnalysisType type) {
+                viewManager.switchScene("analysis-view.fxml", "Ανάλυση",
+                                (AnalysisController controller) -> controller.setContext(budget, type));
         }
 
+        /**
+         * Handles the back button click (alternative), returning to the Budget
+         * Selection view.
+         *
+         * @param event The action event.
+         */
         @FXML
-        public void onBackButtonClick(final ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("budget-view.fxml"));
-                final Parent root = loader.load();
-
-                final Scene scene = new Scene(root,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource())
-                                .getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(true);
-
-                window.show();
+        public void onBackButtonClick(final ActionEvent event) {
+                viewManager.switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
         }
 
+        /**
+         * Handles the exit button click, closing the application.
+         *
+         * @param event The action event.
+         */
         @FXML
         public void onExitClick(final ActionEvent event) {
                 System.exit(0);

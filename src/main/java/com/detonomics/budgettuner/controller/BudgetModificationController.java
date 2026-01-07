@@ -1,27 +1,41 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.*;
-import com.detonomics.budgettuner.model.*;
-import com.detonomics.budgettuner.util.DatabaseManager;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.geometry.Insets;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.scene.Node;
+import com.detonomics.budgettuner.model.BudgetYear;
+import com.detonomics.budgettuner.model.MinistryExpense;
+import com.detonomics.budgettuner.model.RevenueCategory;
+import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.service.BudgetModificationService;
+import com.detonomics.budgettuner.util.ViewManager;
+
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.io.IOException;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Controller for ministry analysis with budget modification capabilities.
  */
-public final class BudgetModificationController {
+public class BudgetModificationController {
 
     @FXML
     private Label titleLabel;
@@ -41,10 +55,34 @@ public final class BudgetModificationController {
     private Button cancelButton;
 
     private BudgetYear budget;
-    private Map<Integer, TextField> expenseFields = new HashMap<>();
-    private Map<Long, TextField> revenueFields = new HashMap<>();
-    private Map<Long, Long> originalRevenueAmounts = new HashMap<>();
+    private final Map<Integer, TextField> expenseFields = new HashMap<>();
+    private final Map<Long, TextField> revenueFields = new HashMap<>();
+    private final Map<Long, Long> originalRevenueAmounts = new HashMap<>();
 
+    private final ViewManager viewManager;
+    private final BudgetDataService dataService;
+    private final BudgetModificationService modificationService;
+
+    /**
+     * Constructs the BudgetModificationController.
+     *
+     * @param viewManager         The manager for handling view transitions.
+     * @param dataService         The service for budget data retrieval.
+     * @param modificationService The service for budget modification operations.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+    public BudgetModificationController(ViewManager viewManager, BudgetDataService dataService,
+            BudgetModificationService modificationService) {
+        this.viewManager = viewManager;
+        this.dataService = dataService;
+        this.modificationService = modificationService;
+    }
+
+    /**
+     * Sets the context (budget) for the controller.
+     *
+     * @param budget The budget to modify.
+     */
     public void setContext(BudgetYear budget) {
         this.budget = budget;
         loadEditors();
@@ -120,7 +158,7 @@ public final class BudgetModificationController {
                     List<MinistryExpense> mExpenses = budget.getMinistryExpenses().stream()
                             .filter(me -> me.getMinistryID() == m.getMinistryID())
                             .sorted((me1, me2) -> Long.compare(me2.getAmount(), me1.getAmount()))
-                            .collect(java.util.stream.Collectors.toList());
+                            .collect(Collectors.toList());
 
                     TitledPane pane = createMinistryTitledPane(m.getName(), m.getTotalBudget());
                     VBox contentBox = new VBox(5);
@@ -139,7 +177,7 @@ public final class BudgetModificationController {
 
     private TitledPane createTitledPane(String title, long amount, long code, boolean isRevenue) {
         HBox headerBox = new HBox(10);
-        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
@@ -166,7 +204,7 @@ public final class BudgetModificationController {
 
     private TitledPane createMinistryTitledPane(String title, long totalAmount) {
         HBox headerBox = new HBox(10);
-        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
@@ -223,6 +261,11 @@ public final class BudgetModificationController {
         return hbox;
     }
 
+    /**
+     * Handles the save button click, creating a new modified budget.
+     *
+     * @param event The action event.
+     */
     @FXML
     public void onSaveClick(ActionEvent event) {
         // Reset status label
@@ -254,14 +297,55 @@ public final class BudgetModificationController {
         cancelButton.setDisable(true);
 
         // Run save operation in background thread
-        java.util.concurrent.CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             try {
-                saveChangesAndNavigateToWelcome(sourceTitle);
-                javafx.application.Platform.runLater(() -> {
-                    navigateToWelcome();
-                });
-            } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
+                // Prepare updates
+                Map<Long, Long> revenueUpdates = new HashMap<>();
+                for (Map.Entry<Long, TextField> entry : revenueFields.entrySet()) {
+                    long code = entry.getKey();
+                    long newAmount = Long.parseLong(entry.getValue().getText());
+                    long originalAmount = originalRevenueAmounts.getOrDefault(code, -1L);
+                    if (newAmount != originalAmount) {
+                        revenueUpdates.put(code, newAmount);
+                    }
+                }
+
+                Map<Integer, Long> ministryUpdates = new HashMap<>();
+                for (Map.Entry<Integer, TextField> entry : expenseFields.entrySet()) {
+                    long newAmount = Long.parseLong(entry.getValue().getText());
+                    ministryUpdates.put(entry.getKey(), newAmount);
+                }
+
+                // 1. Clone
+                int budgetId = budget.getSummary().getBudgetID(); // Using current Budget ID to clone FROM
+                // Wait, if we are modifying, we are likely cloning the current one into a new
+                // one.
+                // Or are we cloning the original "base" one?
+                // The original code used BudgetYearDao.loadBudgetIDByYear(budgetYear) which
+                // implies it always cloned the "primary" budget for that year.
+                // But budget.getSummary().getBudgetID() is the ID of the budget being viewed.
+                // If I'm viewing a modified budget, do I clone THAT one?
+                // The original code was: `loadBudgetIDByYear` which gets the FIRST one likely,
+                // or specific one.
+                // Let's stick to cloning the CURRENTLY VIEWED budget to be safe, as that's what
+                // the user sees.
+                int sourceBudgetId = budget.getSummary().getBudgetID();
+
+                int newBudgetId = modificationService.cloneBudget(sourceBudgetId, sourceTitle);
+
+                if (newBudgetId != -1) {
+                    // 2. Apply Updates
+                    modificationService.updateBudgetAmounts(newBudgetId, revenueUpdates, ministryUpdates);
+
+                    Platform.runLater(() -> {
+                        navigateToWelcome();
+                    });
+                } else {
+                    throw new RuntimeException("Failed to clone budget.");
+                }
+
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> {
                     statusLabel.setVisible(false);
                     saveButton.setDisable(false);
                     cancelButton.setDisable(false);
@@ -282,204 +366,23 @@ public final class BudgetModificationController {
         statusLabel.setVisible(true);
     }
 
+    /**
+     * Handles the cancel button click, returning to the welcome screen.
+     *
+     * @param event The action event.
+     */
     @FXML
     public void onCancelClick(ActionEvent event) {
         navigateToWelcome();
     }
 
     private boolean sourceTitleExists(String sourceTitle) {
-        String sql = "SELECT COUNT(*) as count FROM Budgets WHERE source_title = ?";
-        var results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), sql, sourceTitle);
-        return !results.isEmpty() && ((Number) results.get(0).get("count")).intValue() > 0;
-    }
-
-    private void saveChangesAndNavigateToWelcome(String sourceTitle) {
-        try {
-            int budgetId = BudgetYearDao.loadBudgetIDByYear(budget.getSummary().getBudgetYear());
-            int newBudgetId = cloneBudget(budgetId, sourceTitle);
-
-            if (newBudgetId != -1) {
-                // 1. Apply Revenue Changes
-                for (Map.Entry<Long, TextField> entry : revenueFields.entrySet()) {
-                    long code = entry.getKey();
-                    long newAmount = Long.parseLong(entry.getValue().getText());
-                    long originalAmount = originalRevenueAmounts.getOrDefault(code, -1L);
-
-                    if (newAmount != originalAmount) {
-                        RevenueCategoryDao.setRevenueAmount(newBudgetId, code, newAmount);
-                    }
-                }
-
-                // 2. Apply Expense Changes
-                for (Map.Entry<Integer, TextField> entry : expenseFields.entrySet()) {
-                    long newAmount = Long.parseLong(entry.getValue().getText());
-                    updateMinistryExpense(newBudgetId, entry.getKey(), newAmount);
-                    performCascadingUpdates(newBudgetId, entry.getKey());
-                }
-
-                // 3. Final Summary Update (Recalculate Totals)
-                updateBudgetSummary(newBudgetId);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return dataService.loadAllSummaries().stream()
+                .anyMatch(s -> s.getSourceTitle().equalsIgnoreCase(sourceTitle));
     }
 
     private void navigateToWelcome() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("welcome-view.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-            String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-            scene.getStylesheets().add(css);
-
-            Stage stage = (Stage) saveButton.getScene().getWindow();
-            stage.setScene(scene);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private int cloneBudget(int originalBudgetId, String newSourceTitle) {
-        try {
-            Summary originalSummary = SummaryDao.loadSummary(originalBudgetId);
-            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
-            String sql = "INSERT INTO Budgets (source_title, source_date, budget_year, currency, locale, " +
-                    "total_revenue, total_expenses, budget_result, coverage_with_cash_reserves) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql,
-                    newSourceTitle,
-                    currentDate,
-                    originalSummary.getBudgetYear(),
-                    originalSummary.getCurrency(),
-                    originalSummary.getLocale(),
-                    originalSummary.getTotalRevenues(),
-                    originalSummary.getTotalExpenses(),
-                    originalSummary.getBudgetResult(),
-                    originalSummary.getCoverageWithCashReserves());
-
-            String selectSql = "SELECT budget_id FROM Budgets WHERE source_title = ? AND source_date = ? ORDER BY budget_id DESC LIMIT 1";
-            var results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), selectSql, newSourceTitle, currentDate);
-
-            if (results.isEmpty()) {
-                throw new RuntimeException("Failed to retrieve new budget ID");
-            }
-
-            int newBudgetId = (Integer) results.get(0).get("budget_id");
-
-            RevenueCategoryDao.cloneRevenueCategories(originalBudgetId, newBudgetId);
-            cloneExpenseCategories(originalBudgetId, newBudgetId);
-            cloneMinistries(originalBudgetId, newBudgetId);
-            cloneMinistryExpenses(originalBudgetId, newBudgetId);
-
-            return newBudgetId;
-        } catch (Exception e) {
-            System.err.println("Error cloning budget: " + e.getMessage());
-            return -1;
-        }
-    }
-
-    private void cloneExpenseCategories(int originalBudgetId, int newBudgetId) {
-        String sql = "INSERT INTO ExpenseCategories (budget_id, code, name, amount) " +
-                "SELECT ?, code, name, amount FROM ExpenseCategories WHERE budget_id = ?";
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newBudgetId, originalBudgetId);
-    }
-
-    private void cloneMinistries(int originalBudgetId, int newBudgetId) {
-        String sql = "INSERT INTO Ministries (budget_id, code, name, regular_budget, public_investment_budget, total_budget) "
-                +
-                "SELECT ?, code, name, regular_budget, public_investment_budget, total_budget FROM Ministries WHERE budget_id = ?";
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newBudgetId, originalBudgetId);
-    }
-
-    private void cloneMinistryExpenses(int originalBudgetId, int newBudgetId) {
-        String sql = "INSERT INTO MinistryExpenses (ministry_id, expense_category_id, amount) " +
-                "SELECT (SELECT m2.ministry_id FROM Ministries m2 WHERE m2.budget_id = ? AND m2.code = m1.code), " +
-                "(SELECT e2.expense_category_id FROM ExpenseCategories e2 WHERE e2.budget_id = ? AND e2.code = e1.code), "
-                +
-                "me.amount " +
-                "FROM MinistryExpenses me " +
-                "JOIN Ministries m1 ON me.ministry_id = m1.ministry_id " +
-                "JOIN ExpenseCategories e1 ON me.expense_category_id = e1.expense_category_id " +
-                "WHERE m1.budget_id = ?";
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newBudgetId, newBudgetId, originalBudgetId);
-    }
-
-    private void updateMinistryExpense(int budgetId, int originalExpenseId, long newAmount) {
-        String selectSql = "SELECT me.*, m.code as ministry_code, e.code as expense_code " +
-                "FROM MinistryExpenses me " +
-                "JOIN Ministries m ON me.ministry_id = m.ministry_id " +
-                "JOIN ExpenseCategories e ON me.expense_category_id = e.expense_category_id " +
-                "WHERE me.ministry_expense_id = ?";
-
-        var results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), selectSql, originalExpenseId);
-        if (results.isEmpty())
-            return;
-
-        var row = results.get(0);
-        String ministryCode = (String) row.get("ministry_code");
-        String expenseCode = (String) row.get("expense_code");
-
-        String updateSql = "UPDATE MinistryExpenses SET amount = ? " +
-                "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? AND code = ?) " +
-                "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories WHERE budget_id = ? AND code = ?)";
-
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), updateSql, newAmount, budgetId, ministryCode, budgetId,
-                expenseCode);
-    }
-
-    private void performCascadingUpdates(int budgetId, int originalExpenseId) {
-        String selectSql = "SELECT me.*, m.code as ministry_code, e.code as expense_code " +
-                "FROM MinistryExpenses me " +
-                "JOIN Ministries m ON me.ministry_id = m.ministry_id " +
-                "JOIN ExpenseCategories e ON me.expense_category_id = e.expense_category_id " +
-                "WHERE me.ministry_expense_id = ?";
-
-        var results = DatabaseManager.executeQuery(DaoConfig.getDbPath(), selectSql, originalExpenseId);
-        if (results.isEmpty())
-            return;
-
-        var row = results.get(0);
-        String ministryCode = (String) row.get("ministry_code");
-        String expenseCode = (String) row.get("expense_code");
-
-        updateExpenseCategoryTotal(budgetId, expenseCode);
-        updateMinistryTotal(budgetId, ministryCode);
-        updateBudgetSummary(budgetId);
-    }
-
-    private void updateExpenseCategoryTotal(int budgetId, String expenseCode) {
-        String sql = "UPDATE ExpenseCategories SET amount = " +
-                "(SELECT COALESCE(SUM(me.amount), 0) FROM MinistryExpenses me " +
-                "JOIN Ministries m ON me.ministry_id = m.ministry_id " +
-                "WHERE m.budget_id = ? AND me.expense_category_id = ExpenseCategories.expense_category_id) " +
-                "WHERE budget_id = ? AND code = ?";
-
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetId, budgetId, expenseCode);
-    }
-
-    private void updateMinistryTotal(int budgetId, String ministryCode) {
-        String sql = "UPDATE Ministries SET total_budget = " +
-                "(SELECT COALESCE(SUM(me.amount), 0) FROM MinistryExpenses me " +
-                "WHERE me.ministry_id = Ministries.ministry_id) " +
-                "WHERE budget_id = ? AND code = ?";
-
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetId, ministryCode);
-    }
-
-    private void updateBudgetSummary(int budgetId) {
-        String sql = "UPDATE Budgets SET " +
-                "total_revenue = (SELECT COALESCE(SUM(amount), 0) FROM RevenueCategories WHERE budget_id = ? AND parent_id IS NULL), "
-                +
-                "total_expenses = (SELECT COALESCE(SUM(amount), 0) FROM ExpenseCategories WHERE budget_id = ?), " +
-                "budget_result = (SELECT COALESCE(SUM(amount), 0) FROM RevenueCategories WHERE budget_id = ? AND parent_id IS NULL) - "
-                +
-                "(SELECT COALESCE(SUM(amount), 0) FROM ExpenseCategories WHERE budget_id = ?) " +
-                "WHERE budget_id = ?";
-
-        DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, budgetId, budgetId, budgetId, budgetId, budgetId);
+        viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 
     private boolean validateInputs() {

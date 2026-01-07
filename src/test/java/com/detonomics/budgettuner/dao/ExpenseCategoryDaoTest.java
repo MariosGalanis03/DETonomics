@@ -14,45 +14,48 @@ import com.detonomics.budgettuner.util.DatabaseManager;
 
 public class ExpenseCategoryDaoTest {
 
-    private String originalDbPath;
+    @TempDir
+    Path tempDir;
+
+    private String dbPath;
+    private DatabaseManager dbManager;
+    private ExpenseCategoryDao expenseCategoryDao;
 
     @BeforeEach
     public void setUp() {
-        originalDbPath = DaoConfig.getDbPath();
+        dbPath = tempDir.resolve("test_expenses_" + System.nanoTime() + ".db").toAbsolutePath().toString();
+        dbManager = new DatabaseManager(dbPath);
+        expenseCategoryDao = new ExpenseCategoryDao(dbManager);
+
+        // Common schema creation
+        String createTableSql = """
+                CREATE TABLE ExpenseCategories (
+                    expense_category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    budget_id INTEGER,
+                    code TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    amount REAL
+                )
+                """;
+        dbManager.executeUpdate(createTableSql);
     }
 
     @AfterEach
     public void tearDown() {
-        DaoConfig.setDbPath(originalDbPath);
+        // No cleanup needed
     }
 
     @Test
-    public void testLoadExpenses(@TempDir Path tempDir) {
-        Path dbFile = tempDir.resolve("test-expenses.db");
-        String dbPath = dbFile.toAbsolutePath().toString();
-        DaoConfig.setDbPath(dbPath);
-
-        // Create the expense categories table
-        String createTableSql = """
-            CREATE TABLE ExpenseCategories (
-                expense_category_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                budget_id INTEGER,
-                code TEXT NOT NULL,
-                name TEXT NOT NULL,
-                amount REAL
-            )
-            """;
-        DatabaseManager.executeUpdate(dbPath, createTableSql);
-
+    public void testLoadExpenses() {
         // Insert test data
-        DatabaseManager.executeUpdate(dbPath,
-            "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
-            1, "21", "Personnel Expenses", 1000000L);
-        DatabaseManager.executeUpdate(dbPath,
-            "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
-            1, "22", "Social Benefits", 500000L);
+        dbManager.executeUpdate(
+                "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
+                1, "21", "Personnel Expenses", 1000000L);
+        dbManager.executeUpdate(
+                "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
+                1, "22", "Social Benefits", 500000L);
 
-        ArrayList<ExpenseCategory> expenses = ExpenseCategoryDao.loadExpenses(1);
+        ArrayList<ExpenseCategory> expenses = expenseCategoryDao.loadExpenses(1);
 
         assertEquals(2, expenses.size());
 
@@ -72,28 +75,12 @@ public class ExpenseCategoryDaoTest {
     }
 
     @Test
-    public void testLoadExpensesDifferentBudget(@TempDir Path tempDir) {
-        Path dbFile = tempDir.resolve("test-expenses2.db");
-        String dbPath = dbFile.toAbsolutePath().toString();
-        DaoConfig.setDbPath(dbPath);
+    public void testLoadExpensesDifferentBudget() {
+        dbManager.executeUpdate(
+                "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
+                2, "21", "Personnel Expenses", 1200000L);
 
-        // Create the expense categories table
-        String createTableSql = """
-            CREATE TABLE ExpenseCategories (
-                expense_category_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                budget_id INTEGER,
-                code TEXT NOT NULL,
-                name TEXT NOT NULL,
-                amount REAL
-            )
-            """;
-        DatabaseManager.executeUpdate(dbPath, createTableSql);
-
-        DatabaseManager.executeUpdate(dbPath,
-            "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
-            2, "21", "Personnel Expenses", 1200000L);
-
-        ArrayList<ExpenseCategory> expenses = ExpenseCategoryDao.loadExpenses(2);
+        ArrayList<ExpenseCategory> expenses = expenseCategoryDao.loadExpenses(2);
 
         assertEquals(1, expenses.size());
         ExpenseCategory expense = expenses.get(0);
@@ -104,57 +91,24 @@ public class ExpenseCategoryDaoTest {
     }
 
     @Test
-    public void testLoadExpensesEmptyResult(@TempDir Path tempDir) {
-        Path dbFile = tempDir.resolve("test-expenses-empty.db");
-        String dbPath = dbFile.toAbsolutePath().toString();
-        DaoConfig.setDbPath(dbPath);
-
-        // Create the expense categories table
-        String createTableSql = """
-            CREATE TABLE ExpenseCategories (
-                expense_category_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                budget_id INTEGER,
-                code TEXT NOT NULL,
-                name TEXT NOT NULL,
-                amount REAL
-            )
-            """;
-        DatabaseManager.executeUpdate(dbPath, createTableSql);
-
-        ArrayList<ExpenseCategory> expenses = ExpenseCategoryDao.loadExpenses(999);
-
+    public void testLoadExpensesEmptyResult() {
+        ArrayList<ExpenseCategory> expenses = expenseCategoryDao.loadExpenses(999);
         assertTrue(expenses.isEmpty());
     }
 
     @Test
-    public void testLoadExpensesWithNullAmount(@TempDir Path tempDir) {
-        Path dbFile = tempDir.resolve("test-expenses-null.db");
-        String dbPath = dbFile.toAbsolutePath().toString();
-        DaoConfig.setDbPath(dbPath);
-
-        // Create the expense categories table
-        String createTableSql = """
-            CREATE TABLE ExpenseCategories (
-                expense_category_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                budget_id INTEGER,
-                code TEXT NOT NULL,
-                name TEXT NOT NULL,
-                amount REAL
-            )
-            """;
-        DatabaseManager.executeUpdate(dbPath, createTableSql);
-
+    public void testLoadExpensesWithNullAmount() {
         // Insert test data
-        DatabaseManager.executeUpdate(dbPath,
-            "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
-            1, "21", "Personnel Expenses", 1000000L);
+        dbManager.executeUpdate(
+                "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, ?)",
+                1, "21", "Personnel Expenses", 1000000L);
 
         // Insert an expense with null amount
-        DatabaseManager.executeUpdate(dbPath,
-            "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, NULL)",
-            1, "23", "Other Expenses");
+        dbManager.executeUpdate(
+                "INSERT INTO ExpenseCategories (budget_id, code, name, amount) VALUES (?, ?, ?, NULL)",
+                1, "23", "Other Expenses");
 
-        ArrayList<ExpenseCategory> expenses = ExpenseCategoryDao.loadExpenses(1);
+        ArrayList<ExpenseCategory> expenses = expenseCategoryDao.loadExpenses(1);
 
         assertEquals(2, expenses.size());
         ExpenseCategory expense = expenses.get(1);

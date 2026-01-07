@@ -16,20 +16,12 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * Utility class for GUI-related operations.
+ * Provides helper methods for setting up charts and navigation.
+ */
 public class GuiUtils {
 
-    /**
-     * Sets up a BarChart with the provided data.
-     *
-     * @param chart          The chart to populate.
-     * @param seriesName     The name of the data series.
-     * @param data           The list of Summary objects to plot.
-     * @param valueExtractor Function to extract the Number value from a Summary.
-     * @param colorCondition Predicate to determine if a specific data point should
-     *                       be highlighted (e.g. current year).
-     *                       Returns true for highlight color (Red), false for
-     *                       default color (Blue).
-     */
     /**
      * Sets up a BarChart with the provided data.
      *
@@ -40,10 +32,7 @@ public class GuiUtils {
      * @param categoryExtractor Function to extract the category (String) from a
      *                          Summary (X-Axis label).
      * @param colorCondition    Predicate to determine if a specific data point
-     *                          should
-     *                          be highlighted (e.g. current year).
-     *                          Returns true for highlight color (Red), false for
-     *                          default color (Blue).
+     *                          should be highlighted.
      */
     public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
             Function<Summary, Number> valueExtractor, Function<Summary, String> categoryExtractor,
@@ -98,6 +87,13 @@ public class GuiUtils {
 
     /**
      * Overload for charts using Budget Year as default category.
+     *
+     * @param chart          The chart to populate.
+     * @param seriesName     The name of the data series.
+     * @param data           The list of Summary objects to plot.
+     * @param valueExtractor Function to extract the Number value from a Summary.
+     * @param colorCondition Predicate to determine if a specific data point should
+     *                       be highlighted.
      */
     public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
             Function<Summary, Number> valueExtractor, Predicate<Summary> colorCondition) {
@@ -106,6 +102,11 @@ public class GuiUtils {
 
     /**
      * Overload for simple blue charts (no special highlight condition).
+     *
+     * @param chart          The chart to populate.
+     * @param seriesName     The name of the data series.
+     * @param data           The list of Summary objects to plot.
+     * @param valueExtractor Function to extract the Number value from a Summary.
      */
     public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
             Function<Summary, Number> valueExtractor) {

@@ -1,31 +1,33 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.ViewManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * Controller for the Data Ingestion View.
+ * Handles parsing and importing of new budgets from PDF files.
+ */
 public class IngestController {
 
     @FXML
@@ -33,11 +35,11 @@ public class IngestController {
     @FXML
     private Button startButton;
     @FXML
-    private javafx.scene.control.Label statusLabel;
+    private Label statusLabel;
     @FXML
-    private javafx.scene.control.Label subStatusLabel;
+    private Label subStatusLabel;
     @FXML
-    private javafx.scene.control.ProgressBar progressBar;
+    private ProgressBar progressBar;
     @FXML
     private Button backButton;
     @FXML
@@ -47,6 +49,26 @@ public class IngestController {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Timeline animation;
 
+    private final ViewManager viewManager;
+    private final BudgetDataService dataService;
+
+    /**
+     * Constructs the IngestController.
+     *
+     * @param viewManager The manager for handling view transitions.
+     * @param dataService The service for budget data operations.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+    public IngestController(ViewManager viewManager, BudgetDataService dataService) {
+        this.viewManager = viewManager;
+        this.dataService = dataService;
+    }
+
+    /**
+     * Handles file selection for PDF ingestion.
+     *
+     * @param event The action event.
+     */
     @FXML
     public void onSelectFileClick(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -65,6 +87,11 @@ public class IngestController {
         }
     }
 
+    /**
+     * Starts the budget ingestion process (PDF -> Text -> JSON -> SQLite).
+     *
+     * @param event The action event.
+     */
     @FXML
     public void onStartClick(ActionEvent event) {
         if (selectedFile == null)
@@ -95,9 +122,8 @@ public class IngestController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                BudgetDataServiceImpl service = new BudgetDataServiceImpl();
                 // Pass a lambda that updates the text area on the javaFX thread
-                service.insertNewBudgetYear(selectedFile.getAbsolutePath(), message -> {
+                dataService.insertNewBudgetYear(selectedFile.getAbsolutePath(), message -> {
                     Platform.runLater(() -> updateProgressFromLog(message));
                 });
                 return null;
@@ -179,30 +205,22 @@ public class IngestController {
         }
     }
 
+    /**
+     * Handles the back button click, returning to the Welcome screen.
+     *
+     * @param event The action event.
+     */
     @FXML
-    public void onBackClick(ActionEvent event) throws IOException {
+    public void onBackClick(ActionEvent event) {
         // Return to Welcome Screen
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("welcome-view.fxml"));
-        Parent root = loader.load();
-
-        Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-        String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-        scene.getStylesheets().add(css);
-
-        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        window.setScene(scene);
-
-        // Maintain bounds/fullscreen simulation
-        javafx.geometry.Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-        window.setX(bounds.getMinX());
-        window.setY(bounds.getMinY());
-        window.setWidth(bounds.getWidth());
-        window.setHeight(bounds.getHeight());
-        window.setResizable(false);
-
-        window.show();
+        viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 
+    /**
+     * Handles the exit button click, closing the application.
+     *
+     * @param event The action event.
+     */
     @FXML
     public void onExitClick(ActionEvent event) {
         System.exit(0);

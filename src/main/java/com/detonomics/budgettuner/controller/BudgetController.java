@@ -2,51 +2,54 @@ package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
-import com.detonomics.budgettuner.service.BudgetDataServiceImpl;
-import com.detonomics.budgettuner.dao.SummaryDao;
+import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.ViewManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Alert;
-import com.detonomics.budgettuner.dao.BudgetYearDao;
+import javafx.util.Callback;
 
 /**
  * Controller for the Budget Selection View.
  * allowing users to view a list of available budgets and select one to view
  * details.
  */
-public final class BudgetController {
+public class BudgetController {
 
         @FXML
         private ListView<String> budgetList;
 
         @FXML
-        private javafx.scene.control.TextField searchField;
+        private TextField searchField;
 
-        private final BudgetDataServiceImpl dataService = new BudgetDataServiceImpl();
+        private final ViewManager viewManager;
+        private final BudgetDataService dataService;
         private List<Summary> budgetSummaries;
         private ObservableList<String> items;
+
+        @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+        public BudgetController(ViewManager viewManager, BudgetDataService dataService) {
+                this.viewManager = viewManager;
+                this.dataService = dataService;
+        }
 
         /**
          * Initializes the controller.
@@ -95,7 +98,7 @@ public final class BudgetController {
         }
 
         private void loadBudgetsFromDatabase() {
-                budgetSummaries = new ArrayList<>(SummaryDao.loadAllSummaries());
+                budgetSummaries = new ArrayList<>(dataService.loadAllSummaries());
                 budgetSummaries.sort(Comparator.comparing(Summary::getBudgetYear).reversed());
 
                 items = FXCollections.observableArrayList();
@@ -109,63 +112,33 @@ public final class BudgetController {
          * Handles the selection of a budget from the list (via mouse click).
          *
          * @param event The mouse event triggered by the selection.
-         * @throws IOException If the FXML file for the Budget Details view cannot be
-         *                     loaded.
          */
         @FXML
-        public void onBudgetSelect(final javafx.scene.input.MouseEvent event)
-                        throws IOException {
-                final int selectedIdx = budgetList.getSelectionModel()
-                                .getSelectedIndex();
+        public void onBudgetSelect(final javafx.scene.input.MouseEvent event) {
+                final int selectedIdx = budgetList.getSelectionModel().getSelectedIndex();
                 if (selectedIdx < 0 || selectedIdx >= budgetSummaries.size()) {
                         return;
                 }
 
                 final Summary selectedSummary = budgetSummaries.get(selectedIdx);
-                openBudgetDetailsBySourceTitle(selectedSummary.getSourceTitle(), (Node) event.getSource());
+                openBudgetDetailsBySourceTitle(selectedSummary.getSourceTitle());
         }
 
-        private void openBudgetDetailsBySourceTitle(final String sourceTitle, final Node sourceNode)
-                        throws IOException {
-                // Find budget ID by source_title
-                String sql = "SELECT budget_id FROM Budgets WHERE source_title = ? LIMIT 1";
-                var results = com.detonomics.budgettuner.util.DatabaseManager
-                                .executeQuery(com.detonomics.budgettuner.dao.DaoConfig.getDbPath(), sql, sourceTitle);
+        private void openBudgetDetailsBySourceTitle(final String sourceTitle) {
+                Optional<Summary> summaryOpt = budgetSummaries.stream()
+                                .filter(s -> s.getSourceTitle().equals(sourceTitle))
+                                .findFirst();
 
-                if (results.isEmpty()) {
+                if (summaryOpt.isEmpty()) {
                         System.err.println("Budget not found for source_title: " + sourceTitle);
                         return;
                 }
 
-                int budgetId = (Integer) results.get(0).get("budget_id");
+                int budgetId = summaryOpt.get().getBudgetID();
                 final BudgetYear budget = dataService.loadBudgetYear(budgetId);
 
-                final FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("budget-details-view.fxml"));
-                final Parent root = loader.load();
-
-                final BudgetDetailsController controller = loader.getController();
-                controller.setContext(budget,
-                                com.detonomics.budgettuner.dao.DaoConfig
-                                                .getDbPath());
-
-                final Scene scene = new Scene(root,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) sourceNode.getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
+                viewManager.switchScene("budget-details-view.fxml", "Λεπτομέρειες Προϋπολογισμού",
+                                (BudgetDetailsController controller) -> controller.setContext(budget));
         }
 
         /**
@@ -196,11 +169,9 @@ public final class BudgetController {
          * Opens the details view for the currently selected budget in the list.
          *
          * @param event The action event triggered by the button click.
-         * @throws IOException If the FXML file for the Budget Details view cannot be
-         *                     loaded.
          */
         @FXML
-        public void onOpenBudgetClick(final ActionEvent event) throws IOException {
+        public void onOpenBudgetClick(final ActionEvent event) {
                 final int selectedIdx = budgetList.getSelectionModel().getSelectedIndex();
                 if (selectedIdx < 0) {
                         return;
@@ -210,14 +181,7 @@ public final class BudgetController {
                 if (selectedItem == null)
                         return;
 
-                // Find the summary with matching source title
-                Summary selectedSummary = budgetSummaries.stream()
-                                .filter(s -> s.getSourceTitle().equals(selectedItem))
-                                .findFirst().orElse(null);
-
-                if (selectedSummary != null) {
-                        openBudgetDetailsBySourceTitle(selectedSummary.getSourceTitle(), (Node) event.getSource());
-                }
+                openBudgetDetailsBySourceTitle(selectedItem);
         }
 
         /**
@@ -225,34 +189,17 @@ public final class BudgetController {
          * Navigates back to the Welcome View.
          *
          * @param event The action event triggered by the button click.
-         * @throws IOException If the FXML file for the Welcome view cannot be loaded.
          */
         @FXML
-        public void onBackButtonClick(final ActionEvent event) throws IOException {
-                final FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("welcome-view.fxml"));
-                final Parent root = loader.load();
-
-                final Scene scene = new Scene(root,
-                                GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-                final String css = Objects.requireNonNull(getClass()
-                                .getResource("styles.css")).toExternalForm();
-                scene.getStylesheets().add(css);
-
-                final Stage window = (Stage) ((Node) event.getSource())
-                                .getScene().getWindow();
-                window.setScene(scene);
-
-                javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-                window.setX(bounds.getMinX());
-                window.setY(bounds.getMinY());
-                window.setWidth(bounds.getWidth());
-                window.setHeight(bounds.getHeight());
-                window.setResizable(false);
-
-                window.show();
+        public void onBackButtonClick(final ActionEvent event) {
+                viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
         }
 
+        /**
+         * Handles the exit button click, terminating the application.
+         *
+         * @param event The action event.
+         */
         @FXML
         public void onExitClick(final ActionEvent event) {
                 System.exit(0);
@@ -260,14 +207,13 @@ public final class BudgetController {
 
         private void deleteBudget(String sourceTitle) {
                 try {
-                        String sql = "SELECT budget_id FROM Budgets WHERE source_title = ? LIMIT 1";
-                        var results = com.detonomics.budgettuner.util.DatabaseManager
-                                        .executeQuery(com.detonomics.budgettuner.dao.DaoConfig.getDbPath(), sql,
-                                                        sourceTitle);
+                        Optional<Summary> summaryOpt = budgetSummaries.stream()
+                                        .filter(s -> s.getSourceTitle().equals(sourceTitle))
+                                        .findFirst();
 
-                        if (!results.isEmpty()) {
-                                int budgetId = (Integer) results.get(0).get("budget_id");
-                                BudgetYearDao.deleteBudget(budgetId);
+                        if (summaryOpt.isPresent()) {
+                                int budgetId = summaryOpt.get().getBudgetID();
+                                dataService.deleteBudget(budgetId);
                                 loadBudgetsFromDatabase(); // Refresh list
                         }
                 } catch (Exception e) {

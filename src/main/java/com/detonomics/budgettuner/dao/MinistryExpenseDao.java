@@ -1,5 +1,6 @@
 package com.detonomics.budgettuner.dao;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +11,12 @@ import com.detonomics.budgettuner.util.DatabaseManager;
 /**
  * Data Access Object for MinistryExpense.
  */
-public final class MinistryExpenseDao {
+public class MinistryExpenseDao {
 
-    private MinistryExpenseDao() {
-        throw new AssertionError("Utility class");
+    private final DatabaseManager dbManager;
+
+    public MinistryExpenseDao(DatabaseManager dbManager) {
+        this.dbManager = dbManager;
     }
 
     /**
@@ -22,30 +25,42 @@ public final class MinistryExpenseDao {
      * @param budgetID The ID of the budget.
      * @return A list of MinistryExpense objects.
      */
-    public static ArrayList<MinistryExpense> loadMinistryExpenses(
-            final int budgetID) {
+    public ArrayList<MinistryExpense> loadMinistryExpenses(final int budgetID) {
         ArrayList<MinistryExpense> expenses = new ArrayList<>();
         String sql = "SELECT ME.* FROM MinistryExpenses ME "
                 + "JOIN Ministries MI ON ME.ministry_id = MI.ministry_id "
                 + "WHERE MI.budget_id = ?";
-        List<Map<String, Object>> results = DatabaseManager
-                .executeQuery(DaoConfig.getDbPath(), sql, budgetID);
+        List<Map<String, Object>> results = dbManager.executeQuery(sql, budgetID);
 
         if (results.isEmpty()) {
             return expenses;
         }
 
         for (Map<String, Object> resultRow : results) {
-            Integer ministryExpenseID = (Integer) resultRow
-                    .get("ministry_expense_id");
+            Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
             Integer ministryID = (Integer) resultRow.get("ministry_id");
             long amount = ((Number) resultRow.get("amount")).longValue();
-            Integer expenseCategoryID = (Integer) resultRow
-                    .get("expense_category_id");
+            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
 
-            MinistryExpense expense = new MinistryExpense(ministryExpenseID,
-                    ministryID, expenseCategoryID, amount);
+            MinistryExpense expense = new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount);
             expenses.add(expense);
+        }
+        return expenses;
+    }
+
+    // Helper for transactional loading if needed
+    public ArrayList<MinistryExpense> loadMinistryExpenses(Connection conn, final int budgetID) {
+        ArrayList<MinistryExpense> expenses = new ArrayList<>();
+        String sql = "SELECT ME.* FROM MinistryExpenses ME "
+                + "JOIN Ministries MI ON ME.ministry_id = MI.ministry_id "
+                + "WHERE MI.budget_id = ?";
+        List<Map<String, Object>> results = dbManager.executeQuery(conn, sql, budgetID);
+        for (Map<String, Object> resultRow : results) {
+            Integer ministryExpenseID = (Integer) resultRow.get("ministry_expense_id");
+            Integer ministryID = (Integer) resultRow.get("ministry_id");
+            long amount = ((Number) resultRow.get("amount")).longValue();
+            Integer expenseCategoryID = (Integer) resultRow.get("expense_category_id");
+            expenses.add(new MinistryExpense(ministryExpenseID, ministryID, expenseCategoryID, amount));
         }
         return expenses;
     }
@@ -54,11 +69,37 @@ public final class MinistryExpenseDao {
      * Updates a ministry expense amount.
      *
      * @param ministryExpenseId The ministry expense ID.
-     * @param newAmount The new amount.
+     * @param newAmount         The new amount.
      * @return Number of rows affected.
      */
-    public static int updateExpenseAmount(final int ministryExpenseId, final long newAmount) {
+    public int updateExpenseAmount(final int ministryExpenseId, final long newAmount) {
         String sql = "UPDATE MinistryExpenses SET amount = ? WHERE ministry_expense_id = ?";
-        return DatabaseManager.executeUpdate(DaoConfig.getDbPath(), sql, newAmount, ministryExpenseId);
+        return dbManager.executeUpdate(sql, newAmount, ministryExpenseId);
+    }
+
+    public int updateExpenseAmount(Connection conn, final int ministryExpenseId, final long newAmount) {
+        String sql = "UPDATE MinistryExpenses SET amount = ? WHERE ministry_expense_id = ?";
+        return dbManager.executeUpdate(conn, sql, newAmount, ministryExpenseId);
+    }
+
+    public void deleteByBudget(Connection conn, int budgetID) {
+        // Delete via join equivalent logic (SQLite supports subquery in DELETE)
+        String sql = "DELETE FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
+        dbManager.executeUpdate(conn, sql, budgetID);
+    }
+
+    public void cloneMinistryExpenses(Connection conn, int sourceBudgetID, Map<Integer, Integer> ministryIdMap,
+            Map<Integer, Integer> expenseIdMap) {
+        ArrayList<MinistryExpense> sourceExpenses = loadMinistryExpenses(conn, sourceBudgetID);
+        String insertMinExpSql = "INSERT INTO MinistryExpenses (ministry_id, expense_category_id, amount) VALUES (?, ?, ?)";
+
+        for (MinistryExpense me : sourceExpenses) {
+            Integer newMinistryID = ministryIdMap.get(me.getMinistryID());
+            Integer newExpenseID = expenseIdMap.get(me.getExpenseCategoryID());
+
+            if (newMinistryID != null && newExpenseID != null) {
+                dbManager.executeUpdate(conn, insertMinExpSql, newMinistryID, newExpenseID, me.getAmount());
+            }
+        }
     }
 }

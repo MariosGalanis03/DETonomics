@@ -15,83 +15,76 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RevenueCategoryDaoTest {
 
-        private String originalDbPath;
+        @TempDir
+        Path tempDir;
+
+        private String dbPath;
+        private DatabaseManager dbManager;
+        private RevenueCategoryDao revenueCategoryDao;
 
         @BeforeEach
         void setUp() {
-                originalDbPath = DaoConfig.getDbPath();
-        }
-
-        @AfterEach
-        void tearDown() {
-                DaoConfig.setDbPath(originalDbPath);
-        }
-
-        @Test
-        void testSetRevenueAmountUpdatesParentAndChildren(@TempDir Path tempDir) {
-                Path dbFile = tempDir.resolve("test-modifier.db");
-                String dbPath = dbFile.toAbsolutePath().toString();
-                DaoConfig.setDbPath(dbPath);
+                dbPath = tempDir.resolve("test_modifier_" + System.nanoTime() + ".db").toAbsolutePath().toString();
+                dbManager = new DatabaseManager(dbPath);
+                revenueCategoryDao = new RevenueCategoryDao(dbManager);
 
                 // Create Schema
                 String createRevenue = "CREATE TABLE IF NOT EXISTS RevenueCategories (" +
                                 "revenue_category_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                                 "code TEXT, name TEXT, amount INTEGER, parent_id INTEGER, budget_id INTEGER)";
-                DatabaseManager.executeUpdate(dbPath, createRevenue);
+                dbManager.executeUpdate(createRevenue);
+        }
 
+        @AfterEach
+        void tearDown() {
+                // No cleanup needed
+        }
+
+        @Test
+        void testSetRevenueAmountUpdatesParentAndChildren() {
                 // Insert Data:
                 // Parent (ID=1, Amount=100)
                 // -> Child (ID=2, Amount=100, Parent=1)
-                DatabaseManager.executeUpdate(dbPath,
+                dbManager.executeUpdate(
                                 "INSERT INTO RevenueCategories (revenue_category_id, code, name, amount, parent_id, budget_id) VALUES (1, '1000', 'Parent', 100, 0, 1)");
-                DatabaseManager.executeUpdate(dbPath,
+                dbManager.executeUpdate(
                                 "INSERT INTO RevenueCategories (revenue_category_id, code, name, amount, parent_id, budget_id) VALUES (2, '1001', 'Child', 100, 1, 1)");
 
                 // Action: Update Child amount from 100 to 200.
                 // This should trigger:
                 // 1. Child update: 100 -> 200 (+100 diff)
                 // 2. Parent update: 100 + 100 = 200.
-                int rows = RevenueCategoryDao.setRevenueAmount(1, 1001L, 200L);
+                int rows = revenueCategoryDao.setRevenueAmount(1, 1001L, 200L);
 
                 assertTrue(rows > 0, "Should affect rows");
 
                 // Verify Child
-                long childAmount = RevenueCategoryDao.loadRevenueAmount(2);
+                long childAmount = revenueCategoryDao.loadRevenueAmount(2);
                 assertEquals(200L, childAmount, "Child amount should be updated");
 
                 // Verify Parent
-                long parentAmount = RevenueCategoryDao.loadRevenueAmount(1);
+                long parentAmount = revenueCategoryDao.loadRevenueAmount(1);
                 assertEquals(200L, parentAmount, "Parent amount should be updated recursively");
         }
 
         @Test
-        void testCloneRevenueCategories(@TempDir Path tempDir) {
-                Path dbFile = tempDir.resolve("test-clone.db");
-                String dbPath = dbFile.toAbsolutePath().toString();
-                DaoConfig.setDbPath(dbPath);
-
-                // Create Schema
-                String createRevenue = "CREATE TABLE IF NOT EXISTS RevenueCategories (" +
-                                "revenue_category_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                                "code TEXT, name TEXT, amount INTEGER, parent_id INTEGER, budget_id INTEGER)";
-                DatabaseManager.executeUpdate(dbPath, createRevenue);
-
+        void testCloneRevenueCategories() {
                 // Insert Source Data (Budget 1)
                 // Root: Code=100, ID=1, Parent=NULL
-                DatabaseManager.executeUpdate(dbPath,
+                dbManager.executeUpdate(
                                 "INSERT INTO RevenueCategories (revenue_category_id, code, name, amount, parent_id, budget_id) VALUES (1, '100', 'Root', 1000, NULL, 1)");
                 // Child: Code=200, ID=2, Parent=1
-                DatabaseManager.executeUpdate(dbPath,
+                dbManager.executeUpdate(
                                 "INSERT INTO RevenueCategories (revenue_category_id, code, name, amount, parent_id, budget_id) VALUES (2, '200', 'Child', 500, 1, 1)");
                 // GrandChild: Code=300, ID=3, Parent=2
-                DatabaseManager.executeUpdate(dbPath,
+                dbManager.executeUpdate(
                                 "INSERT INTO RevenueCategories (revenue_category_id, code, name, amount, parent_id, budget_id) VALUES (3, '300', 'GrandChild', 200, 2, 1)");
 
                 // Execute Clone to Budget 2
-                RevenueCategoryDao.cloneRevenueCategories(1, 2);
+                revenueCategoryDao.cloneRevenueCategories(1, 2);
 
                 // Verify Budget 2 Data
-                ArrayList<RevenueCategory> targetRevenues = RevenueCategoryDao.loadRevenues(2);
+                ArrayList<RevenueCategory> targetRevenues = revenueCategoryDao.loadRevenues(2);
                 assertEquals(3, targetRevenues.size(), "Should have cloned 3 categories");
 
                 RevenueCategory newRoot = targetRevenues.stream().filter(r -> r.getCode() == 100L).findFirst()

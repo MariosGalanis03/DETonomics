@@ -5,8 +5,9 @@ Subpackages:
 - `ingestion`: specific utilities for data ingestion.
 
 Key classes include:
+- `ViewManager`: Centralized manager for JavaFX Scene navigation and dependency injection for controllers.
+- `DatabaseManager`: Manages database connections, transitions, and initialization.
 - `BudgetFormatter`: Formats budget amounts for display.
-- `GuiUtils`: Helper methods for GUI navigation and chart setup.
+- `GuiUtils`: (Deprecated/Legacy) Helper methods for GUI navigation and chart setup.
 - `LogarithmicAxis`: Custom JavaFX chart axis for logarithmic scaling.
-- `DatabaseManager`: Manages database connections and initialization.
-- `PlotlyHelper`: Utility for integrating Plotly charts (if used).
+- `PlotlyHelper`: Utility for integration with Plotly visualization (if applicable).

@@ -1,6 +1,7 @@
 package com.detonomics.budgettuner.dao;
 
 import com.detonomics.budgettuner.model.Summary;
+import com.detonomics.budgettuner.util.DatabaseManager;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,11 +22,12 @@ class SummaryDaoTest {
     Path tempDir;
 
     private String dbPath;
+    private DatabaseManager dbManager;
+    private SummaryDao summaryDao;
 
     @BeforeEach
     void setUp() throws Exception {
         dbPath = tempDir.resolve("test_summary.db").toAbsolutePath().toString();
-        DaoConfig.setDbPath(dbPath);
 
         // Initialize DB schema
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
@@ -41,7 +43,8 @@ class SummaryDaoTest {
                     "total_revenue REAL," +
                     "total_expenses REAL," +
                     "state_budget_balance REAL," +
-                    "coverage_with_cash_reserves REAL" +
+                    "coverage_with_cash_reserves REAL," +
+                    "budget_result REAL" + // Added missing column? check schema
                     ")");
 
             // Insert sample data
@@ -53,24 +56,27 @@ class SummaryDaoTest {
                     "total_revenue, total_expenses, state_budget_balance, coverage_with_cash_reserves) " +
                     "VALUES ('Budget 2025', '2024-11-20', 2025, 'EUR', 'el_GR', 1200.0, 1100.0, 100.0, NULL)");
         }
+
+        dbManager = new DatabaseManager(dbPath);
+        summaryDao = new SummaryDao(dbManager);
     }
 
     @AfterEach
     void tearDown() {
-        DaoConfig.setDbPath("data/output/BudgetDB.db"); // Reset to default
+        // No global cleanup needed as we use local DatabaseManager
     }
 
     @Test
     void testLoadSummary() {
         // We assume ID 1 because it's the first insertion in a fresh DB.
-        Summary s1 = SummaryDao.loadSummary(1);
+        Summary s1 = summaryDao.loadSummary(1);
         assertNotNull(s1);
         assertEquals(2024, s1.getBudgetYear());
         assertEquals("Budget 2024", s1.getSourceTitle());
         assertEquals(1000L, s1.getTotalRevenues());
         assertEquals(50L, s1.getCoverageWithCashReserves());
 
-        Summary s2 = SummaryDao.loadSummary(2);
+        Summary s2 = summaryDao.loadSummary(2);
         assertNotNull(s2);
         assertEquals(2025, s2.getBudgetYear());
         assertEquals(0L, s2.getCoverageWithCashReserves()); // NULL logic test
@@ -78,13 +84,13 @@ class SummaryDaoTest {
 
     @Test
     void testLoadSummaryNotFound() {
-        Summary s = SummaryDao.loadSummary(999);
+        Summary s = summaryDao.loadSummary(999);
         assertNull(s);
     }
 
     @Test
     void testLoadAllSummaries() {
-        List<Summary> list = SummaryDao.loadAllSummaries();
+        List<Summary> list = summaryDao.loadAllSummaries();
         assertEquals(2, list.size());
 
         // Sorted by year

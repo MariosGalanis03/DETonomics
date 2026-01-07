@@ -1,153 +1,85 @@
-# Πρωθυπουργός για μια μέρα - A State Budget Analysis and Modification Tool
+# Prime Minister for a Day - State Budget Analysis Tool
 
 ![Java CI with Maven](https://github.com/MariosGalanis03/DETonomics/actions/workflows/maven.yml/badge.svg)
 
-This project is a application for reviewing, processing and analyzing the state budget. It allows a user to view/change budget data, introduce hypothetical changes, and see the impact of those changes.
+This project is an application for reviewing, processing, and analyzing the state budget. It allows users to view/change budget data, introduce hypothetical changes, and see the impact of those changes.
 
-# Οδηγίες για την υπόλοιπη ομάδα
+## Project Structure
 
-## Tasks σε Εκκρεμότητα
+### Controller Package
+Contains the main application controllers and entry points.
+- `GuiApp` is the main entry point for the JavaFX application.
+- `BudgetTunerCLI` is the entry point for the Command Line Interface.
 
-### Απαραίτητα
+### DAO Package
+Contains Data Access Objects (DAOs) for database interaction.
+- Uses `DatabaseManager` for connection handling.
+- Separates logic for `BudgetYear`, `Ministry`, `Revenue`, etc.
 
-- Επέκταση unit tests για υψηλότερο ποσοστό κάλυψης από JaCoCo.
-- Αύξηση ελέγχων τροποποίησης και αποθήκευσης των δεδομένων.
+### Service Package
+Contains business logic and complex operations.
+- `BudgetDataService`: Core data operations.
+- `BudgetModificationService`: Transactional modifications/cloning.
+- `IngestBudgetPdf`: PDF ingestion pipeline.
 
-### Προαιρετικά
+### Model Package
+Represents the core data entities (POJOs) like `Ministry`, `BudgetYear`, `Summary`.
 
-- Σενάρια και αξιολόγηση ικανότητας κράτους να τα αντιμετωπίσει. Stress testing. Τα σενάρια να πηγάζουν από πραγματικά γεγονότα π.χ. Κρίση 2008. Θα την αντιμετωπίζαμε; Τι συνέπειες θα είχε; Ενδεικτικές λύσεις.
-- AI agent για αξιολόγηση και ερμηνεία των αλλαγών.
+### Util Package
+Helper tools and infrastructure.
+- `ViewManager`: Handles Scene switching and Dependency Injection.
+- `DatabaseManager`: Handles JDBC connections and transactions.
+- `LogarithmicAxis`: Custom JavaFX chart component.
 
-## Οδηγίες για το Καινούργιο Project Structure
+## GitHub Workflow
+To ensure smooth collaboration, please follow this workflow:
 
-### Controller package
+1.  **Branching**: Always pull `main` before starting. Create feature branches (e.g., `feature/login`, `bugfix/css`).
+    ```bash
+    git checkout main
+    git pull
+    git checkout -b feature/my-feature
+    ```
+2.  **Commits**: Make small, frequent commits with clear messages.
+3.  **Syncing**: Use `rebase` to stay up to date with `main`.
+    ```bash
+    git pull --rebase origin main
+    ```
+4.  **Pull Request**: Open a PR for code review. Merge only after approval and passing tests.
 
-Στο πακέτο αυτό συμπεριλαμβάνεται η κύρια κλάση της εφαρμογής (`BudgetTunerCLI.java`). Επίσης συμπεριλαμβάνονται τα entry points της εφαρμογής.
+## How to Run
 
-### Entry Point (Main)
+### Quick Start Scripts
+- **macOS/Linux**: `./run.sh`
+- **Windows**: `run.bat`
 
-Το σημείο εισόδου της εφαρμογής γραφικής διεπαφής είναι η κλάση `com.detonomics.budgettuner.controller.GuiApp`.
-Η εκτέλεση της εφαρμογής γίνεται κυρίως μέσω Maven (`mvn javafx:run`) όπως περιγράφεται παρακάτω.
+(Use `--build` flag to force a rebuild, e.g., `./run.sh --build`)
 
-### Dao package
+### Command Line / Manual Run
 
-Στο πακέτο αυτό συμπεριλαμβάνονται τα Data Access Objects της εφαρμογής. Αποκτούν πρόσβαση στο database της εφαρμογής και επιστρέφουν τα δεδομένα στα service classes.
-
-### Service package
-
-Στο πακέτο αυτό συμπεριλαμβάνονται τα Service classes της εφαρμογής. Οι κλάσεις αυτές είναι οι βασικές λειτουργίες και η υποδομή της εφαρμογής.
-
-### Model package
-
-Αποτελείται από κλάσεις που είναι "εικόνες" των δεδομένων της εφαρμογής.
-
-### Util package
-
-Αποτελείται από κλάσεις που παρέχουν χρήσιμες εργαλεία για την εφαρμογή (π.χ. `GuiUtils`, `LogarithmicAxis`). Εκτελούν πολύ συγκεκριμένες λειτουργίες.
-
-## Χρήση GitHub
-
-Για να διασφαλιστεί η ομαλή συνεργασία και να αποφευχθούν συγκρούσεις κώδικα (merge conflicts), η ομάδα πρέπει να υιοθετήσει ένα σταθερό "GitHub Flow", ξεκινώντας με την απομόνωση της εργασίας. Κάθε μέλος οφείλει να ξεκινά πάντα ενημερώνοντας τον κύριο κλάδο (`main`) με την εντολή `git pull` και αμέσως μετά να δημιουργεί έναν νέο κλάδο εργασίας, ο οποίος πρέπει να είναι περιγραφικός της εκτελούμενης εργασίας (π.χ., `feature/login` ή `bugfix/css-header`). Αυτή η πρακτική διασφαλίζει ότι η ανάπτυξη κάθε νέας λειτουργίας ή διόρθωσης λαμβάνει χώρα σε ένα ασφαλές, απομονωμένο περιβάλλον, χωρίς να επηρεάζει τον σταθερό κώδικα του `main`.
-
-```bash
-#1. Ενημέρωση και Δημιουργία Κλάδου
-git checkout main            # Μετάβαση στον κύριο κλάδο
-git pull                     # Λήψη των τελευταίων αλλαγών
-git checkout -b feature/my-new-feature  # Δημιουργία και μετάβαση στον νέο κλάδο
-```
-
-Κατά τη διάρκεια της ανάπτυξης, είναι κρίσιμο τα μέλη να εκτελούν μικρά και συχνά commits. Κάθε commit πρέπει να αντιπροσωπεύει μια λογική, αυτόνομη αλλαγή και να συνοδεύεται από ένα σαφές μήνυμα που περιγράφει την πρόθεση της αλλαγής (π.χ., "fix: Διόρθωση σφάλματος επικύρωσης φόρμας"). Πριν από την υποβολή της εργασίας τους για έλεγχο, οι προγραμματιστές πρέπει να συγχρονίζουν τον κλάδο τους με τον `main` χρησιμοποιώντας την εντολή `git pull --rebase origin main`. Το Rebase ενσωματώνει τις τελευταίες αλλαγές του `main` στον κλάδο τους και τους επιτρέπει να επιλύσουν τυχόν συγκρούσεις τοπικά και έγκαιρα, διατηρώντας ταυτόχρονα μια καθαρή και γραμμική ιστορία commits.
-```bash
-# 2. Commit, Push και Rebase για Συγχρονισμό
-git add .
-git commit -m "feat: Υλοποίηση UI για φόρμα εισόδου"
-
-# Αρχικό Push στον Remote
-git push -u origin feature/my-new-feature
-
-# Rebase για Συγχρονισμό με τον main (Προσοχή στις Συγκρούσεις!)
-git pull --rebase origin main 
-git push -f  # Χρειάζεται -f μετά το επιτυχημένο rebase
-```
-
-Το τελικό στάδιο είναι η ενσωμάτωση μέσω Pull Request (PR). Ο προγραμματιστής ανοίγει ένα PR προς τον `main` μόνο αφού έχει επιλύσει τυχόν συγκρούσεις και έχει ολοκληρώσει τη λειτουργία. Το PR λειτουργεί ως αίτημα για Code Review, όπου ένα άλλο μέλος της ομάδας ελέγχει την ποιότητα, την ασφάλεια και την ορθότητα του κώδικα. Η ενσωμάτωση στον `main` (Merge) πρέπει να πραγματοποιείται μόνο αφότου το PR λάβει τις απαραίτητες εγκρίσεις (Approve) και περάσει όλους τους αυτοματοποιημένους ελέγχους (Tests). Μετά το merge, ο κλάδος εργασίας πρέπει να διαγράφεται, διατηρώντας έτσι τον χώρο εργασίας καθαρό και οργανωμένο.
-
-```bash
-# 3. Ολοκλήρωση και Καθαρισμός
-# (Μετά την έγκριση του PR και το Merge στο GitHub)
-git checkout main
-git pull                     # Ενημέρωση του τοπικού main μετά το merge
-git branch -d feature/my-new-feature # Διαγραφή του τοπικού κλάδου
-```
-
-## Πως τρέχω την εφαρμογή (How to Run)
-
-Η εφαρμογή περιλαμβάνει scripts για εύκολη εκτέλεση:
-
-**Για macOS/Linux:**
-```bash
-./run.sh
-```
-
-**Για Windows:**
-```bash
-run.bat
-```
-
-Τα scripts θα φροντίσουν αυτόματα για το κατέβασμα των dependencies και την εκτέλεση της εφαρμογής (GUI).
-Αν θέλετε να κάνετε force rebuild, χρησιμοποίηστε την εντολή `./run.sh --build`.
-
-
-### Εισαγωγή ξένων πακέτων
-
-Για τη χρήση ξένου κώδικα (δηλαδή άλλων πακέτων εκτός του δικού μας) δεν αρκεί απλά να κάνεται import το πακέτο στο java αρχείο. Πρέπει να βάλετε και μέσα στο pom.xml ανάμεσα στα <dependencies></dependencies> ένα νέο dependency. Ψάξτε το συγκεκριμένο dependency πως ονομάζεται και πως καλείται και εντάξτε το. Μετά από αυτό γράψτε στη γραμμή εντολών:
-```bash
-mvn clean install
-``` 
-
-Αν δεν δουλεύουν τα dependencies που προσθέσατε ΜΗΝ σπρώξετε στο github repo. Αν θέλετε βοήθεια φτιάξτε νέο branch με 
-```bash
-git checkout -b "Μέσα στα εισαγωγικά το όνομα του προβλήματος"
-```
-Και έπειτα σπρώξτε το στο github για να το μελετήσει κάποιος. Για άλλες ερωτήσεις στείλτε μήνυμα θα συνεχίσω να γράφω όσο προχωράω στο project.
-
-### Οδηγίες Εκτέλεσης της Εφαρμογής (Command Line / Terminal)
-
-Για να εκτελέσετε την εφαρμογή **BudgetTuner** από τη γραμμή εντολών (Command Prompt, PowerShell ή Terminal) και να εξασφαλίσετε τη σωστή εμφάνιση των Ελληνικών χαρακτήρων (UTF-8), ακολουθήστε τα εξής βήματα:
-
-1.  **Μεταβείτε στον Κεντρικό Φάκελο του Project:**
-    Ανοίξτε το CMD/Terminal και μεταβείτε στον φάκελο όπου βρίσκεται το αρχείο `pom.xml` (τον κεντρικό φάκελο `budgettuner`).
-
-2.  **Καθαρισμός & Μεταγλώττιση (Build):**
-    Μεταγλωττίστε τον κώδικα για να βεβαιωθείτε ότι όλα τα αρχεία `.class` είναι ενημερωμένα.
-
+1.  **Build the Project**:
     ```bash
     mvn clean install
     ```
-    > **Σημείωση:** Αυτό το βήμα είναι απαραίτητο μόνο **την πρώτη φορά** ή μετά από μεγάλες αλλαγές. Για γρήγορη εκτέλεση μετά από μικρές αλλαγές, μπορείτε να το παραλείψετε.
+    (Required on first run or after dependency changes).
 
-3.  **Επίλυση Προβλήματος Ελληνικών Χαρακτήρων (Μόνο για Windows CMD):**
-    Ρυθμίστε την κωδικοσελίδα (Code Page) του CMD σε **UTF-8** για τη σωστή εμφάνιση των Ελληνικών (`chcp 65001`).
-
+2.  **Run GUI**:
     ```bash
-    chcp 65001
+    mvn javafx:run
     ```
+    *Note: Ensure your `module-info.java` and `pom.xml` are correctly configured.*
 
-4.  **Εκτέλεση της Εφαρμογής:**
-    Εκτελέστε την κύρια κλάση γραμμής εντολών (`BudgetTunerCLI.java`) χρησιμοποιώντας το `exec-maven-plugin`.
+3.  **Run CLI**:
+    ```bash
+    mvn exec:java -Dexec.mainClass="com.detonomics.budgettuner.controller.BudgetTunerCLI"
+    ```
+    *Windows users: Run `chcp 65001` first for UTF-8 support.*
 
-```bash
-mvn exec:java
-```
+### Adding Dependencies
+When adding a new library, update `pom.xml` and run `mvn clean install`. Do not push broken dependencies.
 
-Η εφαρμογή θα ξεκινήσει και θα εμφανίσει το διαδραστικό μενού στην κονσόλα.
-
-## Τεκμηρίωση Κώδικα (Javadoc)
-
-Για να δημιουργήσετε την τεκμηρίωση του κώδικα (Javadoc), εκτελέστε:
-
+## Documentation (Javadoc)
+Generate Javadoc into `target/site/apidocs/`:
 ```bash
 mvn javadoc:javadoc
 ```
-
-Τα αρχεία τεκμηρίωσης θα δημιουργηθούν στον φάκελο `target/site/apidocs/`. Μπορείτε να ανοίξετε το `index.html` με τον browser σας.

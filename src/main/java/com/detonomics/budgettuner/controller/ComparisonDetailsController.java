@@ -1,29 +1,17 @@
 package com.detonomics.budgettuner.controller;
 
-import com.detonomics.budgettuner.dao.DaoConfig;
-import com.detonomics.budgettuner.dao.ExpenseCategoryDao;
-import com.detonomics.budgettuner.dao.MinistryDao;
-import com.detonomics.budgettuner.dao.RevenueCategoryDao;
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.model.RevenueCategory;
 import com.detonomics.budgettuner.model.Summary;
-
+import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.BudgetFormatter;
-import com.detonomics.budgettuner.util.DatabaseManager;
+import com.detonomics.budgettuner.util.ViewManager;
 
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,8 +24,15 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+/**
+ * Controller for the Comparison Details View.
+ * Displays detailed line-item analysis comparing two selected budget years.
+ */
 public class ComparisonDetailsController {
 
+    /**
+     * Enumeration for the type of analysis comparison.
+     */
     public enum ComparisonType {
         REVENUE, EXPENSE, MINISTRY
     }
@@ -51,6 +46,28 @@ public class ComparisonDetailsController {
     private Summary s1;
     private Summary s2;
 
+    private final ViewManager viewManager;
+    private final BudgetDataService dataService;
+
+    /**
+     * Constructs the ComparisonDetailsController.
+     *
+     * @param viewManager The manager for view transitions.
+     * @param dataService The service for budget data.
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
+    public ComparisonDetailsController(ViewManager viewManager, BudgetDataService dataService) {
+        this.viewManager = viewManager;
+        this.dataService = dataService;
+    }
+
+    /**
+     * Sets the context for the comparison.
+     *
+     * @param s1   The summary of the first budget.
+     * @param s2   The summary of the second budget.
+     * @param type The type of analysis to perform.
+     */
     public void setContext(Summary s1, Summary s2, ComparisonType type) {
         this.s1 = s1;
         this.s2 = s2;
@@ -96,19 +113,14 @@ public class ComparisonDetailsController {
     }
 
     private int getBudgetIdByYear(int year) {
-        String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
-        List<Map<String, Object>> res = DatabaseManager
-                .executeQuery(DaoConfig.getDbPath(), sql, year);
-        if (res.isEmpty())
-            return -1;
-        return (Integer) res.get(0).get("budget_id");
+        return dataService.loadBudgetIDByYear(year);
     }
 
     private void loadRevenueData(int year, Map<Long, Long> amounts, Map<Long, String> names) {
         int id = getBudgetIdByYear(year);
         if (id == -1)
             return;
-        for (RevenueCategory rc : RevenueCategoryDao.loadRevenues(id)) {
+        for (RevenueCategory rc : dataService.loadRevenues(id)) {
             // Only include revenues without parent (parent_id = 0)
             if (rc.getParentID() == 0) {
                 amounts.put(rc.getCode(), rc.getAmount());
@@ -121,7 +133,7 @@ public class ComparisonDetailsController {
         int id = getBudgetIdByYear(year);
         if (id == -1)
             return;
-        for (ExpenseCategory ec : ExpenseCategoryDao.loadExpenses(id)) {
+        for (ExpenseCategory ec : dataService.loadExpenses(id)) {
             amounts.put(ec.getCode(), ec.getAmount());
             names.putIfAbsent(ec.getCode(), ec.getName());
         }
@@ -131,7 +143,7 @@ public class ComparisonDetailsController {
         int id = getBudgetIdByYear(year);
         if (id == -1)
             return;
-        for (Ministry m : MinistryDao.loadMinistries(id)) {
+        for (Ministry m : dataService.loadMinistries(id)) {
             amounts.put(m.getCode(), m.getTotalBudget());
             names.putIfAbsent(m.getCode(), m.getName());
         }
@@ -225,34 +237,14 @@ public class ComparisonDetailsController {
         itemsBox.getChildren().add(row);
     }
 
+    /**
+     * Handles the back button click, returning to the Comparison Selection view.
+     *
+     * @param event The action event.
+     */
     @FXML
     void onBackClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("budget-comparison-view.fxml"));
-            Parent root = loader.load();
-
-            BudgetComparisonController controller = loader.getController();
-            if (s1 != null && s2 != null) {
-                controller.setPreselectedYears(s1, s2);
-            }
-
-            Scene scene = new Scene(root, GuiApp.DEFAULT_WIDTH, GuiApp.DEFAULT_HEIGHT);
-            String css = Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm();
-            scene.getStylesheets().add(css);
-
-            Stage window = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            window.setScene(scene);
-
-            // Maintain bounds
-            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-            window.setX(bounds.getMinX());
-            window.setY(bounds.getMinY());
-            window.setWidth(bounds.getWidth());
-            window.setHeight(bounds.getHeight());
-            window.setResizable(false);
-            window.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        viewManager.switchScene("budget-comparison-view.fxml", "Σύγκριση Προϋπολογισμών",
+                (BudgetComparisonController controller) -> controller.setPreselectedYears(s1, s2));
     }
 }

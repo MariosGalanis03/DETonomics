@@ -7,27 +7,29 @@ import java.util.Map;
 import com.detonomics.budgettuner.model.BudgetTotals;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
-public final class BudgetTotalsDao {
-        private BudgetTotalsDao() {
-                throw new AssertionError("Utility class");
+public class BudgetTotalsDao {
+
+        private final DatabaseManager dbManager;
+
+        public BudgetTotalsDao(DatabaseManager dbManager) {
+                this.dbManager = dbManager;
         }
 
-        public static List<BudgetTotals> loadAllBudgetTotals() {
+        public List<BudgetTotals> loadAllBudgetTotals() {
                 final String sql = "SELECT budget_year, total_revenue, "
                                 + "total_expenses, budget_result "
                                 + "FROM Budgets ORDER BY budget_year ASC";
 
-                final List<Map<String, Object>> results = DatabaseManager
-                                .executeQuery(DaoConfig.getDbPath(), sql);
+                final List<Map<String, Object>> results = dbManager.executeQuery(sql);
 
                 return results.stream()
-                                .map(BudgetTotalsDao::mapRowToBudgetTotals)
+                                .map(this::mapRowToBudgetTotals)
                                 .sorted(Comparator.comparingInt(
                                                 BudgetTotals::year))
                                 .toList();
         }
 
-        private static BudgetTotals mapRowToBudgetTotals(
+        private BudgetTotals mapRowToBudgetTotals(
                         final Map<String, Object> row) {
                 final int year = ((Number) row.get("budget_year")).intValue();
 

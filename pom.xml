@@ -12,6 +12,7 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <app.main.class>com.detonomics.budgettuner.controller.GuiApp</app.main.class>
   </properties>
 
   <dependencies>
@@ -50,6 +51,12 @@
       <artifactId>mockito-junit-jupiter</artifactId>
       <version>5.11.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>4.8.4</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
@@ -151,13 +158,16 @@
             <!-- Default configuration for running with: mvn clean javafx:run -->
             <id>default-cli</id>
             <configuration>
-              <mainClass>com.detonomics.budgettuner.controller.GuiApp</mainClass>
+              <mainClass>com.detonomics.budgettuner/com.detonomics.budgettuner.controller.GuiApp</mainClass>
               <launcher>app</launcher>
               <jlinkZipName>app</jlinkZipName>
               <jlinkImageName>app</jlinkImageName>
               <noManPages>true</noManPages>
               <stripDebug>true</stripDebug>
               <noHeaderFiles>true</noHeaderFiles>
+              <options>
+                <option>-Djdk.gtk.version=3</option>
+              </options>
             </configuration>
           </execution>
         </executions>
@@ -168,7 +178,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>
         <configuration>
-          <mainClass>com.detonomics.budgettuner.controller.GuiApp</mainClass>
+          <mainClass>${app.main.class}</mainClass>
           <arguments>
             <argument>-Dfile.encoding=UTF-8</argument>
           </arguments>
@@ -180,6 +190,7 @@
         <version>3.1.2</version>
         <configuration>
           <useModulePath>false</useModulePath>
+          <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -251,8 +262,8 @@
             </execution>
           </executions>
           <configuration>
-          <failOnError>true</failOnError>
-          <maxAllowedViolations>0</maxAllowedViolations>
+            <failOnError>true</failOnError>
+            <maxAllowedViolations>0</maxAllowedViolations>
           </configuration>
         </plugin>
       <plugin>
