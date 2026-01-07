@@ -95,10 +95,10 @@ public class MinistryExpenseDao {
     public int updateExpenseAmount(Connection conn, final int budgetId, final long ministryCode,
             final long expenseCategoryCode, final long newAmount) {
         String sql = "UPDATE MinistryExpenses SET amount = ? "
-                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? AND code = ?) "
-                + "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories WHERE budget_id = ? AND code = ?)";
-        return dbManager.executeUpdate(conn, sql, newAmount, budgetId, String.valueOf(ministryCode), budgetId,
-                String.valueOf(expenseCategoryCode));
+                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? AND CAST(code AS INTEGER) = ?) "
+                + "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories WHERE budget_id = ? AND CAST(code AS INTEGER) = ?)";
+        return dbManager.executeUpdate(conn, sql, newAmount, budgetId, ministryCode, budgetId,
+                expenseCategoryCode);
     }
 
     public void deleteByBudget(Connection conn, int budgetID) {

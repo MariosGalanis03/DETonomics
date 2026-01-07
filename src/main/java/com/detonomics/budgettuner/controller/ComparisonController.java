@@ -137,7 +137,7 @@ public class ComparisonController {
     }
 
     private String formatMoney(long amount) {
-        return String.format("%,d €", amount);
+        return com.detonomics.budgettuner.util.BudgetFormatter.formatAmount(amount);
     }
 
     private void updateChart(BudgetYear bA, BudgetYear bB, int yearA, int yearB) {

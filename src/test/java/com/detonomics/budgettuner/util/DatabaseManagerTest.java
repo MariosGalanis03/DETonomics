@@ -12,13 +12,17 @@ import java.util.Map;
 public class DatabaseManagerTest {
 
     private String testDbPath;
+    private DatabaseManager dbManager;
 
     @BeforeEach
     public void setUp() throws Exception {
         // Create a temporary database file
-        File tempFile = File.createTempFile("test_db", ".db");
-        testDbPath = tempFile.getAbsolutePath();
-        tempFile.deleteOnExit();
+        testDbPath = new File("test_db_" + System.currentTimeMillis() + ".db").getAbsolutePath();
+        File dbFile = new File(testDbPath);
+        if (dbFile.exists()) {
+            dbFile.delete();
+        }
+        dbManager = new DatabaseManager(testDbPath);
     }
 
     @AfterEach
@@ -34,12 +38,12 @@ public class DatabaseManagerTest {
     public void testExecuteUpdate() {
         // Create a test table
         String createTableSql = "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, value INTEGER)";
-        int result = DatabaseManager.executeUpdate(testDbPath, createTableSql);
+        int result = dbManager.executeUpdate(createTableSql);
         assertEquals(0, result); // CREATE TABLE returns 0
 
         // Insert a row
         String insertSql = "INSERT INTO test_table (name, value) VALUES (?, ?)";
-        result = DatabaseManager.executeUpdate(testDbPath, insertSql, "test", 42);
+        result = dbManager.executeUpdate(insertSql, "test", 42);
         assertEquals(1, result); // One row affected
     }
 
@@ -47,15 +51,15 @@ public class DatabaseManagerTest {
     public void testExecuteQuery() {
         // Create and populate test table
         String createTableSql = "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, value INTEGER)";
-        DatabaseManager.executeUpdate(testDbPath, createTableSql);
+        dbManager.executeUpdate(createTableSql);
 
         String insertSql = "INSERT INTO test_table (name, value) VALUES (?, ?)";
-        DatabaseManager.executeUpdate(testDbPath, insertSql, "test1", 42);
-        DatabaseManager.executeUpdate(testDbPath, insertSql, "test2", 84);
+        dbManager.executeUpdate(insertSql, "test1", 42);
+        dbManager.executeUpdate(insertSql, "test2", 84);
 
         // Query the data
         String selectSql = "SELECT name, value FROM test_table ORDER BY name";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(testDbPath, selectSql);
+        List<Map<String, Object>> results = dbManager.executeQuery(selectSql);
 
         assertEquals(2, results.size());
         assertEquals("test1", results.get(0).get("name"));
@@ -68,15 +72,15 @@ public class DatabaseManagerTest {
     public void testExecuteQueryWithParameters() {
         // Create and populate test table
         String createTableSql = "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, value INTEGER)";
-        DatabaseManager.executeUpdate(testDbPath, createTableSql);
+        dbManager.executeUpdate(createTableSql);
 
         String insertSql = "INSERT INTO test_table (name, value) VALUES (?, ?)";
-        DatabaseManager.executeUpdate(testDbPath, insertSql, "test1", 42);
-        DatabaseManager.executeUpdate(testDbPath, insertSql, "test2", 84);
+        dbManager.executeUpdate(insertSql, "test1", 42);
+        dbManager.executeUpdate(insertSql, "test2", 84);
 
         // Query with parameter
         String selectSql = "SELECT name, value FROM test_table WHERE value = ?";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(testDbPath, selectSql, 42);
+        List<Map<String, Object>> results = dbManager.executeQuery(selectSql, 42);
 
         assertEquals(1, results.size());
         assertEquals("test1", results.get(0).get("name"));
@@ -87,11 +91,11 @@ public class DatabaseManagerTest {
     public void testExecuteQueryEmptyResult() {
         // Create test table
         String createTableSql = "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)";
-        DatabaseManager.executeUpdate(testDbPath, createTableSql);
+        dbManager.executeUpdate(createTableSql);
 
         // Query empty table
         String selectSql = "SELECT * FROM test_table";
-        List<Map<String, Object>> results = DatabaseManager.executeQuery(testDbPath, selectSql);
+        List<Map<String, Object>> results = dbManager.executeQuery(selectSql);
 
         assertTrue(results.isEmpty());
     }

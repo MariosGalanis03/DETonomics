@@ -16,7 +16,6 @@ import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +50,7 @@ class AnalysisControllerTest {
     @Test
     void testSetContextRevenue() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
         Platform.runLater(() -> {
             try {
                 Summary s1 = new Summary(1, "Προϋπολογισμός 2020", "EUR", "el", "2020", 2020, 1000, 800, 200, 0);
@@ -85,21 +85,26 @@ class AnalysisControllerTest {
                 controller.setContext(budget, AnalysisType.REVENUE);
 
                 assertTrue(titleLabel.getText().contains("Εσόδων"));
-                assertTrue(totalAmountLabel.getText().contains("1,000"));
+                assertTrue(totalAmountLabel.getText().contains("1.000"));
                 assertEquals(1, itemsBox.getChildren().size());
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
+                error.set(t);
             } finally {
                 latch.countDown();
             }
         });
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
+        }
     }
 
     @Test
     void testSetContextExpense() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
         Platform.runLater(() -> {
             try {
                 Summary s1 = new Summary(1, "Προϋπολογισμός 2020", "EUR", "el", "2020", 2020, 1000, 800, 200, 0);
@@ -127,18 +132,23 @@ class AnalysisControllerTest {
                 controller.setContext(budget, AnalysisType.EXPENSE);
                 assertTrue(titleLabel.getText().contains("Εξόδων"));
                 assertEquals(1, itemsBox.getChildren().size());
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
+                error.set(t);
             } finally {
                 latch.countDown();
             }
         });
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
+        }
     }
 
     @Test
     void testSetContextMinistry() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
         Platform.runLater(() -> {
             try {
                 Summary s1 = new Summary(1, "Προϋπολογισμός 2020", "EUR", "el", "2020", 2020, 1000, 800, 200, 0);
@@ -165,13 +175,17 @@ class AnalysisControllerTest {
                 controller.setContext(budget, AnalysisType.MINISTRY);
                 assertTrue(titleLabel.getText().contains("Κρατικών"));
                 assertEquals(1, itemsBox.getChildren().size());
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
+                error.set(t);
             } finally {
                 latch.countDown();
             }
         });
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
+        }
     }
 
     @Test

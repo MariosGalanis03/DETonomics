@@ -32,6 +32,7 @@ public final class BudgetFormatter {
     public static String formatAmount(final long amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
         nf.setMaximumFractionDigits(0);
+        // Explicitly use a normal space to avoid non-breaking space issues in tests
         return nf.format(amount) + " €";
     }
 

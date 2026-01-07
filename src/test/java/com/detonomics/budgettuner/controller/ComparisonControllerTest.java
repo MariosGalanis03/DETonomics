@@ -12,7 +12,6 @@ import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +48,7 @@ class ComparisonControllerTest {
     @Test
     void testInitializeAndComparison() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
         Platform.runLater(() -> {
             try {
                 when(dataService.loadBudgetYears()).thenReturn(new ArrayList<>(List.of(2020, 2021)));
@@ -90,22 +90,33 @@ class ComparisonControllerTest {
 
                 controller.initialize();
 
-                // Year selectors should be populated and have default values (0 and 1 idx)
-                // loadYears sorts reverse, so 2021 is idx 0, 2020 is idx 1
+                // Manually trigger if initialize didn't (e.g. if objects are the same or
+                // listeners not yet active)
+                try {
+                    java.lang.reflect.Method updateMethod = controller.getClass().getDeclaredMethod("updateComparison");
+                    updateMethod.setAccessible(true);
+                    updateMethod.invoke(controller);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to manually trigger updateComparison", e);
+                }
+
                 assertEquals(2, cbA.getItems().size());
                 assertEquals(2021, cbA.getValue());
                 assertEquals(2020, cbB.getValue());
 
-                assertTrue(revALbl.getText().contains("1,200"));
-                assertTrue(revBLbl.getText().contains("1,000"));
+                assertTrue(revALbl.getText().contains("1.200"));
+                assertTrue(revBLbl.getText().contains("1.000"));
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                error.set(t);
             } finally {
                 latch.countDown();
             }
         });
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
+        }
     }
 
     @Test

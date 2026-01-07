@@ -6,6 +6,7 @@ import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.RevenueCategory;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.service.BudgetModificationService;
+import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.ViewManager;
 
 import javafx.application.Platform;
@@ -220,7 +221,7 @@ public class BudgetModificationController {
         titleLbl.setWrapText(true);
         titleLbl.setPrefWidth(300);
 
-        Label amountLbl = new Label(String.format("%,d €", totalAmount));
+        Label amountLbl = new Label(BudgetFormatter.formatAmount(totalAmount));
         amountLbl.setStyle("-fx-font-weight: bold;");
 
         headerBox.getChildren().addAll(titleLbl, amountLbl);

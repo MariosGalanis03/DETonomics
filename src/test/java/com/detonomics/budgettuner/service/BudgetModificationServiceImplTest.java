@@ -118,7 +118,7 @@ public class BudgetModificationServiceImplTest {
                 // Ministry: ID 1
                 // ExpenseCategory: ID 1
                 dbManager.executeUpdate(
-                                "INSERT INTO ExpenseCategories (expense_category_id, code, name, amount, budget_id) VALUES (1, '200', 'Exp', 500, 1)");
+                                "INSERT INTO ExpenseCategories (expense_category_id, code, name, amount, budget_id) VALUES (1, '0200', 'Exp', 500, 1)");
                 dbManager.executeUpdate(
                                 "INSERT INTO Ministries (ministry_id, code, name, total_budget, budget_id) VALUES (1, '300', 'Min', 500, 1)");
 

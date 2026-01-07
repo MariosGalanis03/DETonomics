@@ -15,7 +15,6 @@ import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +51,7 @@ class BudgetDetailsControllerTest {
     @Test
     void testSetContext() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
         Platform.runLater(() -> {
             try {
                 Summary s1 = new Summary(1, "Προϋπολογισμός 2020", "EUR", "el", "2020", 2020, 1000, 800, 200, 0);
@@ -87,18 +87,22 @@ class BudgetDetailsControllerTest {
                 controller.setContext(budget);
 
                 assertEquals("Προϋπολογισμός 2020", titleLabel.getText());
-                assertTrue(revLabel.getText().contains("1,000"));
+                assertTrue(revLabel.getText().contains("1.000"));
                 assertEquals(1, revBox.getChildren().size());
                 assertEquals(1, expBox.getChildren().size());
                 assertEquals(1, minBox.getChildren().size());
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
+                error.set(t);
             } finally {
                 latch.countDown();
             }
         });
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
+        }
     }
 
     @Test

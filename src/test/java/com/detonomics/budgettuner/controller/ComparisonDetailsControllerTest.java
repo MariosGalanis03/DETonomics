@@ -2,9 +2,6 @@
 package com.detonomics.budgettuner.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,8 +14,8 @@ import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -56,7 +53,8 @@ class ComparisonDetailsControllerTest {
 
     @Test
     void testSetContext() throws Exception {
-        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+        CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
 
         // Run on FX thread to avoid threading issues with JavaFX nodes
         Platform.runLater(() -> {
@@ -78,9 +76,8 @@ class ComparisonDetailsControllerTest {
                 when(dataService.loadBudgetIDByYear(2021)).thenReturn(2);
 
                 // Mock Revenue Data
-                RevenueCategory r1 = new RevenueCategory(1, 1L, "Tax", 100L, 0); // revenueID, code, name, amount,
-                                                                                 // parentID
-                RevenueCategory r2 = new RevenueCategory(2, 2L, "Tax", 120L, 0);
+                RevenueCategory r1 = new RevenueCategory(1, 1L, "Tax", 100L, 0);
+                RevenueCategory r2 = new RevenueCategory(2, 1L, "Tax", 120L, 0);
                 when(dataService.loadRevenues(1)).thenReturn(new ArrayList<>(List.of(r1)));
                 when(dataService.loadRevenues(2)).thenReturn(new ArrayList<>(List.of(r2)));
 
@@ -90,8 +87,8 @@ class ComparisonDetailsControllerTest {
                 assertEquals(2, itemsBox.getChildren().size());
 
                 // Mock Expense Data
-                ExpenseCategory e1 = new ExpenseCategory(10, 1L, "Salaries", 50L); // expenseID, code, name, amount
-                ExpenseCategory e2 = new ExpenseCategory(11, 2L, "Salaries", 60L);
+                ExpenseCategory e1 = new ExpenseCategory(10, 1L, "Salaries", 50L);
+                ExpenseCategory e2 = new ExpenseCategory(11, 1L, "Salaries", 60L);
                 when(dataService.loadExpenses(1)).thenReturn(new ArrayList<>(List.of(e1)));
                 when(dataService.loadExpenses(2)).thenReturn(new ArrayList<>(List.of(e2)));
 
@@ -110,9 +107,9 @@ class ComparisonDetailsControllerTest {
                 controller.setContext(s1, s2, ComparisonType.MINISTRY);
                 assertEquals(2, itemsBox.getChildren().size());
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+            } catch (Throwable t) {
+                t.printStackTrace();
+                error.set(t);
             } finally {
                 latch.countDown();
             }
@@ -120,6 +117,9 @@ class ComparisonDetailsControllerTest {
 
         if (!latch.await(5, java.util.concurrent.TimeUnit.SECONDS)) {
             throw new RuntimeException("Timeout waiting for FX");
+        }
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
         }
     }
 

@@ -57,7 +57,7 @@ public class RevenueCategoryDao {
      * @return The ID of the revenue category.
      */
     public int loadRevenueCategoryIDFromCode(final int budgetID, final long code) {
-        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE budget_id = ? AND code = ?";
+        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(sql, budgetID, code);
         if (queryResults.isEmpty()) {
             throw new IllegalArgumentException("Δεν βρέθηκε ο κωδικός " + code);

@@ -10,7 +10,6 @@ import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +47,7 @@ class BudgetComparisonControllerTest {
     @Test
     void testInitializeAndSelection() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
         Platform.runLater(() -> {
             try {
                 Summary s1 = new Summary(1, "2020", "EUR", "el", "2020", 2020, 1000, 800, 200, 0);
@@ -87,16 +87,20 @@ class BudgetComparisonControllerTest {
                 cb1.getSelectionModel().select(s1);
                 cb2.getSelectionModel().select(s2);
 
-                assertTrue(r1.getText().contains("1,000"));
-                assertTrue(r2.getText().contains("1,200"));
+                assertTrue(r1.getText().contains("1.000"));
+                assertTrue(r2.getText().contains("1.200"));
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
+                error.set(t);
             } finally {
                 latch.countDown();
             }
         });
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+        if (error.get() != null) {
+            throw new RuntimeException(error.get());
+        }
     }
 
     @Test

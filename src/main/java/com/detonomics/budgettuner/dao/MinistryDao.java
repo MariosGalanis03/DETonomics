@@ -84,13 +84,13 @@ public class MinistryDao {
      * @return Number of rows affected.
      */
     public int updateMinistryTotalBudget(final int budgetId, final String ministryCode, final long newTotalBudget) {
-        String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND code = ?";
+        String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(sql, newTotalBudget, budgetId, ministryCode);
     }
 
     public int updateMinistryTotalBudget(Connection conn, final int budgetId, final String ministryCode,
             final long newTotalBudget) {
-        String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND code = ?";
+        String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(conn, sql, newTotalBudget, budgetId, ministryCode);
     }
 

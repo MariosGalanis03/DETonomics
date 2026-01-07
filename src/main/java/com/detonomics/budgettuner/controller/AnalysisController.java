@@ -5,6 +5,7 @@ import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.ViewManager;
 
 import java.util.ArrayList;
@@ -117,7 +118,7 @@ public class AnalysisController {
         }
 
         totalTitleLabel.setText("Σύνολο");
-        totalAmountLabel.setText(String.format("%,d €", totalAmount));
+        totalAmountLabel.setText(BudgetFormatter.formatAmount(totalAmount));
 
         // Calculate difference vs previous year (only non-modified budgets)
         int prevYear = currentYear - 1;
@@ -149,7 +150,7 @@ public class AnalysisController {
             }
 
             String sign = (diff > 0) ? "+" : "";
-            diffAmountLabel.setText(String.format("%s%,d €", sign, diff));
+            diffAmountLabel.setText(sign + BudgetFormatter.formatAmount(diff));
 
             // Set color for diff
             if (diff > 0)
@@ -224,7 +225,7 @@ public class AnalysisController {
 
         for (int i = 0; i < limit; i++) {
             DataPoint dp = dataPoints.get(i);
-            String label = String.format("%s (%,d €)", dp.name, dp.amount);
+            String label = dp.name + " (" + BudgetFormatter.formatAmount(dp.amount) + ")";
             pieChart.getData().add(new PieChart.Data(label, dp.amount));
             combinedTop5 += dp.amount;
         }
@@ -234,7 +235,7 @@ public class AnalysisController {
         long otherAmount = filteredTotal - combinedTop5;
 
         if (otherAmount > 0) {
-            String label = String.format("Άλλα (%,d €)", otherAmount);
+            String label = "Άλλα (" + BudgetFormatter.formatAmount(otherAmount) + ")";
             pieChart.getData().add(new PieChart.Data(label, otherAmount));
         }
 
@@ -276,7 +277,7 @@ public class AnalysisController {
         if (fullName.contains(" (")) {
             name = fullName.substring(0, fullName.lastIndexOf(" ("));
         }
-        return name + ": " + String.format("%,d€", (long) data.getPieValue());
+        return name + ": " + BudgetFormatter.formatAmount((long) data.getPieValue());
     }
 
     private void setupList() {
@@ -336,8 +337,7 @@ public class AnalysisController {
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
         nameLbl.setPrefWidth(300);
-        Label amtLbl = new Label(
-                String.format("%,d €", amount));
+        Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
         amtLbl.setStyle("-fx-font-weight: bold;");
         hbox.getChildren().addAll(nameLbl, amtLbl);
         itemsBox.getChildren().add(hbox);
@@ -419,7 +419,7 @@ public class AnalysisController {
         titleLbl.setPrefWidth(280);
         // No inline bold (handled by CSS for collapsed state)
 
-        Label amtLbl = new Label(String.format("%,d €", amount));
+        Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
         amtLbl.setStyle("-fx-font-weight: bold;");
 
         headerBox.getChildren().addAll(titleLbl, amtLbl);
@@ -440,8 +440,7 @@ public class AnalysisController {
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
         nameLbl.setPrefWidth(300);
-        Label amtLbl = new Label(
-                String.format("%,d €", amount));
+        Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
         amtLbl.setStyle("-fx-font-weight: bold;");
         hbox.getChildren().addAll(nameLbl, amtLbl);
         return hbox;

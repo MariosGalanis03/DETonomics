@@ -76,13 +76,13 @@ public class ExpenseCategoryDao {
      * @return Number of rows affected.
      */
     public int updateExpenseCategoryAmount(final int budgetId, final String expenseCode, final long newAmount) {
-        String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND code = ?";
+        String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(sql, newAmount, budgetId, expenseCode);
     }
 
     public int updateExpenseCategoryAmount(Connection conn, final int budgetId, final String expenseCode,
             final long newAmount) {
-        String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND code = ?";
+        String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(conn, sql, newAmount, budgetId, expenseCode);
     }
 

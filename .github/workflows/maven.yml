@@ -27,4 +27,4 @@ jobs:
       # - Checkstyle (sun_checks.xml)
       # - SpotBugs (during verify phase)
       # - JaCoCo coverage (test phase)
-      run: mvn clean install
+      run: xvfb-run mvn clean install

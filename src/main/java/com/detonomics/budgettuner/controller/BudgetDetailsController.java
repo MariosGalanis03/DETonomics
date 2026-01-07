@@ -4,10 +4,10 @@ import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
+import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.GuiUtils;
 import com.detonomics.budgettuner.util.ViewManager;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -84,13 +84,11 @@ public class BudgetDetailsController {
                 }
 
                 titleLabel.setText(budget.getSummary().getSourceTitle());
-                revenuesValue.setText(String.format("%,d €",
-                                budget.getSummary().getTotalRevenues()));
-                expensesValue.setText(String.format("%,d €",
-                                budget.getSummary().getTotalExpenses()));
+                revenuesValue.setText(BudgetFormatter.formatAmount(budget.getSummary().getTotalRevenues()));
+                expensesValue.setText(BudgetFormatter.formatAmount(budget.getSummary().getTotalExpenses()));
 
                 long result = budget.getSummary().getBudgetResult();
-                resultValue.setText(String.format("%,d €", result));
+                resultValue.setText(BudgetFormatter.formatAmount(result));
                 if (result >= 0) {
                         resultValue.setStyle("-fx-text-fill: green;");
                 } else {
@@ -206,7 +204,7 @@ public class BudgetDetailsController {
                 Label nameLabel = new Label(name);
                 nameLabel.setWrapText(true);
                 nameLabel.setPrefWidth(200);
-                Label amountLabel = new Label(String.format("%,d €", amount));
+                Label amountLabel = new Label(BudgetFormatter.formatAmount(amount));
                 amountLabel.setStyle("-fx-font-weight: bold;");
                 hbox.getChildren().addAll(nameLabel, amountLabel);
                 return hbox;
