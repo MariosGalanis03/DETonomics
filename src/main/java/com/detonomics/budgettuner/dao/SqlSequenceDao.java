@@ -13,6 +13,11 @@ public class SqlSequenceDao {
 
     private final DatabaseManager dbManager;
 
+    /**
+     * Constructs a new SqlSequenceDao.
+     *
+     * @param dbManager The database manager.
+     */
     public SqlSequenceDao(DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }

@@ -26,6 +26,16 @@ public class BudgetYearDao {
         private final MinistryDao ministryDao;
         private final MinistryExpenseDao ministryExpenseDao;
 
+        /**
+         * Constructs a new BudgetYearDao.
+         *
+         * @param dbManager          The database manager.
+         * @param summaryDao         The Summary DAO.
+         * @param revenueCategoryDao The RevenueCategory DAO.
+         * @param expenseCategoryDao The ExpenseCategory DAO.
+         * @param ministryDao        The Ministry DAO.
+         * @param ministryExpenseDao The MinistryExpense DAO.
+         */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public BudgetYearDao(DatabaseManager dbManager, SummaryDao summaryDao, RevenueCategoryDao revenueCategoryDao,
                         ExpenseCategoryDao expenseCategoryDao, MinistryDao ministryDao,
@@ -91,6 +101,13 @@ public class BudgetYearDao {
                 return new BudgetYear(summary, revenues, expenses, ministries, ministryExpenses);
         }
 
+        /**
+         * Loads a budget year by the year number.
+         *
+         * @param year The year to load.
+         * @return The BudgetYear object.
+         * @throws IllegalArgumentException if the budget is not found.
+         */
         public BudgetYear loadBudgetYearByYear(final int year) {
                 final int budgetId = loadBudgetIDByYear(year);
                 if (budgetId <= 0) {
@@ -192,6 +209,14 @@ public class BudgetYearDao {
                 }
         }
 
+        /**
+         * Creates a new budget in the database based on a source budget.
+         *
+         * @param conn              The database connection.
+         * @param sourceBudget      The source budget to copy from.
+         * @param targetSourceTitle The title for the new budget.
+         * @return The ID of the newly created budget.
+         */
         public int createBudget(Connection conn, BudgetYear sourceBudget, String targetSourceTitle) {
                 String insertBudgetSql = "INSERT INTO Budgets (source_title, currency, locale, source_date, budget_year, total_revenue, total_expenses, budget_result, coverage_with_cash_reserves) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 dbManager.executeUpdate(conn, insertBudgetSql,
@@ -212,6 +237,13 @@ public class BudgetYearDao {
                 throw new RuntimeException("Failed to retrieve new budget ID");
         }
 
+        /**
+         * Calculates the total expenses for a budget by summing ministry totals.
+         *
+         * @param conn     The database connection.
+         * @param budgetID The ID of the budget.
+         * @return The total expenses.
+         */
         public long calculateTotalExpenses(Connection conn, int budgetID) {
                 String sql = "SELECT SUM(total_budget) as total FROM Ministries WHERE budget_id = ?";
                 List<Map<String, Object>> res = dbManager.executeQuery(conn, sql, budgetID);
@@ -221,11 +253,25 @@ public class BudgetYearDao {
                 return 0;
         }
 
+        /**
+         * Updates the total revenue for a budget in the database.
+         *
+         * @param conn         The database connection.
+         * @param budgetID     The ID of the budget.
+         * @param totalRevenue The new total revenue.
+         */
         public void updateTotalRevenue(Connection conn, int budgetID, long totalRevenue) {
                 String sql = "UPDATE Budgets SET total_revenue = ? WHERE budget_id = ?";
                 dbManager.executeUpdate(conn, sql, totalRevenue, budgetID);
         }
 
+        /**
+         * Updates the total expenses and recalculates the budget result.
+         *
+         * @param conn          The database connection.
+         * @param budgetID      The ID of the budget.
+         * @param totalExpenses The new total expenses.
+         */
         public void updateTotalExpensesAndResult(Connection conn, int budgetID, long totalExpenses) {
                 String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = total_revenue - ? WHERE budget_id = ?";
                 dbManager.executeUpdate(conn, sql, totalExpenses, totalExpenses, budgetID);

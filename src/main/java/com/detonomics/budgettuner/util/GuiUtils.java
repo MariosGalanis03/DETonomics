@@ -23,6 +23,12 @@ import java.util.function.Predicate;
 public class GuiUtils {
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private GuiUtils() {
+    }
+
+    /**
      * Sets up a BarChart with the provided data.
      *
      * @param chart             The chart to populate.

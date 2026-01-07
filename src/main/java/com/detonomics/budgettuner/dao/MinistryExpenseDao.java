@@ -15,6 +15,11 @@ public class MinistryExpenseDao {
 
     private final DatabaseManager dbManager;
 
+    /**
+     * Constructs a new MinistryExpenseDao.
+     *
+     * @param dbManager The database manager.
+     */
     public MinistryExpenseDao(DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
@@ -49,6 +54,13 @@ public class MinistryExpenseDao {
     }
 
     // Helper for transactional loading if needed
+    /**
+     * Loads ministry expenses for a given budget ID using an existing connection.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     * @return A list of MinistryExpense objects.
+     */
     public ArrayList<MinistryExpense> loadMinistryExpenses(Connection conn, final int budgetID) {
         ArrayList<MinistryExpense> expenses = new ArrayList<>();
         String sql = "SELECT ME.* FROM MinistryExpenses ME "
@@ -77,6 +89,14 @@ public class MinistryExpenseDao {
         return dbManager.executeUpdate(sql, newAmount, ministryExpenseId);
     }
 
+    /**
+     * Updates an expense amount using an existing connection.
+     *
+     * @param conn              The database connection.
+     * @param ministryExpenseId The ministry expense ID.
+     * @param newAmount         The new amount.
+     * @return Number of rows affected.
+     */
     public int updateExpenseAmount(Connection conn, final int ministryExpenseId, final long newAmount) {
         String sql = "UPDATE MinistryExpenses SET amount = ? WHERE ministry_expense_id = ?";
         return dbManager.executeUpdate(conn, sql, newAmount, ministryExpenseId);
@@ -101,12 +121,28 @@ public class MinistryExpenseDao {
                 expenseCategoryCode);
     }
 
+    /**
+     * Deletes all ministry expenses associated with a budget.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     */
     public void deleteByBudget(Connection conn, int budgetID) {
         // Delete via join equivalent logic (SQLite supports subquery in DELETE)
         String sql = "DELETE FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
 
+    /**
+     * Clones ministry expenses from a source budget to a target budget using ID
+     * maps.
+     *
+     * @param conn           The database connection.
+     * @param sourceBudgetID The source budget ID.
+     * @param ministryIdMap  Map of old ministry IDs to new ministry IDs.
+     * @param expenseIdMap   Map of old expense category IDs to new expense category
+     *                       IDs.
+     */
     public void cloneMinistryExpenses(Connection conn, int sourceBudgetID, Map<Integer, Integer> ministryIdMap,
             Map<Integer, Integer> expenseIdMap) {
         ArrayList<MinistryExpense> sourceExpenses = loadMinistryExpenses(conn, sourceBudgetID);

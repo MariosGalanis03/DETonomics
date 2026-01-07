@@ -7,14 +7,27 @@ import java.util.Map;
 import com.detonomics.budgettuner.model.BudgetTotals;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
+/**
+ * Data Access Object for determining budget totals.
+ */
 public class BudgetTotalsDao {
 
         private final DatabaseManager dbManager;
 
+        /**
+         * Constructs a new BudgetTotalsDao.
+         *
+         * @param dbManager The database manager.
+         */
         public BudgetTotalsDao(DatabaseManager dbManager) {
                 this.dbManager = dbManager;
         }
 
+        /**
+         * Loads totals for all budgets found in the database.
+         *
+         * @return A list of BudgetTotals objects.
+         */
         public List<BudgetTotals> loadAllBudgetTotals() {
                 final String sql = "SELECT budget_year, total_revenue, "
                                 + "total_expenses, budget_result "

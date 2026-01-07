@@ -1,3 +1,6 @@
+/**
+ * Main module for the Budget Tuner application.
+ */
 module com.detonomics.budgettuner {
     requires transitive javafx.controls;
     requires transitive javafx.fxml;

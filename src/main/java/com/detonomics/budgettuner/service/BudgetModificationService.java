@@ -2,6 +2,10 @@ package com.detonomics.budgettuner.service;
 
 import java.util.Map;
 
+/**
+ * Interface for services that modify budget data, such as creating new budgets
+ * and updating amounts.
+ */
 public interface BudgetModificationService {
     /**
      * Clones an existing budget into a new one with a new source title.

@@ -15,6 +15,11 @@ public class RevenueCategoryDao {
 
     private final DatabaseManager dbManager;
 
+    /**
+     * Constructs a new RevenueCategoryDao.
+     *
+     * @param dbManager The database manager.
+     */
     public RevenueCategoryDao(DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
@@ -134,6 +139,15 @@ public class RevenueCategoryDao {
 
     /**
      * Internal transactional method to set revenue amount.
+     */
+    /**
+     * Internal transactional method to set revenue amount.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     * @param code     The revenue code.
+     * @param amount   The new amount.
+     * @return The number of rows affected.
      */
     public int setRevenueAmount(Connection conn, final int budgetID, final long code, final long amount) {
         int rowsAffected = 0;
@@ -262,6 +276,14 @@ public class RevenueCategoryDao {
         }
     }
 
+    /**
+     * Clones revenue categories from a source budget to a target budget using an
+     * existing connection.
+     *
+     * @param conn           The database connection.
+     * @param sourceBudgetID The source budget ID.
+     * @param targetBudgetID The target budget ID.
+     */
     public void cloneRevenueCategories(Connection conn, int sourceBudgetID, int targetBudgetID) {
         // Re-implement existing logic but using `conn`
         // We need source categories.
@@ -340,11 +362,24 @@ public class RevenueCategoryDao {
         dbManager.executeUpdate(conn, sql, newParentID, budgetID, String.valueOf(code));
     }
 
+    /**
+     * Deletes all revenue categories for a budget.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     */
     public void deleteByBudget(Connection conn, int budgetID) {
         String sql = "DELETE FROM RevenueCategories WHERE budget_id = ?";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
 
+    /**
+     * Calculates the total revenue for a budget by summing top-level categories.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     * @return The total revenue.
+     */
     public long calculateTotalRevenue(Connection conn, int budgetID) {
         // Sum of all roots (parent_id = 0 or NULL)
         String recalcRevSql = "SELECT SUM(amount) as total FROM RevenueCategories WHERE budget_id = ? AND (parent_id = 0 OR parent_id IS NULL)";

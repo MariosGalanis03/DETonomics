@@ -16,6 +16,9 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 
+/**
+ * Controller for the Welcome View (landing page) of the application.
+ */
 public class WelcomeController {
 
         @FXML
@@ -41,12 +44,22 @@ public class WelcomeController {
         private final ViewManager viewManager;
         private final BudgetDataService dataService;
 
+        /**
+         * Constructs a new WelcomeController.
+         *
+         * @param viewManager The view manager.
+         * @param dataService The data service.
+         */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public WelcomeController(ViewManager viewManager, BudgetDataService dataService) {
                 this.viewManager = viewManager;
                 this.dataService = dataService;
         }
 
+        /**
+         * Initializes the controller class.
+         * Sets up charts and labels with data loaded asynchronously.
+         */
         @FXML
         public void initialize() {
                 // Ensure view starts scrolled to the top immediately
@@ -101,16 +114,31 @@ public class WelcomeController {
                                 s -> s.getBudgetResult() < 0);
         }
 
+        /**
+         * Handles the "Select Budget" button click.
+         *
+         * @param event The action event.
+         */
         @FXML
         protected void onSelectBudgetClick(final ActionEvent event) {
                 viewManager.switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
         }
 
+        /**
+         * Handles the "Import New Budget" button click.
+         *
+         * @param event The action event.
+         */
         @FXML
         protected void onImportNewBudgetClick(final ActionEvent event) {
                 viewManager.switchScene("ingest-view.fxml", "Εισαγωγή Νέου Προϋπολογισμού");
         }
 
+        /**
+         * Handles the "Compare Budgets" button click.
+         *
+         * @param event The action event.
+         */
         @FXML
         protected void onCompareBudgetsClick(final ActionEvent event) {
                 viewManager.switchScene("budget-comparison-view.fxml", "Σύγκριση Προϋπολογισμών");

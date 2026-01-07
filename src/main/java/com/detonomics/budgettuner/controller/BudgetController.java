@@ -45,6 +45,13 @@ public class BudgetController {
         private List<Summary> budgetSummaries;
         private ObservableList<String> items;
 
+        /**
+         * Constructs a new BudgetController with the specified view manager and data
+         * service.
+         *
+         * @param viewManager The view manager for navigating between views.
+         * @param dataService The service for accessing budget data.
+         */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public BudgetController(ViewManager viewManager, BudgetDataService dataService) {
                 this.viewManager = viewManager;

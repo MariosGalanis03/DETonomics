@@ -59,10 +59,20 @@ public final class Ministry {
         return name;
     }
 
+    /**
+     * Gets the regular budget.
+     *
+     * @return The regular budget.
+     */
     public long getRegularBudget() {
         return regularBudget;
     }
 
+    /**
+     * Gets the public investment budget.
+     *
+     * @return The public investment budget.
+     */
     public long getPublicInvestmentBudget() {
         return publicInvestmentBudget;
     }
@@ -76,14 +86,29 @@ public final class Ministry {
         return totalBudget;
     }
 
+    /**
+     * Sets the regular budget.
+     *
+     * @param regularBudget The new regular budget.
+     */
     public void setRegularBudget(final long regularBudget) {
         this.regularBudget = regularBudget;
     }
 
+    /**
+     * Sets the public investment budget.
+     *
+     * @param publicInvestmentBudget The new public investment budget.
+     */
     public void setPublicInvestmentBudget(final long publicInvestmentBudget) {
         this.publicInvestmentBudget = publicInvestmentBudget;
     }
 
+    /**
+     * Sets the total budget.
+     *
+     * @param totalBudget The new total budget.
+     */
     public void setTotalBudget(final long totalBudget) {
         this.totalBudget = totalBudget;
     }

@@ -17,6 +17,11 @@ public class ExpenseCategoryDao {
 
     private final DatabaseManager dbManager;
 
+    /**
+     * Constructs a new ExpenseCategoryDao.
+     *
+     * @param dbManager The database manager.
+     */
     public ExpenseCategoryDao(DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
@@ -52,6 +57,13 @@ public class ExpenseCategoryDao {
     }
 
     // Internal helper for use effectively within other transactions if needed
+    /**
+     * Loads expense categories for a given budget ID using an existing connection.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The ID of the budget.
+     * @return A list of ExpenseCategory objects.
+     */
     public ArrayList<ExpenseCategory> loadExpenses(Connection conn, final int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
         String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = ?";
@@ -80,17 +92,40 @@ public class ExpenseCategoryDao {
         return dbManager.executeUpdate(sql, newAmount, budgetId, expenseCode);
     }
 
+    /**
+     * Updates an expense category amount using an existing connection.
+     *
+     * @param conn        The database connection.
+     * @param budgetId    The budget ID.
+     * @param expenseCode The expense category code.
+     * @param newAmount   The new amount.
+     * @return The number of rows affected.
+     */
     public int updateExpenseCategoryAmount(Connection conn, final int budgetId, final String expenseCode,
             final long newAmount) {
         String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(conn, sql, newAmount, budgetId, expenseCode);
     }
 
+    /**
+     * Deletes all expense categories for a specific budget.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The ID of the budget.
+     */
     public void deleteByBudget(Connection conn, int budgetID) {
         String sql = "DELETE FROM ExpenseCategories WHERE budget_id = ?";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
 
+    /**
+     * Clones expense categories from one budget to another.
+     *
+     * @param conn           The database connection.
+     * @param sourceBudgetID The source budget ID.
+     * @param newBudgetID    The target budget ID.
+     * @return A map of old expense category IDs to new expense category IDs.
+     */
     public Map<Integer, Integer> cloneExpenseCategories(Connection conn, int sourceBudgetID, int newBudgetID) {
         Map<Integer, Integer> idMap = new HashMap<>(); // Old ID -> New ID
         ArrayList<ExpenseCategory> sourceExpenses = loadExpenses(conn, sourceBudgetID);
@@ -107,6 +142,13 @@ public class ExpenseCategoryDao {
         return idMap;
     }
 
+    /**
+     * Recalculates the total amount for expense categories based on ministry
+     * expenses.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     */
     public void recalculateTotals(Connection conn, int budgetID) {
         String recalcExpCatSql = "SELECT expense_category_id, SUM(amount) as total FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?) GROUP BY expense_category_id";
         List<Map<String, Object>> expTotals = dbManager.executeQuery(conn, recalcExpCatSql, budgetID);

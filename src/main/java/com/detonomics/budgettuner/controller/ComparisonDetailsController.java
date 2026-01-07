@@ -34,7 +34,18 @@ public class ComparisonDetailsController {
      * Enumeration for the type of analysis comparison.
      */
     public enum ComparisonType {
-        REVENUE, EXPENSE, MINISTRY
+        /**
+         * Compare revenue data.
+         */
+        REVENUE,
+        /**
+         * Compare expense data.
+         */
+        EXPENSE,
+        /**
+         * Compare ministry data.
+         */
+        MINISTRY
     }
 
     @FXML

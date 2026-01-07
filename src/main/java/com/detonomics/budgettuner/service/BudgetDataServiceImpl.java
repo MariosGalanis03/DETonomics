@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Implementation of the BudgetDataService interface.
+ * Provides methods to load and manage budget data using various DAOs.
+ */
 public class BudgetDataServiceImpl implements BudgetDataService {
 
     private final BudgetYearDao budgetYearDao;
@@ -32,6 +36,18 @@ public class BudgetDataServiceImpl implements BudgetDataService {
     private final BudgetTotalsDao budgetTotalsDao;
     private final SqlSequenceDao sqlSequenceDao;
 
+    /**
+     * Constructs a new BudgetDataServiceImpl.
+     *
+     * @param budgetYearDao      DAO for budget year operations.
+     * @param revenueCategoryDao DAO for revenue category operations.
+     * @param expenseCategoryDao DAO for expense category operations.
+     * @param ministryDao        DAO for ministry operations.
+     * @param ministryExpenseDao DAO for ministry expense operations.
+     * @param summaryDao         DAO for summary operations.
+     * @param budgetTotalsDao    DAO for budget totals operations.
+     * @param sqlSequenceDao     DAO for SQLite sequence operations.
+     */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public BudgetDataServiceImpl(BudgetYearDao budgetYearDao, RevenueCategoryDao revenueCategoryDao,
             ExpenseCategoryDao expenseCategoryDao, MinistryDao ministryDao,

@@ -12,6 +12,10 @@ import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.util.DatabaseManager;
 import java.sql.SQLException;
 
+/**
+ * Implementation of the BudgetModificationService.
+ * Handles the logic for cloning and updating budgets.
+ */
 public class BudgetModificationServiceImpl implements BudgetModificationService {
 
     private final DatabaseManager dbManager;
@@ -25,6 +29,17 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
     @SuppressWarnings("unused")
     private final SummaryDao summaryDao;
 
+    /**
+     * Constructs a new BudgetModificationServiceImpl.
+     *
+     * @param dbManager          The database manager.
+     * @param budgetYearDao      DAO for budget years.
+     * @param revenueCategoryDao DAO for revenue categories.
+     * @param expenseCategoryDao DAO for expense categories.
+     * @param ministryDao        DAO for ministries.
+     * @param ministryExpenseDao DAO for ministry expenses.
+     * @param summaryDao         DAO for summaries.
+     */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public BudgetModificationServiceImpl(DatabaseManager dbManager, BudgetYearDao budgetYearDao,
             RevenueCategoryDao revenueCategoryDao, ExpenseCategoryDao expenseCategoryDao,

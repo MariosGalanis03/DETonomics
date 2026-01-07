@@ -28,6 +28,11 @@ public final class RevenueCategory {
         this.parentID = parentID;
     }
 
+    /**
+     * Gets the revenue ID.
+     *
+     * @return The revenue ID.
+     */
     public int getRevenueID() {
         return revenueID;
     }

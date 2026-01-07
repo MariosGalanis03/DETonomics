@@ -18,8 +18,16 @@ import java.util.Objects;
  * Initializes the database, services, and launches the JavaFX interface.
  */
 public class GuiApp extends Application {
+        /** Default width of the application window. */
         public static final int DEFAULT_WIDTH = 1000;
+        /** Default height of the application window. */
         public static final int DEFAULT_HEIGHT = 800;
+
+        /**
+         * Default constructor.
+         */
+        public GuiApp() {
+        }
 
         /**
          * Starts the JavaFX application.

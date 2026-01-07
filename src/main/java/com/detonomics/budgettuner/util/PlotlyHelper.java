@@ -3,12 +3,22 @@ package com.detonomics.budgettuner.util;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Helper class for generating Plotly.js charts in HTML.
+ */
 public final class PlotlyHelper {
 
         private PlotlyHelper() {
                 throw new AssertionError("Utility class");
         }
 
+        /**
+         * Generates HTML content containing a Plotly chart.
+         *
+         * @param chartId    The ID of the chart container div.
+         * @param jsonConfig The JSON configuration for the chart.
+         * @return A complete HTML string.
+         */
         public static String getHtml(final String chartId,
                         final String jsonConfig) {
                 return "<!DOCTYPE html>"
@@ -38,6 +48,15 @@ public final class PlotlyHelper {
                                 + "</html>";
         }
 
+        /**
+         * Creates a partial JSON string representing a trace (data series).
+         *
+         * @param name  The name of the trace.
+         * @param x     The X values.
+         * @param y     The Y values.
+         * @param color The color of the line/markers.
+         * @return A JSON object string for the trace.
+         */
         public static String createTrace(final String name,
                         final List<String> x, final List<Double> y,
                         final String color) {
@@ -59,6 +78,13 @@ public final class PlotlyHelper {
                                 + "}";
         }
 
+        /**
+         * Creates a partial JSON string representing the chart layout.
+         *
+         * @param title      The chart title.
+         * @param yAxisTitle The Y-axis title.
+         * @return A JSON object string for the layout.
+         */
         public static String createLayout(final String title,
                         final String yAxisTitle) {
                 return "{"

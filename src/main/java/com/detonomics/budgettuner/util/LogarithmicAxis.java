@@ -6,12 +6,24 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A logarithmic axis for JavaFX charts.
+ */
 public final class LogarithmicAxis extends ValueAxis<Number> {
 
+    /**
+     * Creates a new LogarithmicAxis with defaults.
+     */
     public LogarithmicAxis() {
         super();
     }
 
+    /**
+     * Creates a new LogarithmicAxis with specified bounds.
+     *
+     * @param lowerBound The lower bound.
+     * @param upperBound The upper bound.
+     */
     public LogarithmicAxis(final double lowerBound, final double upperBound) {
         super(lowerBound, upperBound);
         validateBounds(lowerBound, upperBound);

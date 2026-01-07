@@ -18,6 +18,11 @@ public class MinistryDao {
 
     private final DatabaseManager dbManager;
 
+    /**
+     * Constructs a new MinistryDao.
+     *
+     * @param dbManager The database manager.
+     */
     public MinistryDao(DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
@@ -56,6 +61,13 @@ public class MinistryDao {
     }
 
     // Internal helper for use inside transactions
+    /**
+     * Loads ministries for a given budget ID using an existing connection.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     * @return A list of Ministries.
+     */
     public ArrayList<Ministry> loadMinistries(Connection conn, final int budgetID) {
         ArrayList<Ministry> ministries = new ArrayList<>();
         String sql = "SELECT * FROM Ministries WHERE budget_id = ?";
@@ -88,17 +100,40 @@ public class MinistryDao {
         return dbManager.executeUpdate(sql, newTotalBudget, budgetId, ministryCode);
     }
 
+    /**
+     * Updates a ministry's total budget using an existing connection.
+     *
+     * @param conn           The database connection.
+     * @param budgetId       The budget ID.
+     * @param ministryCode   The ministry code.
+     * @param newTotalBudget The new total budget.
+     * @return Number of rows affected.
+     */
     public int updateMinistryTotalBudget(Connection conn, final int budgetId, final String ministryCode,
             final long newTotalBudget) {
         String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(conn, sql, newTotalBudget, budgetId, ministryCode);
     }
 
+    /**
+     * Deletes all ministries associated with a budget.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     */
     public void deleteByBudget(Connection conn, int budgetID) {
         String sql = "DELETE FROM Ministries WHERE budget_id = ?";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
 
+    /**
+     * Clones ministries from a source budget to a new budget.
+     *
+     * @param conn           The database connection.
+     * @param sourceBudgetID The source budget ID.
+     * @param newBudgetID    The new budget ID.
+     * @return A map mapping old ministry IDs to new ministry IDs.
+     */
     public Map<Integer, Integer> cloneMinistries(Connection conn, int sourceBudgetID, int newBudgetID) {
         Map<Integer, Integer> idMap = new HashMap<>();
         ArrayList<Ministry> sourceMinistries = loadMinistries(conn, sourceBudgetID);
@@ -116,6 +151,12 @@ public class MinistryDao {
         return idMap;
     }
 
+    /**
+     * Recalculates total budgets for ministries based on their expenses.
+     *
+     * @param conn     The database connection.
+     * @param budgetID The budget ID.
+     */
     public void recalculateTotals(Connection conn, int budgetID) {
         String recalcMinistrySql = "SELECT ministry_id, SUM(amount) as total FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?) GROUP BY ministry_id";
         List<Map<String, Object>> minTotals = dbManager.executeQuery(conn, recalcMinistrySql, budgetID);
