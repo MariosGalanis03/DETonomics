@@ -1,9 +1,9 @@
 package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.model.BudgetYear;
+import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.model.MinistryExpense;
 import com.detonomics.budgettuner.model.RevenueCategory;
-import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.service.BudgetModificationService;
 import com.detonomics.budgettuner.util.ViewManager;
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,7 @@ public class BudgetModificationController {
     private Button cancelButton;
 
     private BudgetYear budget;
-    private final Map<Integer, TextField> expenseFields = new HashMap<>();
+    private final Map<String, TextField> expenseFields = new HashMap<>();
     private final Map<Long, TextField> revenueFields = new HashMap<>();
     private final Map<Long, Long> originalRevenueAmounts = new HashMap<>();
 
@@ -166,8 +165,19 @@ public class BudgetModificationController {
 
                     for (MinistryExpense me : mExpenses) {
                         String expenseName = expenseCategoryMap.getOrDefault(me.getExpenseCategoryID(), "Άγνωστο");
+
+                        // Get codes to form compound key
+                        long minCode = m.getCode();
+                        long expCode = budget.getExpenses().stream()
+                                .filter(e -> e.getExpenseID() == me.getExpenseCategoryID())
+                                .map(ExpenseCategory::getCode)
+                                .findFirst()
+                                .orElse(0L);
+
+                        String compoundKey = minCode + ":" + expCode;
+
                         contentBox.getChildren().add(
-                                createMinistryExpenseItemBox(expenseName, me.getAmount(), me.getMinistryExpenseID()));
+                                createMinistryExpenseItemBox(expenseName, me.getAmount(), compoundKey));
                     }
 
                     pane.setContent(contentBox);
@@ -244,7 +254,7 @@ public class BudgetModificationController {
         return hbox;
     }
 
-    private HBox createMinistryExpenseItemBox(String name, long amount, int expenseId) {
+    private HBox createMinistryExpenseItemBox(String name, long amount, String compoundKey) {
         HBox hbox = new HBox(10);
         hbox.setPadding(new Insets(5));
 
@@ -255,7 +265,7 @@ public class BudgetModificationController {
         TextField amountField = new TextField(String.valueOf(amount));
         amountField.setPrefWidth(120);
 
-        expenseFields.put(expenseId, amountField);
+        expenseFields.put(compoundKey, amountField);
 
         hbox.getChildren().addAll(nameLbl, amountField);
         return hbox;
@@ -310,27 +320,14 @@ public class BudgetModificationController {
                     }
                 }
 
-                Map<Integer, Long> ministryUpdates = new HashMap<>();
-                for (Map.Entry<Integer, TextField> entry : expenseFields.entrySet()) {
+                Map<String, Long> ministryUpdates = new HashMap<>();
+                for (Map.Entry<String, TextField> entry : expenseFields.entrySet()) {
                     long newAmount = Long.parseLong(entry.getValue().getText());
                     ministryUpdates.put(entry.getKey(), newAmount);
                 }
 
                 // 1. Clone
-                int budgetId = budget.getSummary().getBudgetID(); // Using current Budget ID to clone FROM
-                // Wait, if we are modifying, we are likely cloning the current one into a new
-                // one.
-                // Or are we cloning the original "base" one?
-                // The original code used BudgetYearDao.loadBudgetIDByYear(budgetYear) which
-                // implies it always cloned the "primary" budget for that year.
-                // But budget.getSummary().getBudgetID() is the ID of the budget being viewed.
-                // If I'm viewing a modified budget, do I clone THAT one?
-                // The original code was: `loadBudgetIDByYear` which gets the FIRST one likely,
-                // or specific one.
-                // Let's stick to cloning the CURRENTLY VIEWED budget to be safe, as that's what
-                // the user sees.
                 int sourceBudgetId = budget.getSummary().getBudgetID();
-
                 int newBudgetId = modificationService.cloneBudget(sourceBudgetId, sourceTitle);
 
                 if (newBudgetId != -1) {

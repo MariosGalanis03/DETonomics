@@ -17,7 +17,8 @@ public interface BudgetModificationService {
      *
      * @param budgetID        The ID of the budget to update.
      * @param revenueUpdates  A map of revenue code to new amount.
-     * @param ministryUpdates A map of ministry expense ID to new amount.
+     * @param ministryUpdates A map of compound key
+     *                        (ministryCode:expenseCategoryCode) to new amount.
      */
-    void updateBudgetAmounts(int budgetID, Map<Long, Long> revenueUpdates, Map<Integer, Long> ministryUpdates);
+    void updateBudgetAmounts(int budgetID, Map<Long, Long> revenueUpdates, Map<String, Long> ministryUpdates);
 }

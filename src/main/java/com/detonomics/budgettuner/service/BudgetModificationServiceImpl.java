@@ -72,7 +72,7 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
     }
 
     @Override
-    public void updateBudgetAmounts(int budgetID, Map<Long, Long> revenueUpdates, Map<Integer, Long> ministryUpdates) {
+    public void updateBudgetAmounts(int budgetID, Map<Long, Long> revenueUpdates, Map<String, Long> ministryUpdates) {
         try {
             dbManager.inTransaction(conn -> {
                 // 1. Update Revenues
@@ -83,10 +83,16 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
                 }
 
                 // 2. Update Ministry Expenses
-                for (Map.Entry<Integer, Long> entry : ministryUpdates.entrySet()) {
-                    int meId = entry.getKey();
+                for (Map.Entry<String, Long> entry : ministryUpdates.entrySet()) {
+                    String key = entry.getKey();
                     long amount = entry.getValue();
-                    ministryExpenseDao.updateExpenseAmount(conn, meId, amount);
+
+                    String[] parts = key.split(":");
+                    if (parts.length == 2) {
+                        long minCode = Long.parseLong(parts[0]);
+                        long expCode = Long.parseLong(parts[1]);
+                        ministryExpenseDao.updateExpenseAmount(conn, budgetID, minCode, expCode, amount);
+                    }
                 }
 
                 // 3. Cascading Updates
