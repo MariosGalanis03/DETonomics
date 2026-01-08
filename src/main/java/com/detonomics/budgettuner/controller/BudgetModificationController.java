@@ -187,15 +187,20 @@ public class BudgetModificationController {
     }
 
     private TitledPane createTitledPane(String title, long amount, long code, boolean isRevenue) {
-        HBox headerBox = new HBox(10);
+        HBox headerBox = new HBox(20);
         headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(10));
 
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
-        titleLbl.setPrefWidth(300);
+        titleLbl.setPrefWidth(500);
+        titleLbl.setStyle("-fx-font-size: 20px;");
+        HBox.setHgrow(titleLbl, javafx.scene.layout.Priority.ALWAYS);
+        titleLbl.setMaxWidth(Double.MAX_VALUE);
 
         TextField amountField = new TextField(String.valueOf(amount));
-        amountField.setPrefWidth(120);
+        amountField.setPrefWidth(200);
+        amountField.setStyle("-fx-font-size: 20px;");
 
         if (isRevenue) {
             revenueFields.put(code, amountField);
@@ -214,15 +219,19 @@ public class BudgetModificationController {
     }
 
     private TitledPane createMinistryTitledPane(String title, long totalAmount) {
-        HBox headerBox = new HBox(10);
+        HBox headerBox = new HBox(20);
         headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(10));
 
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
-        titleLbl.setPrefWidth(300);
+        titleLbl.setPrefWidth(500);
+        titleLbl.setStyle("-fx-font-size: 20px;");
+        HBox.setHgrow(titleLbl, javafx.scene.layout.Priority.ALWAYS);
+        titleLbl.setMaxWidth(Double.MAX_VALUE);
 
         Label amountLbl = new Label(BudgetFormatter.formatAmount(totalAmount));
-        amountLbl.setStyle("-fx-font-weight: bold;");
+        amountLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
 
         headerBox.getChildren().addAll(titleLbl, amountLbl);
 
@@ -236,15 +245,19 @@ public class BudgetModificationController {
     }
 
     private HBox createLeafItemBox(String name, long amount, long idOrCode, boolean isRevenue) {
-        HBox hbox = new HBox(10);
-        hbox.setPadding(new Insets(5));
+        HBox hbox = new HBox(20);
+        hbox.setPadding(new Insets(15));
 
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
-        nameLbl.setPrefWidth(300);
+        nameLbl.setPrefWidth(500);
+        nameLbl.setStyle("-fx-font-size: 18px;");
+        HBox.setHgrow(nameLbl, javafx.scene.layout.Priority.ALWAYS);
+        nameLbl.setMaxWidth(Double.MAX_VALUE);
 
         TextField amountField = new TextField(String.valueOf(amount));
-        amountField.setPrefWidth(120);
+        amountField.setPrefWidth(200);
+        amountField.setStyle("-fx-font-size: 18px;");
 
         if (isRevenue) {
             revenueFields.put(idOrCode, amountField);
@@ -256,15 +269,19 @@ public class BudgetModificationController {
     }
 
     private HBox createMinistryExpenseItemBox(String name, long amount, String compoundKey) {
-        HBox hbox = new HBox(10);
-        hbox.setPadding(new Insets(5));
+        HBox hbox = new HBox(20);
+        hbox.setPadding(new Insets(15));
 
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
-        nameLbl.setPrefWidth(300);
+        nameLbl.setPrefWidth(500);
+        nameLbl.setStyle("-fx-font-size: 18px;");
+        HBox.setHgrow(nameLbl, javafx.scene.layout.Priority.ALWAYS);
+        nameLbl.setMaxWidth(Double.MAX_VALUE);
 
         TextField amountField = new TextField(String.valueOf(amount));
-        amountField.setPrefWidth(120);
+        amountField.setPrefWidth(200);
+        amountField.setStyle("-fx-font-size: 18px;");
 
         expenseFields.put(compoundKey, amountField);
 
@@ -380,7 +397,8 @@ public class BudgetModificationController {
     }
 
     private void navigateToWelcome() {
-        viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
+        viewManager.switchScene("budget-details-view.fxml", "Προϋπολογισμός",
+                (BudgetDetailsController controller) -> controller.setContext(budget));
     }
 
     private boolean validateInputs() {

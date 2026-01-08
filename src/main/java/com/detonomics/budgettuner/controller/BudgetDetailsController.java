@@ -5,18 +5,12 @@ import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.BudgetFormatter;
-import com.detonomics.budgettuner.util.GuiUtils;
 import com.detonomics.budgettuner.util.ViewManager;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.chart.BarChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -35,12 +29,6 @@ public class BudgetDetailsController {
         private Label expensesValue;
         @FXML
         private Label resultValue;
-        @FXML
-        private BarChart<String, Number> revenueChart;
-        @FXML
-        private BarChart<String, Number> expenseChart;
-        @FXML
-        private BarChart<String, Number> differenceChart;
         @FXML
         private VBox topRevenuesBox;
         @FXML
@@ -95,80 +83,7 @@ public class BudgetDetailsController {
                         resultValue.setStyle("-fx-text-fill: red;");
                 }
 
-                setupCharts();
                 setupLists();
-        }
-
-        private void setupCharts() {
-                // Load data asynchronously
-                CompletableFuture.runAsync(() -> {
-                        try {
-                                // Load only non-modified budgets for trend analysis
-                                final List<Summary> allSummaries = dataService.loadAllSummaries().stream()
-                                                .filter(s -> s.getSourceTitle()
-                                                                .equals("Προϋπολογισμός " + s.getBudgetYear()))
-                                                .toList();
-
-                                // Update charts on UI thread
-                                Platform.runLater(() -> {
-                                        // If the current budget is NOT in the filtered list (i.e. it's a custom budget
-                                        // or modified version),
-                                        // we want to append it to the end so it shows up in the charts.
-                                        List<Summary> displaySummaries = new java.util.ArrayList<>(allSummaries);
-                                        boolean isCustom = displaySummaries.stream()
-                                                        .noneMatch(s -> s.getBudgetID() == budget.getSummary()
-                                                                        .getBudgetID());
-
-                                        if (isCustom) {
-                                                displaySummaries.add(budget.getSummary());
-                                        }
-
-                                        // Define Category Extractor:
-                                        // If it's this specific custom budget, use its Source Title.
-                                        // Otherwise, use the Year.
-                                        Function<Summary, String> categoryExtractor = s -> {
-                                                if (s.getBudgetID() == budget.getSummary().getBudgetID() && isCustom) {
-                                                        return s.getSourceTitle();
-                                                } else {
-                                                        return String.valueOf(s.getBudgetYear());
-                                                }
-                                        };
-
-                                        // Revenue Chart
-                                        GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", displaySummaries,
-                                                        Summary::getTotalRevenues,
-                                                        categoryExtractor,
-                                                        s -> s.getBudgetID() == budget.getSummary().getBudgetID());
-
-                                        // Expense Chart
-                                        GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", displaySummaries,
-                                                        Summary::getTotalExpenses,
-                                                        categoryExtractor,
-                                                        s -> s.getBudgetID() == budget.getSummary().getBudgetID());
-
-                                        // Difference Chart
-                                        if (differenceChart != null) {
-                                                GuiUtils.setupChart(differenceChart, "Ισοζύγιο (Έσοδα - Έξοδα)",
-                                                                displaySummaries,
-                                                                Summary::getBudgetResult,
-                                                                categoryExtractor,
-                                                                s -> {
-                                                                        // Highlight if current budget (regardless of
-                                                                        // value)
-                                                                        if (s.getBudgetID() == budget.getSummary()
-                                                                                        .getBudgetID()) {
-                                                                                return true;
-                                                                        }
-                                                                        // Otherwise highlight if negative
-                                                                        return s.getBudgetResult() < 0;
-                                                                });
-                                        }
-                                });
-                        } catch (Exception e) {
-                                System.err.println("Error loading charts: " + e.getMessage());
-                                e.printStackTrace();
-                        }
-                });
         }
 
         private void setupLists() {
@@ -200,12 +115,22 @@ public class BudgetDetailsController {
 
         private Node createListItem(String name, long amount) {
                 javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
-                hbox.setSpacing(10);
+                hbox.setSpacing(5);
+                hbox.setPadding(new javafx.geometry.Insets(5)); // Reduced padding
+                hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
                 Label nameLabel = new Label(name);
                 nameLabel.setWrapText(true);
-                nameLabel.setPrefWidth(200);
+                nameLabel.setPrefWidth(300);
+                nameLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #333;"); // Reduced font size
+                javafx.scene.layout.HBox.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
+                nameLabel.setMaxWidth(Double.MAX_VALUE);
+
                 Label amountLabel = new Label(BudgetFormatter.formatAmount(amount));
-                amountLabel.setStyle("-fx-font-weight: bold;");
+                amountLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #1565C0;"); // Reduced
+                                                                                                             // font
+                                                                                                             // size
+
                 hbox.getChildren().addAll(nameLabel, amountLabel);
                 return hbox;
         }

@@ -30,7 +30,7 @@
 
                 <Label text="Καλοσωρίσατε στο Budget Tuner" styleClass="welcome-title" />
                 
-                <Label text="Η δύναμη του κρατικού προϋπολογισμού στα χέρια σας: Αναλύστε, επεξεργαστείτε και κατανοήστε τα δημόσια οικονομικά της Ελλάδας με απλά βήματα." styleClass="welcome-subtitle" wrapText="true" maxWidth="500" textAlignment="CENTER"/>
+
 
                 <Region minHeight="25.0" />
                 <!-- Charts Section -->
@@ -67,79 +67,83 @@
 
                 <Region minHeight="30.0" />
 
-                <!-- Statistics Section -->
-                <VBox alignment="CENTER" maxWidth="600" styleClass="stats-card">
-                     <children>
-                          <Label text="Καταγεγραμμένα Στοιχεία Βάσης Δεδομένων" styleClass="section-title" />
-                          <Region minHeight="10.0" />
-                          <javafx.scene.layout.GridPane hgap="20.0" vgap="10.0" alignment="CENTER">
-                               <columnConstraints>
-                                    <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" halignment="LEFT" />
-                                    <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" halignment="RIGHT" />
-                               </columnConstraints>
-                               <children>
-                                    <Label text="Αποθηκευμένοι Προϋπολογισμοί:" styleClass="stats-label-key" />
-                                    <Label fx:id="statsBudgetsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" />
-                                    
-                                    <Label text="Κατηγορίες Εσόδων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="1" />
-                                    <Label fx:id="statsRevCatsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="1" />
-                                    
-                                    <Label text="Κατηγορίες Εξόδων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="2" />
-                                    <Label fx:id="statsExpCatsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="2" />
-                                    
-                                    <Label text="Φορεις:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="3" />
-                                    <Label fx:id="statsMinistriesLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="3" />
-                                    
-                                    <Label text="Έξοδα Φορέων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="4" />
-                                    <Label fx:id="statsMinExpLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="4" />
-                               </children>
-                          </javafx.scene.layout.GridPane>
-                     </children>
-                </VBox>
 
-                <Region minHeight="30.0" />
+
+<!-- Top spacer removed to move buttons higher -->
 
                 <!-- Navigation Cards -->
-                <HBox spacing="30.0" alignment="CENTER" fillHeight="true">
-                     <Button onAction="#onSelectBudgetClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS" prefWidth="400" prefHeight="280">
+                <HBox spacing="15.0" alignment="CENTER" fillHeight="true">
+<Button onAction="#onSelectBudgetClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS" prefWidth="400" prefHeight="280">
                           <graphic>
-                               <VBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20;">
+                               <VBox spacing="10.0" alignment="CENTER" style="-fx-padding: 20;">
                                    <Label text="Επιλογή Υπάρχοντος Προϋπολογισμού" styleClass="action-card-title" 
                                           alignment="CENTER" wrapText="true" textAlignment="CENTER" />
                                    
-                                   <Label text="Επιλογή ενός από τους υπάρχοντες στην βάση προϋπολογισμούς για προβολή εσόδων, εξόδων και δαπανών κρατικών φορέων με διαδραστικά γραφήματα και καταχώρηση αλλαγών." 
+                                   <Label text="Επιλογή προϋπολογισμού για προβολή εσόδων, εξόδων και δαπανών με διαδραστικά γραφήματα." 
                                           styleClass="action-card-desc" alignment="CENTER"
                                           wrapText="true" textAlignment="CENTER" />
                                </VBox>
                           </graphic>
                      </Button>
 
-                     <Button onAction="#onCompareBudgetsClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS" prefWidth="400" prefHeight="280">
+<Button onAction="#onCompareBudgetsClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS" prefWidth="400" prefHeight="280">
                           <graphic>
-                               <VBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20;">
+                               <VBox spacing="10.0" alignment="CENTER" style="-fx-padding: 20;">
                                    <Label text="Σύγκριση Προϋπολογισμών" styleClass="action-card-title" 
                                           alignment="CENTER" wrapText="true" textAlignment="CENTER" />
 
-                                   <Label text="Επιλογή δύο προϋπολογισμών της βάσης για σύγκριση εσόδων, εξόδων και δαπανών κρατικών φορέων με διαδραστικά γραφήματα." 
+                                   <Label text="Σύγκριση δύο προϋπολογισμών για αναλυτική επισκόπηση διαφορών." 
                                           styleClass="action-card-desc" alignment="CENTER"
                                           wrapText="true" textAlignment="CENTER" />
                                </VBox>
                           </graphic>
                      </Button>
 
-                     <Button onAction="#onImportNewBudgetClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS" prefWidth="400" prefHeight="280">
+<Button onAction="#onImportNewBudgetClick" styleClass="action-card-btn" HBox.hgrow="ALWAYS" prefWidth="400" prefHeight="280">
                           <graphic>
-                               <VBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20;">
+                               <VBox spacing="10.0" alignment="CENTER" style="-fx-padding: 20;">
                                    <Label text="Εισαγωγή Νέου Προϋπολογισμού" styleClass="action-card-title" 
                                           alignment="CENTER" wrapText="true" textAlignment="CENTER" />
                                    
-                                   <Label text="Εισαγωγή ενός νέου προϋπολογισμού στην βάση από το PDF του ώστε να μπορεί να προβληθεί διαδραστικά, να τεθεί σε επεξεργασία και να συμμετέχει σε σύγκριση." 
+                                   <Label text="Εισαγωγή νέου προϋπολογισμού από PDF για ανάλυση και επεξεργασία." 
                                           styleClass="action-card-desc" alignment="CENTER"
                                           wrapText="true" textAlignment="CENTER" />
                                </VBox>
                           </graphic>
                      </Button>
                 </HBox>
+                
+                <Region minHeight="30.0" />
+
+                <!-- Statistics Section -->
+                <VBox alignment="CENTER_LEFT" maxWidth="1200" styleClass="stats-card">
+                     <children>
+                          <Label text="Καταγεγραμμένα Στοιχεία Βάσης Δεδομένων" styleClass="section-title" style="-fx-font-size: 32px; -fx-alignment: CENTER-LEFT;"/>
+                          <Region minHeight="20.0" />
+                          <javafx.scene.layout.GridPane hgap="60.0" vgap="25.0" alignment="CENTER_LEFT">
+                               <columnConstraints>
+                                    <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" halignment="LEFT" />
+                                    <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" halignment="LEFT" />
+                               </columnConstraints>
+                               <children>
+                                    <Label text="Αποθηκευμένοι Προϋπολογισμοί:" styleClass="stats-label-key" style="-fx-font-size: 24px;"/>
+                                    <Label fx:id="statsBudgetsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" style="-fx-font-size: 24px; -fx-alignment: CENTER-LEFT;"/>
+                                    
+                                    <Label text="Κατηγορίες Εσόδων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="1" style="-fx-font-size: 24px;"/>
+                                    <Label fx:id="statsRevCatsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="1" style="-fx-font-size: 24px; -fx-alignment: CENTER-LEFT;"/>
+                                    
+                                    <Label text="Κατηγορίες Εξόδων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="2" style="-fx-font-size: 24px;"/>
+                                    <Label fx:id="statsExpCatsLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="2" style="-fx-font-size: 24px; -fx-alignment: CENTER-LEFT;"/>
+                                    
+                                    <Label text="Φορεις:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="3" style="-fx-font-size: 24px;"/>
+                                    <Label fx:id="statsMinistriesLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="3" style="-fx-font-size: 24px; -fx-alignment: CENTER-LEFT;"/>
+                                    
+                                    <Label text="Έξοδα Φορέων:" styleClass="stats-label-key" javafx.scene.layout.GridPane.rowIndex="4" style="-fx-font-size: 24px;"/>
+                                    <Label fx:id="statsMinExpLabel" text="-" styleClass="stats-label-value" javafx.scene.layout.GridPane.columnIndex="1" javafx.scene.layout.GridPane.rowIndex="4" style="-fx-font-size: 24px; -fx-alignment: CENTER-LEFT;"/>
+                               </children>
+                          </javafx.scene.layout.GridPane>
+                     </children>
+                </VBox>
                 
                 <Region minHeight="30.0" />
                 

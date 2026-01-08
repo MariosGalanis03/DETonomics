@@ -159,7 +159,7 @@ public class ComparisonDetailsController {
         headerRow.setStyle("-fx-background-color: #f5f5f5; -fx-padding: 15; -fx-background-radius: 5;");
 
         Label nameLbl = new Label("Κατηγορία");
-        nameLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+        nameLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
         nameLbl.setMaxWidth(300);
         HBox.setHgrow(nameLbl, Priority.ALWAYS);
 
@@ -167,20 +167,20 @@ public class ComparisonDetailsController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label year1Lbl = new Label(title1);
-        year1Lbl.setStyle("-fx-text-fill: #FF8C00; -fx-font-weight: bold; -fx-font-size: 14px;");
+        year1Lbl.setStyle("-fx-text-fill: #FF8C00; -fx-font-weight: bold; -fx-font-size: 18px;");
         year1Lbl.setMinWidth(100);
         year1Lbl.setAlignment(Pos.CENTER);
 
         Label vsLbl = new Label("vs");
-        vsLbl.setStyle("-fx-text-fill: #888; -fx-font-weight: bold;");
+        vsLbl.setStyle("-fx-text-fill: #888; -fx-font-weight: bold; -fx-font-size: 16px;");
 
         Label year2Lbl = new Label(title2);
-        year2Lbl.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 14px;");
+        year2Lbl.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 18px;");
         year2Lbl.setMinWidth(100);
         year2Lbl.setAlignment(Pos.CENTER);
 
         Label percentLbl = new Label("Διαφορά (%)");
-        percentLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        percentLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
         percentLbl.setMinWidth(120);
         percentLbl.setAlignment(Pos.CENTER);
 
@@ -195,7 +195,7 @@ public class ComparisonDetailsController {
                 "-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);");
 
         Label nameLbl = new Label(name);
-        nameLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        nameLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
         nameLbl.setWrapText(true);
         nameLbl.setMaxWidth(300);
         HBox.setHgrow(nameLbl, Priority.ALWAYS);
@@ -204,15 +204,15 @@ public class ComparisonDetailsController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label val1 = new Label(BudgetFormatter.formatAmount(v1));
-        val1.setStyle("-fx-text-fill: #FF8C00; -fx-font-weight: bold;");
+        val1.setStyle("-fx-text-fill: #FF8C00; -fx-font-weight: bold; -fx-font-size: 16px;");
         val1.setMinWidth(100);
         val1.setAlignment(Pos.CENTER_RIGHT);
 
         Label vs = new Label("vs");
-        vs.setStyle("-fx-text-fill: #888;");
+        vs.setStyle("-fx-text-fill: #888; -fx-font-size: 14px;");
 
         Label val2 = new Label(BudgetFormatter.formatAmount(v2));
-        val2.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold;");
+        val2.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 16px;");
         val2.setMinWidth(100);
         val2.setAlignment(Pos.CENTER_RIGHT);
 
@@ -233,7 +233,7 @@ public class ComparisonDetailsController {
         }
 
         Label percentLbl = new Label(percentText);
-        percentLbl.setStyle("-fx-text-fill: " + percentColor + "; -fx-font-weight: bold;");
+        percentLbl.setStyle("-fx-text-fill: " + percentColor + "; -fx-font-weight: bold; -fx-font-size: 18px;");
         percentLbl.setMinWidth(120);
         percentLbl.setAlignment(Pos.CENTER);
 

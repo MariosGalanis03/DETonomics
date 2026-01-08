@@ -3,6 +3,7 @@ package com.detonomics.budgettuner.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -153,7 +154,9 @@ class BudgetModificationControllerTest {
         BudgetModificationController controller = new BudgetModificationController(viewManager, dataService,
                 modificationService);
         controller.onCancelClick(null);
-        verify(viewManager).switchScene("welcome-view.fxml", "Budget Tuner");
+        verify(viewManager).switchScene(org.mockito.ArgumentMatchers.eq("budget-details-view.fxml"),
+                org.mockito.ArgumentMatchers.eq("Προϋπολογισμός"),
+                any(java.util.function.Consumer.class));
     }
 
     private void setPrivateField(Object target, String fieldName, Object value) throws Exception {

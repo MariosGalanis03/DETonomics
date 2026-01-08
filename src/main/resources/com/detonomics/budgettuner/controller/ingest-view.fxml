@@ -26,10 +26,14 @@
             <children>
                 <Label text="Εισαγωγή Νέου Προϋπολογισμού" textFill="#1565c0">
                     <font>
-                        <Font name="Segoe UI Bold" size="24.0" />
+                        <Font name="Segoe UI Bold" size="36.0" />
                     </font>
                 </Label>
-                <Label text="Επιλέξτε το αρχείο PDF του προϋπολογισμού για εισαγωγή στη βάση δεδομένων." wrapText="true" />
+                <Label text="Επιλέξτε το αρχείο PDF του προϋπολογισμού για εισαγωγή στη βάση δεδομένων." wrapText="true" textFill="#1565c0">
+                    <font>
+                        <Font name="Segoe UI Bold" size="20.0" />
+                    </font>
+                </Label>
             </children>
         </VBox>
     </top>
@@ -42,21 +46,20 @@
             <children>
                 <HBox spacing="10.0" alignment="CENTER_LEFT">
                     <children>
-                        <TextField fx:id="filePathField" promptText="Διαδρομή Αρχείου..." HBox.hgrow="ALWAYS" editable="false" />
-                        <Button fx:id="fileSelectButton" mnemonicParsing="false" onAction="#onSelectFileClick" styleClass="btn-blue" text="Επιλογή Αρχείου" />
+                        <TextField fx:id="filePathField" promptText="Διαδρομή Αρχείου..." HBox.hgrow="ALWAYS" editable="false" styleClass="search-bar" />
+                        <Button fx:id="fileSelectButton" mnemonicParsing="false" onAction="#onSelectFileClick" styleClass="btn-blue" text="Επιλογή Αρχείου" style="-fx-font-size: 18px;" />
                     </children>
                 </HBox>
                 
-                <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartClick" styleClass="btn-blue" text="Έναρξη Εισαγωγής" maxWidth="Infinity" disable="true"/>
+                <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartClick" styleClass="btn-blue" text="Έναρξη Εισαγωγής" maxWidth="Infinity" disable="true" style="-fx-font-size: 20px;"/>
 
                 <Region VBox.vgrow="ALWAYS" />
 
                 <VBox spacing="10.0" alignment="CENTER">
                     <children>
-                        <Label fx:id="statusLabel" text="Αναμονή για έναρξη..." style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
-                        <Label fx:id="subStatusLabel" text="" style="-fx-text-fill: grey;"/>
-                        <!-- Approx 1/4 of standard width -> Increased by 50% = 450 -->
-                        <javafx.scene.control.ProgressBar fx:id="progressBar" progress="0.0" prefWidth="450.0" prefHeight="25.0"/>
+                        <Label fx:id="statusLabel" text="Αναμονή για έναρξη..." style="-fx-font-weight: bold; -fx-font-size: 20px;"/>
+                        <Label fx:id="subStatusLabel" text="" style="-fx-text-fill: grey; -fx-font-size: 16px;"/>
+                        <javafx.scene.control.ProgressBar fx:id="progressBar" progress="0.0" prefWidth="900.0" prefHeight="40.0"/>
                     </children>
                 </VBox>
 
@@ -68,8 +71,8 @@
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
             <children>
-                <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackClick" styleClass="btn-white" text="Επιστροφή" />
-                <Button mnemonicParsing="false" onAction="#onExitClick" styleClass="btn-white" text="Έξοδος" style="-fx-background-color: #1565C0; -fx-text-fill: white;" />
+                <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackClick" styleClass="btn-white" text="Επιστροφή" style="-fx-font-size: 18px;" />
+                <Button mnemonicParsing="false" onAction="#onExitClick" styleClass="btn-white" text="Έξοδος" style="-fx-background-color: #1565C0; -fx-text-fill: white; -fx-font-size: 18px;" />
             </children>
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

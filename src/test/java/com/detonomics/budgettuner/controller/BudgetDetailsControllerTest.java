@@ -61,7 +61,7 @@ class BudgetDetailsControllerTest {
                 BudgetYear budget = new BudgetYear(s1, new ArrayList<>(List.of(r1)), new ArrayList<>(List.of(e1)),
                         new ArrayList<>(List.of(m1)), new ArrayList<>());
 
-                when(dataService.loadAllSummaries()).thenReturn(List.of(s1));
+
 
                 BudgetDetailsController controller = new BudgetDetailsController(viewManager, dataService);
 
@@ -81,8 +81,9 @@ class BudgetDetailsControllerTest {
                 setPrivateField(controller, "topRevenuesBox", revBox);
                 setPrivateField(controller, "topExpensesBox", expBox);
                 setPrivateField(controller, "topMinistriesBox", minBox);
-                setPrivateField(controller, "revenueChart", new BarChart<>(new CategoryAxis(), new NumberAxis()));
-                setPrivateField(controller, "expenseChart", new BarChart<>(new CategoryAxis(), new NumberAxis()));
+                setPrivateField(controller, "topRevenuesBox", revBox);
+                setPrivateField(controller, "topExpensesBox", expBox);
+                setPrivateField(controller, "topMinistriesBox", minBox);
 
                 controller.setContext(budget);
 

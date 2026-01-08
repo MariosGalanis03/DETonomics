@@ -52,23 +52,23 @@
 
                     <!-- Year Selection Section -->
                     <HBox alignment="CENTER" spacing="50.0">
-                        <VBox alignment="CENTER" spacing="10.0">
-                            <Label text="Πρώτος Προϋπολογισμός" style="-fx-font-weight: bold; -fx-text-fill: black;"/>
-                            <ComboBox fx:id="year1ComboBox" promptText="Επιλέξτε Έτος" prefWidth="150.0" styleClass="combo-box"/>
+<VBox alignment="CENTER" spacing="10.0">
+                            <Label text="Πρώτος Προϋπολογισμός" style="-fx-font-weight: bold; -fx-text-fill: black; -fx-font-size: 24px;"/>
+                            <ComboBox fx:id="year1ComboBox" promptText="Επιλέξτε Έτος" prefWidth="450.0" styleClass="combo-box" style="-fx-font-size: 14px;"/>
                         </VBox>
                         
                         <Label text="VS" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #555;" />
 
                         <VBox alignment="CENTER" spacing="10.0">
-                            <Label text="Δεύτερος Προϋπολογισμός" style="-fx-font-weight: bold; -fx-text-fill: black;" />
-                            <ComboBox fx:id="year2ComboBox" promptText="Επιλέξτε Έτος" prefWidth="150.0" styleClass="combo-box"/>
+                            <Label text="Δεύτερος Προϋπολογισμός" style="-fx-font-weight: bold; -fx-text-fill: black; -fx-font-size: 24px;" />
+                            <ComboBox fx:id="year2ComboBox" promptText="Επιλέξτε Έτος" prefWidth="450.0" styleClass="combo-box" style="-fx-font-size: 14px;"/>
                         </VBox>
                     </HBox>
 
                     <Region minHeight="20.0" />
 
                     <!-- Comparison Display Section -->
-                    <VBox spacing="20.0" maxWidth="800.0" alignment="CENTER">
+                    <VBox spacing="20.0" maxWidth="1200.0" alignment="CENTER">
                         
                         <!-- Revenue Comparison -->
                         <VBox styleClass="card" spacing="15.0" alignment="CENTER">
@@ -78,7 +78,7 @@
                              <HBox alignment="CENTER" spacing="30.0" maxWidth="Infinity">
                                  <Label fx:id="rev1Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #1976D2;" />
                                  <Label text="vs" style="-fx-font-size: 18px; -fx-text-fill: #888;" />
-                                 <Label fx:id="rev2Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #1976D2;" />
+                                 <Label fx:id="rev2Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #FF8F00;" />
                              </HBox>
                         </VBox>
 
@@ -88,9 +88,9 @@
                              <Label text="Συνολικά Έξοδα" styleClass="card-title-lg" />
                              
                              <HBox alignment="CENTER" spacing="30.0" maxWidth="Infinity">
-                                 <Label fx:id="exp1Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #D32F2F;" />
+                                 <Label fx:id="exp1Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #1976D2;" />
                                  <Label text="vs" style="-fx-font-size: 18px; -fx-text-fill: #888;" />
-                                 <Label fx:id="exp2Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #D32F2F;" />
+                                 <Label fx:id="exp2Label" text="— €" styleClass="card-value-lg" style="-fx-text-fill: #FF8F00;" />
                              </HBox>
                         </VBox>
                         
@@ -133,11 +133,10 @@
 
                     <!-- Analysis Navigation Buttons -->
                      <VBox spacing="15.0" alignment="CENTER" maxWidth="1200">
-                        <Label text="Αναλυτική Σύγκριση" styleClass="section-title" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
                         <HBox spacing="20.0" alignment="CENTER">
-                            <Button fx:id="revAnalysisBtn" text="Σύγκριση Εσόδων" onAction="#onRevenueAnalysisClick" styleClass="action-btn-secondary" disable="true" prefWidth="320" prefHeight="70" style="-fx-font-size: 16px;"/>
-                            <Button fx:id="expAnalysisBtn" text="Σύγκριση Εξόδων" onAction="#onExpenseAnalysisClick" styleClass="action-btn-secondary" disable="true" prefWidth="320" prefHeight="70" style="-fx-font-size: 16px;"/>
-                            <Button fx:id="minAnalysisBtn" text="Σύγκριση Κρατικών Φορέων" onAction="#onMinistryAnalysisClick" styleClass="action-btn-secondary" disable="true" prefWidth="320" prefHeight="70" style="-fx-font-size: 16px;"/>
+                            <Button fx:id="revAnalysisBtn" text="Ανάλυση Εσόδων" onAction="#onRevenueAnalysisClick" styleClass="action-btn-secondary" disable="true" prefWidth="500" prefHeight="150" style="-fx-font-size: 28px;"/>
+                            <Button fx:id="expAnalysisBtn" text="Ανάλυση Εξόδων" onAction="#onExpenseAnalysisClick" styleClass="action-btn-secondary" disable="true" prefWidth="500" prefHeight="150" style="-fx-font-size: 28px;"/>
+                            <Button fx:id="minAnalysisBtn" text="Ανάλυση Φορέων" onAction="#onMinistryAnalysisClick" styleClass="action-btn-secondary" disable="true" prefWidth="500" prefHeight="150" style="-fx-font-size: 28px;"/>
                         </HBox>
                     </VBox>
 

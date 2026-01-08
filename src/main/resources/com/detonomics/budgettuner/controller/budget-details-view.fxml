@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.web.WebView?>
 
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.detonomics.budgettuner.controller.BudgetDetailsController">
@@ -42,7 +43,6 @@
                                 <Font name="Segoe UI Bold" size="28.0" />
                             </font>
                         </Label>
-                        <Button mnemonicParsing="false" onAction="#onModifyExpenseClick" styleClass="action-btn-secondary" text="Τροποποίηση Προϋπολογισμού" />
                     </VBox>
                 </center>
                 <padding>
@@ -125,63 +125,41 @@
                                     </children>
                                 </HBox>
 
-                                <VBox alignment="TOP_CENTER" spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS" maxWidth="720.0">
-                                    <children>
-                                        <Label text="Κρατικοί Φορείς με την Μεγαλύτερη Δημοσιονομική Επιβάρυνση" styleClass="list-section-title" wrapText="true" />
-                                        <VBox fx:id="topMinistriesBox" spacing="8.0" />
-                                        <HBox alignment="CENTER_RIGHT">
-                                            <Button mnemonicParsing="false" styleClass="action-btn-secondary" text="Ανάλυση Κρατικών Φορέων" onAction="#onMinistryAnalysisClick" />
-                                        </HBox>
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                    </padding>
-                                </VBox>
+                                <HBox spacing="18.0" alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+                                    <VBox alignment="TOP_CENTER" spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                        <children>
+                                            <Label text="Κρατικοί Φορείς με την Μεγαλύτερη Δημοσιονομική Επιβάρυνση" styleClass="list-section-title" wrapText="true" />
+                                            <VBox fx:id="topMinistriesBox" spacing="8.0" />
+                                            <HBox alignment="CENTER_RIGHT">
+                                                <Button mnemonicParsing="false" styleClass="action-btn-secondary" text="Ανάλυση Κρατικών Φορέων" onAction="#onMinistryAnalysisClick" />
+                                            </HBox>
+                                        </children>
+                                        <padding>
+                                            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                        </padding>
+                                    </VBox>
+
+                                    <VBox alignment="CENTER_LEFT" spacing="20.0" styleClass="card" HBox.hgrow="ALWAYS" maxWidth="720.0">
+                                        <children>
+                                            <Label text="Τροποποίηση Κονδυλίων Προϋπολογισμού" styleClass="list-section-title" wrapText="true" />
+                                            <VBox spacing="15.0">
+                                                <Label text="• Αλλαγή Εσόδων απο γενικές σε ειδκές κατηγορίες" wrapText="true" style="-fx-font-size: 18px;"/>
+                                                <Label text="• Αλλαγή Δαπανών ανα Υπουργείο και Λειτουργία" wrapText="true" style="-fx-font-size: 18px;"/>
+                                            </VBox>
+                                            <Region VBox.vgrow="ALWAYS" />
+                                            <HBox alignment="CENTER_RIGHT">
+                                                <Button mnemonicParsing="false" onAction="#onModifyExpenseClick" styleClass="action-btn-secondary" text="Τροποποίηση Στοιχείων" />
+                                            </HBox>
+                                        </children>
+                                        <padding>
+                                            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                        </padding>
+                                    </VBox>
+                                </HBox>
                             </children>
                         </VBox>
 
-                        <HBox spacing="10.0" alignment="CENTER">
-                            <children>
-                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
-                                    <children>
-                                        <Label text="Πορεία Εσόδων" styleClass="section-title" />
-                                        <BarChart fx:id="revenueChart" prefHeight="400.0" legendVisible="false">
-                                            <xAxis><CategoryAxis label="Έτος" /></xAxis>
-                                            <yAxis><NumberAxis label="Ποσό" /></yAxis>
-                                        </BarChart>
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                    </padding>
-                                </VBox>
-
-                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
-                                    <children>
-                                        <Label text="Πορεία Εξόδων" styleClass="section-title" />
-                                        <BarChart fx:id="expenseChart" prefHeight="400.0" legendVisible="false">
-                                            <xAxis><CategoryAxis label="Έτος" /></xAxis>
-                                            <yAxis><NumberAxis label="Ποσό" /></yAxis>
-                                        </BarChart>
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                    </padding>
-                                </VBox>
-
-                                <VBox spacing="10.0" styleClass="card chart-card" HBox.hgrow="ALWAYS" maxWidth="720.0">
-                                    <children>
-                                        <Label text="Πορεία Ισοζυγίου" styleClass="section-title" />
-                                        <BarChart fx:id="differenceChart" prefHeight="400.0" legendVisible="false">
-                                            <xAxis><CategoryAxis label="Έτος" /></xAxis>
-                                            <yAxis><NumberAxis label="Ποσό" /></yAxis>
-                                        </BarChart>
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                    </padding>
-                                </VBox>
-                            </children>
-                        </HBox>
+                        <!-- Charts removed as per user request -->
                     </VBox>
                 </content>
             </ScrollPane>

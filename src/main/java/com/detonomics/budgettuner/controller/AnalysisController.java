@@ -115,7 +115,12 @@ public class AnalysisController {
                 chartTitle = "Κατανομή Δαπανών ανά Κρατικό Φορέα (Εξαιρούνται τα Δάνεια)";
             }
             chartTitleLabel.setText(chartTitle);
+            chartTitleLabel.setVisible(true);
+            chartTitleLabel.setManaged(true);
+            chartTitleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1565C0;");
         }
+
+        titleLabel.setStyle("-fx-font-size: 40px; -fx-font-weight: bold;"); // Keep this increased too
 
         totalTitleLabel.setText("Σύνολο");
         totalAmountLabel.setText(BudgetFormatter.formatAmount(totalAmount));
@@ -186,18 +191,18 @@ public class AnalysisController {
         List<DataPoint> dataPoints = new ArrayList<>();
 
         if (analysisType == AnalysisType.REVENUE) {
-            pieChart.setTitle("Έσοδα");
+            pieChart.setTitle(""); // Removed title as per request
             budget.getRevenues().stream()
                     .filter(r -> r.getParentID() == 0)
                     .filter(r -> !r.getName().equalsIgnoreCase("ΔΑΝΕΙΑ") && !r.getName().equals("Δάνεια"))
                     .forEach(r -> dataPoints.add(new DataPoint(r.getName(), r.getAmount())));
         } else if (analysisType == AnalysisType.EXPENSE) {
-            pieChart.setTitle("Έξοδα");
+            pieChart.setTitle(""); // Removed title as per request
             budget.getExpenses().stream()
                     .filter(e -> !e.getName().equalsIgnoreCase("ΔΑΝΕΙΑ") && !e.getName().equals("Δάνεια"))
                     .forEach(e -> dataPoints.add(new DataPoint(e.getName(), e.getAmount())));
         } else if (analysisType == AnalysisType.MINISTRY) {
-            pieChart.setTitle("Υπουργεία");
+            pieChart.setTitle(""); // Removed title as per request
 
             // Calculate total loans to exclude from Ministry of Finance
             long loanAmount = budget.getExpenses().stream()
@@ -239,6 +244,9 @@ public class AnalysisController {
             pieChart.getData().add(new PieChart.Data(label, otherAmount));
         }
 
+        // Calculate total of the displayed slices for percentage calculation
+        final double chartTotal = pieChart.getData().stream().mapToDouble(PieChart.Data::getPieValue).sum();
+
         // Add Tooltips
         for (PieChart.Data data : pieChart.getData()) {
             // Add hover effect with floating label at cursor
@@ -246,7 +254,7 @@ public class AnalysisController {
                 data.getNode().setStyle("-fx-opacity: 0.8; -fx-cursor: hand;");
 
                 // Show floating label at mouse position
-                String text = getFormattedText(data);
+                String text = getFormattedText(data, chartTotal);
                 Label label = new Label(text);
                 label.setStyle("-fx-background-color: rgba(0,0,0,0.8); -fx-text-fill: white; -fx-padding: 5;");
                 popup.getContent().clear();
@@ -271,13 +279,14 @@ public class AnalysisController {
 
     }
 
-    private String getFormattedText(PieChart.Data data) {
+    private String getFormattedText(PieChart.Data data, double total) {
         String fullName = data.getName();
         String name = fullName;
         if (fullName.contains(" (")) {
             name = fullName.substring(0, fullName.lastIndexOf(" ("));
         }
-        return name + ": " + BudgetFormatter.formatAmount((long) data.getPieValue());
+        double percentage = (data.getPieValue() / total) * 100;
+        return String.format("%s: %.2f%%", name, percentage);
     }
 
     private void setupList() {
@@ -332,15 +341,7 @@ public class AnalysisController {
     }
 
     private void addSimpleItem(String name, long amount) {
-        javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
-        hbox.setSpacing(10);
-        Label nameLbl = new Label(name);
-        nameLbl.setWrapText(true);
-        nameLbl.setPrefWidth(300);
-        Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
-        amtLbl.setStyle("-fx-font-weight: bold;");
-        hbox.getChildren().addAll(nameLbl, amtLbl);
-        itemsBox.getChildren().add(hbox);
+        itemsBox.getChildren().add(createSimpleItemBox(name, amount));
     }
 
     // Recursive based on RevenueCategory
@@ -417,10 +418,10 @@ public class AnalysisController {
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
         titleLbl.setPrefWidth(280);
-        // No inline bold (handled by CSS for collapsed state)
+        titleLbl.setStyle("-fx-font-size: 26px;"); // Increased font size
 
         Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
-        amtLbl.setStyle("-fx-font-weight: bold;");
+        amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;"); // Increased font size
 
         headerBox.getChildren().addAll(titleLbl, amtLbl);
 
@@ -429,7 +430,8 @@ public class AnalysisController {
         pane.setExpanded(false);
         pane.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
         pane.getStyleClass().add("analysis-pane");
-        pane.setStyle("-fx-box-border: transparent;");
+        pane.setStyle("-fx-box-border: transparent; -fx-font-size: 26px;"); // Increased font size for TitledPane
+                                                                            // content
 
         return pane;
     }
@@ -440,8 +442,9 @@ public class AnalysisController {
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
         nameLbl.setPrefWidth(300);
+        nameLbl.setStyle("-fx-font-size: 26px;"); // Increased font size
         Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
-        amtLbl.setStyle("-fx-font-weight: bold;");
+        amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;"); // Increased font size
         hbox.getChildren().addAll(nameLbl, amtLbl);
         return hbox;
     }

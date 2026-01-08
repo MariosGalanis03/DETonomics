@@ -22,17 +22,13 @@
             <children>
                 <Label text="Επιλογή Προϋπολογισμού" textFill="#1565c0">
                     <font>
-                        <Font name="Segoe UI Bold" size="24.0" />
+                        <Font name="Segoe UI Bold" size="36.0" />
                     </font>
                 </Label>
                 <HBox spacing="10.0">
                     <children>
-                        <TextField fx:id="searchField" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets top="15.0" />
-                            </HBox.margin>
-                        </TextField>
-                        <Button mnemonicParsing="false" onAction="#onSearchClick" prefHeight="46.0" prefWidth="180.0" styleClass="btn-blue" text="Αναζήτηση">
+<TextField fx:id="searchField" HBox.hgrow="ALWAYS" styleClass="search-bar" promptText="Αναζήτηση..." style="-fx-font-size: 18px;" prefHeight="50.0" />
+                        <Button mnemonicParsing="false" onAction="#onSearchClick" prefHeight="50.0" prefWidth="200.0" styleClass="btn-blue" text="Αναζήτηση" style="-fx-font-size: 18px;">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>
@@ -57,8 +53,8 @@
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
             <children>
-                <Button mnemonicParsing="false" onAction="#onBackButtonClick" styleClass="btn-white" text="Επιστροφή" />
-                <Button mnemonicParsing="false" onAction="#onOpenBudgetClick" styleClass="btn-blue" text="Άνοιγμα Προϋπολογισμού" />
+                <Button mnemonicParsing="false" onAction="#onBackButtonClick" styleClass="btn-white" text="Επιστροφή" style="-fx-font-size: 18px;"/>
+                <Button mnemonicParsing="false" onAction="#onOpenBudgetClick" styleClass="btn-blue" text="Άνοιγμα Προϋπολογισμού" style="-fx-font-size: 18px;"/>
             </children>
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

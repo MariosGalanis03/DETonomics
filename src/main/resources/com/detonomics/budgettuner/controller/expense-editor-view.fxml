@@ -21,8 +21,8 @@
             </Label>
             <HBox spacing="10.0" alignment="CENTER_LEFT">
                 <children>
-                    <Label text="Τίτλος νέου Προϋπολογισμού:" style="-fx-font-weight: bold; -fx-text-fill: #1565C0;" />
-                    <javafx.scene.control.TextField fx:id="sourceTitleField" prefWidth="300" promptText="Τροποποιημένος Προϋπολογισμός..." />
+                    <Label text="Τίτλος νέου Προϋπολογισμού:" style="-fx-font-weight: bold; -fx-text-fill: #1565C0; -fx-font-size: 24px;" />
+                    <javafx.scene.control.TextField fx:id="sourceTitleField" prefWidth="600" promptText="Τροποποιημένος Προϋπολογισμός..." styleClass="search-bar" />
                 </children>
             </HBox>
          </children>
@@ -65,10 +65,10 @@
       <VBox spacing="5" alignment="CENTER">
           <children>
              <Label fx:id="statusLabel" text="Παρακαλώ περιμένετε, αποθήκευση σε εξέλιξη..." visible="false" style="-fx-text-fill: #1565C0; -fx-font-weight: bold;" />
-             <HBox alignment="CENTER" spacing="10.0">
+             <HBox alignment="CENTER_RIGHT" spacing="10.0">
                 <children>
-                   <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveClick" styleClass="action-btn-secondary" text="Αποθήκευση Αλλαγών" />
-                   <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#onCancelClick" styleClass="action-btn-secondary" text="Ακύρωση" />
+                   <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveClick" styleClass="action-btn-secondary" text="Αποθήκευση Αλλαγών" style="-fx-font-size: 18px;" />
+                   <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#onCancelClick" styleClass="action-btn-secondary" text="Ακύρωση" style="-fx-font-size: 18px;" />
                 </children>
              </HBox>
           </children>
