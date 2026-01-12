@@ -45,7 +45,7 @@ java -jar target/budgettuner-0.1.0-SNAPSHOT.jar
 ### Usage Instructions
 1.  **Main Menu Screen:**
     The welcome screen serves as the central hub, offering three main functions:
-    *   **Choose Existing Budget**: Explore data for existing budgets (2019-2026) and any custom scenarios.
+    *   **Choose Existing Budget**: Explore data for existing budgets (2019-2026) and any custom budgets created by the user.
     *   **Compare Budgets**: Compare two budgets (original or modified) to visualize differences.
     *   **Import New Budget**: Insert a new budget from a PDF file.
 
