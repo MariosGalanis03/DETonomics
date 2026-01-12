@@ -37,7 +37,7 @@ mvn javafx:run
 ```
 
 **Using Executable JAR:**
-After compilation, a JAR file is generated in the `target` directory.
+After compilation, a self-contained JAR file (Fat JAR) is generated in the `target` directory.
 ```bash
 java -jar target/budgettuner-0.1.0-SNAPSHOT.jar
 ```
