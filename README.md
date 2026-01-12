@@ -15,6 +15,19 @@ mvn clean install
 ```
 ensure you have JDK 21+ installed.
 
+### Configuration
+To use the PDF ingestion feature, you need to set up your Google Gemini API key.
+
+**On Windows (Command Prompt):**
+```cmd
+set GEMINI_API_KEY=your_api_key_here
+```
+
+**On Linux/macOS:**
+```bash
+export GEMINI_API_KEY=your_api_key_here
+```
+
 ### Execution Instructions
 To run the application, you can use the Maven JavaFX plugin or the executable JAR.
 
