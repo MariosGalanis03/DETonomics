@@ -164,8 +164,11 @@ public class MinistryDao {
         for (Map<String, Object> row : minTotals) {
             int mid = ((Number) row.get("ministry_id")).intValue();
             long total = ((Number) row.get("total")).longValue();
-            String updateMinSql = "UPDATE Ministries SET total_budget = ? WHERE ministry_id = ?";
-            dbManager.executeUpdate(conn, updateMinSql, total, mid);
+            // Assuming MinistryExpenses represent the Regular Budget decomposition.
+            // We update regular_budget to match the sum of expenses.
+            // We calculate total_budget as Regular + PIB.
+            String updateMinSql = "UPDATE Ministries SET regular_budget = ?, total_budget = ? + COALESCE(public_investment_budget, 0) WHERE ministry_id = ?";
+            dbManager.executeUpdate(conn, updateMinSql, total, total, mid);
         }
     }
 }

@@ -112,17 +112,22 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
 
                 // 3. Cascading Updates
 
-                // 3a. Recalculate Ministry Totals
-                ministryDao.recalculateTotals(conn, budgetID);
+                // 3a & 3b. Recalculate Ministry & Expense Category Totals ONLY if expenses
+                // changed
+                if (!ministryUpdates.isEmpty()) {
+                    ministryDao.recalculateTotals(conn, budgetID);
+                    expenseCategoryDao.recalculateTotals(conn, budgetID);
+                }
 
-                // 3b. Recalculate Expense Category Totals
-                expenseCategoryDao.recalculateTotals(conn, budgetID);
-
-                // 3c. Recalculate Revenue Total
+                // 3c. Recalculate Revenue Total (Always needed as revenue might change)
                 long totalRevenue = revenueCategoryDao.calculateTotalRevenue(conn, budgetID);
                 budgetYearDao.updateTotalRevenue(conn, budgetID, totalRevenue);
 
                 // 3d. Recalculate Budget Expenses and Result
+                // Even if we didn't update expenses, we need to update the result (Rev - Exp).
+                // calculateTotalExpenses sums up Ministry Totals. If Ministry Totals didn't
+                // change (step 3a skipped),
+                // this returns the correct existing total.
                 long totalExpenses = budgetYearDao.calculateTotalExpenses(conn, budgetID);
                 budgetYearDao.updateTotalExpensesAndResult(conn, budgetID, totalExpenses);
             });

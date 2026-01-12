@@ -57,6 +57,7 @@ public class BudgetModificationController {
     private BudgetYear budget;
     private final Map<String, TextField> expenseFields = new HashMap<>();
     private final Map<Long, TextField> revenueFields = new HashMap<>();
+    private final Map<String, Long> originalExpenseAmounts = new HashMap<>();
     private final Map<Long, Long> originalRevenueAmounts = new HashMap<>();
 
     private final ViewManager viewManager;
@@ -124,6 +125,8 @@ public class BudgetModificationController {
 
         if (expenseList != null) {
             expenseList.getChildren().clear();
+            expenseFields.clear();
+            originalExpenseAmounts.clear();
             setupMinistryList();
         }
     }
@@ -176,6 +179,9 @@ public class BudgetModificationController {
                                 .orElse(0L);
 
                         String compoundKey = minCode + ":" + expCode;
+
+                        // Store original amount
+                        originalExpenseAmounts.put(compoundKey, me.getAmount());
 
                         contentBox.getChildren().add(
                                 createMinistryExpenseItemBox(expenseName, me.getAmount(), compoundKey));
@@ -341,7 +347,11 @@ public class BudgetModificationController {
                 Map<String, Long> ministryUpdates = new HashMap<>();
                 for (Map.Entry<String, TextField> entry : expenseFields.entrySet()) {
                     long newAmount = Long.parseLong(entry.getValue().getText());
-                    ministryUpdates.put(entry.getKey(), newAmount);
+                    long originalAmount = originalExpenseAmounts.getOrDefault(entry.getKey(), -1L);
+
+                    if (newAmount != originalAmount) {
+                        ministryUpdates.put(entry.getKey(), newAmount);
+                    }
                 }
 
                 // 1. Clone
