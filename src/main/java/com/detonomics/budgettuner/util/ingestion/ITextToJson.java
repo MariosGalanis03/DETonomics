@@ -3,16 +3,17 @@ package com.detonomics.budgettuner.util.ingestion;
 import java.nio.file.Path;
 
 /**
- * Interface for text to JSON conversion.
+ * Handle the transformation of unstructured budget text into a normalized JSON
+ * schema.
  */
 public interface ITextToJson {
 
     /**
-     * Converts a text file to a JSON file.
+     * Parse unstructured text data and produce a structured JSON representation.
      *
-     * @param inTxt   The path to the input text file.
-     * @param outJson The path to the output JSON file.
-     * @throws Exception If an error occurs during conversion.
+     * @param inTxt   Unstructured source text path
+     * @param outJson Normalized JSON output path
+     * @throws Exception If parsing or schema validation fails
      */
     void textFileToJson(Path inTxt, Path outJson) throws Exception;
 }

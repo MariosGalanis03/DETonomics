@@ -1,8 +1,7 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Represents a budget entity containing year, status, date, and amount
- * information.
+ * Simple data model representing a budget overview for UI display.
  */
 public final class Budget {
     private final String year;
@@ -10,14 +9,13 @@ public final class Budget {
     private final String date;
     private final String amount;
 
-    // Constructor
     /**
-     * Constructs a new Budget instance.
+     * Initialize a new budget record.
      *
-     * @param year   The fiscal year of the budget.
-     * @param status The status of the budget (e.g., Draft, Final).
-     * @param date   The date associated with the budget.
-     * @param amount The total amount of the budget.
+     * @param year   Fiscal year
+     * @param status Processing status (e.g., Draft, Final)
+     * @param date   Registration date
+     * @param amount Monetary total
      */
     public Budget(final String year, final String status,
             final String date, final String amount) {
@@ -27,38 +25,37 @@ public final class Budget {
         this.amount = amount;
     }
 
-    // Getters
     /**
-     * Gets the fiscal year of the budget.
+     * Get the fiscal year.
      *
-     * @return The budget year.
+     * @return Budget year string
      */
     public String getYear() {
         return year;
     }
 
     /**
-     * Gets the status of the budget.
+     * Get the lifecycle status.
      *
-     * @return The budget status.
+     * @return Budget status
      */
     public String getStatus() {
         return status;
     }
 
     /**
-     * Gets the date of the budget.
+     * Get the registration date.
      *
-     * @return The budget date.
+     * @return Formatted date string
      */
     public String getDate() {
         return date;
     }
 
     /**
-     * Gets the total amount of the budget.
+     * Get the total amount.
      *
-     * @return The budget amount.
+     * @return Formatted currency string
      */
     public String getAmount() {
         return amount;

@@ -15,7 +15,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Utility class for formatting budget data into readable strings.
+ * Utility for formatting raw budget data into human-readable tables and
+ * currency strings.
  */
 public final class BudgetFormatter {
 
@@ -24,24 +25,24 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats a long amount into a currency string (EUR).
+     * Format a long amount into a standard localized currency string.
      *
-     * @param amount The amount to format.
-     * @return The formatted string.
+     * @param amount Numeric value to format
+     * @return Formatted string with currency symbol
      */
     public static String formatAmount(final long amount) {
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
         nf.setMaximumFractionDigits(0);
-        // Explicitly use a normal space to avoid non-breaking space issues in tests
+        // Use a standard space to ensure cross-platform compatibility
         return nf.format(amount) + " €";
     }
 
     /**
-     * Truncates a string to a maximum length, appending "..." if truncated.
+     * Shorten a string to a specified length and append an ellipsis.
      *
-     * @param str       The string to truncate.
-     * @param maxLength The maximum length.
-     * @return The truncated string.
+     * @param str       Target string
+     * @param maxLength Character limit
+     * @return Truncated string
      */
     public static String truncateString(final String str, final int maxLength) {
         if (str == null) {
@@ -54,14 +55,13 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative revenue categories into a table string
-     * showing codes with amounts side by side.
+     * Generate a side-by-side comparative table for revenue categories.
      *
-     * @param revenues1 The list of revenue categories for year 1.
-     * @param revenues2 The list of revenue categories for year 2.
-     * @param year1     The first year.
-     * @param year2     The second year.
-     * @return The formatted comparative table string.
+     * @param revenues1 Source data for the first year
+     * @param revenues2 Source data for the second year
+     * @param year1     First fiscal year label
+     * @param year2     Second fiscal year label
+     * @return Formatted table string
      */
     public static String getFormattedComparativeRevenues(
             final ArrayList<RevenueCategory> revenues1,
@@ -107,14 +107,13 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative expense categories into a table string
-     * showing codes with amounts side by side.
+     * Generate a side-by-side comparative table for general expenditures.
      *
-     * @param expenditures1 The list of expense categories for year 1.
-     * @param expenditures2 The list of expense categories for year 2.
-     * @param year1         The first year.
-     * @param year2         The second year.
-     * @return The formatted comparative table string.
+     * @param expenditures1 Source data for the first year
+     * @param expenditures2 Source data for the second year
+     * @param year1         First fiscal year label
+     * @param year2         Second fiscal year label
+     * @return Formatted table string
      */
     public static String getFormattedComparativeExpenditures(
             final ArrayList<ExpenseCategory> expenditures1,
@@ -159,14 +158,13 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative ministries into a table string showing
-     * codes with amounts side by side.
+     * Generate a side-by-side comparative table for ministry-level allocations.
      *
-     * @param ministries1 The list of ministries for year 1.
-     * @param ministries2 The list of ministries for year 2.
-     * @param year1       The first year.
-     * @param year2       The second year.
-     * @return The formatted comparative table string.
+     * @param ministries1 Source data for the first year
+     * @param ministries2 Source data for the second year
+     * @param year1       First fiscal year label
+     * @param year2       Second fiscal year label
+     * @return Formatted table string
      */
     public static String getFormattedComparativeMinistries(
             final ArrayList<Ministry> ministries1,
@@ -215,10 +213,10 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats a list of revenue categories into a table string.
+     * Generate a formatted table string for a list of revenue categories.
      *
-     * @param revenues The list of revenue categories.
-     * @return The formatted table string.
+     * @param revenues List of categories to format
+     * @return Formatted table string
      */
     public static String getFormattedRevenues(
             final ArrayList<RevenueCategory> revenues) {
@@ -244,10 +242,10 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats a list of expense categories into a table string.
+     * Generate a formatted table string for a list of expense categories.
      *
-     * @param expenditures The list of expense categories.
-     * @return The formatted table string.
+     * @param expenditures List of categories to format
+     * @return Formatted table string
      */
     public static String getFormattedExpenditures(
             final ArrayList<ExpenseCategory> expenditures) {
@@ -273,10 +271,10 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats a list of ministries into a table string.
+     * Generate a formatted table string for a list of ministry records.
      *
-     * @param ministries The list of ministries.
-     * @return The formatted table string.
+     * @param ministries List of ministries to format
+     * @return Formatted table string
      */
     public static String getFormattedMinistries(
             final ArrayList<Ministry> ministries) {
@@ -303,18 +301,18 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats comparative ministry expenses into a detailed table
-     * showing amounts side by side.
+     * Generate a detailed comparative table for granular ministry-specific
+     * expenses.
      *
-     * @param ministries1        The list of ministries for year 1.
-     * @param expenseCategories1 The list of expense categories for year 1.
-     * @param ministryExpenses1  The list of ministry expenses for year 1.
-     * @param ministries2        The list of ministries for year 2.
-     * @param expenseCategories2 The list of expense categories for year 2.
-     * @param ministryExpenses2  The list of ministry expenses for year 2.
-     * @param year1              The first year.
-     * @param year2              The second year.
-     * @return The formatted comparative table string.
+     * @param ministries1        Ministry baseline for year 1
+     * @param expenseCategories1 Category baseline for year 1
+     * @param ministryExpenses1  Mapping baseline for year 1
+     * @param ministries2        Ministry baseline for year 2
+     * @param expenseCategories2 Category baseline for year 2
+     * @param ministryExpenses2  Mapping baseline for year 2
+     * @param year1              First fiscal year label
+     * @param year2              Second fiscal year label
+     * @return Formatted table string
      */
     public static String getFormattedComparativeMinistryExpenses(
             final ArrayList<Ministry> ministries1,
@@ -409,12 +407,12 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Formats ministry expenses into a detailed table.
+     * Generate a detailed table for all ministry expense mappings in a budget.
      *
-     * @param ministries        The list of ministries.
-     * @param expenseCategories The list of expense categories.
-     * @param ministryExpenses  The list of ministry expenses.
-     * @return The formatted table string.
+     * @param ministries        List of ministry definitions
+     * @param expenseCategories List of expense classification definitions
+     * @param ministryExpenses  List of actual mappings and amounts
+     * @return Formatted table string
      */
     public static String getFormattedMinistryExpenses(
             final ArrayList<Ministry> ministries,
@@ -493,12 +491,12 @@ public final class BudgetFormatter {
     }
 
     /**
-     * Prints two formatted strings side by side for comparison.
+     * Display two blocks of text side-by-side in the console.
      *
-     * @param leftTitle    The title for the left content.
-     * @param leftContent  The content to display on the left.
-     * @param rightTitle   The title for the right content.
-     * @param rightContent The content to display on the right.
+     * @param leftTitle    Header for the left column
+     * @param leftContent  Body for the left column
+     * @param rightTitle   Header for the right column
+     * @param rightContent Body for the right column
      */
     public static void printSideBySide(final String leftTitle,
             final String leftContent,

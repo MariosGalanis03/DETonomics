@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Represents a revenue category.
+ * Model representing a revenue source and its position in the hierarchy.
  */
 public final class RevenueCategory {
     private final int revenueID;
@@ -11,13 +11,13 @@ public final class RevenueCategory {
     private final int parentID;
 
     /**
-     * Constructs a new RevenueCategory.
+     * Initialize a new revenue category.
      *
-     * @param revenueID The unique ID of the revenue category.
-     * @param code      The code of the revenue category.
-     * @param name      The name of the revenue category.
-     * @param amount    The amount allocated to this category.
-     * @param parentID  The ID of the parent category.
+     * @param revenueID Unique internal ID
+     * @param code      Category system code
+     * @param name      Category name
+     * @param amount    Current projected amount
+     * @param parentID  ID of the higher-level parent category
      */
     public RevenueCategory(final int revenueID, final long code,
             final String name, final long amount, final int parentID) {
@@ -29,45 +29,45 @@ public final class RevenueCategory {
     }
 
     /**
-     * Gets the revenue ID.
+     * Get the revenue ID.
      *
-     * @return The revenue ID.
+     * @return Internal primary key
      */
     public int getRevenueID() {
         return revenueID;
     }
 
     /**
-     * Gets the code.
+     * Get the system code.
      *
-     * @return The code.
+     * @return Category code
      */
     public long getCode() {
         return code;
     }
 
     /**
-     * Gets the name.
+     * Get the category name.
      *
-     * @return The name.
+     * @return Display name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Gets the amount.
+     * Get the amount.
      *
-     * @return The amount.
+     * @return Projected amount
      */
     public long getAmount() {
         return amount;
     }
 
     /**
-     * Gets the parent ID.
+     * Get the parent ID.
      *
-     * @return The parent ID.
+     * @return Higher-level category ID
      */
     public int getParentID() {
         return parentID;

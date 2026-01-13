@@ -25,9 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
 /**
- * Controller for the Analysis View.
- * Handles the display of budget analysis charts and lists (Revenue, Expense,
- * Ministry).
+ * Handle detailed visualization for revenues, expenses, and ministries.
  */
 public final class AnalysisController {
 
@@ -58,10 +56,10 @@ public final class AnalysisController {
     private final BudgetDataService dataService;
 
     /**
-     * Constructs the AnalysisController.
+     * Initialize with navigation and data services.
      *
-     * @param viewManager The manager for handling view transitions.
-     * @param dataService The service for retrieving budget data.
+     * @param viewManager Application view coordinator
+     * @param dataService Budget data provider
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public AnalysisController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -70,11 +68,10 @@ public final class AnalysisController {
     }
 
     /**
-     * Initializes the controller with the necessary context.
+     * Set the current budget and analysis mode.
      *
-     * @param budgetIn The budget year object to analyze.
-     * @param typeIn   The type of analysis to perform (Revenue, Expense, or
-     *                 Ministry).
+     * @param budgetIn Target budget year
+     * @param typeIn   Mode: Revenue, Expense, or Ministry
      */
     public void setContext(final BudgetYear budgetIn, final AnalysisType typeIn) {
         this.budget = budgetIn;
@@ -104,7 +101,6 @@ public final class AnalysisController {
 
         titleLabel.setText(title);
 
-        // Update Chart Title to indicate exclusion or specific naming
         if (chartTitleLabel != null) {
             String chartTitle;
             if (analysisType == AnalysisType.REVENUE) {
@@ -112,7 +108,6 @@ public final class AnalysisController {
             } else if (analysisType == AnalysisType.EXPENSE) {
                 chartTitle = "Κατανομή Εξόδων ανά Λειτουργία (Εξαιρούνται τα Δάνεια)";
             } else {
-                // MINISTRY
                 chartTitle = "Κατανομή Δαπανών ανά Κρατικό Φορέα (Εξαιρούνται τα Δάνεια)";
             }
             chartTitleLabel.setText(chartTitle);
@@ -121,15 +116,13 @@ public final class AnalysisController {
             chartTitleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1565C0;");
         }
 
-        titleLabel.setStyle("-fx-font-size: 40px; -fx-font-weight: bold;"); // Keep this increased too
+        titleLabel.setStyle("-fx-font-size: 40px; -fx-font-weight: bold;");
 
         totalTitleLabel.setText("Σύνολο");
         totalAmountLabel.setText(BudgetFormatter.formatAmount(totalAmount));
 
-        // Calculate difference vs previous year (only non-modified budgets)
+        // Compare against previous fiscal year
         int prevYear = currentYear - 1;
-
-        // Find previous year budget with matching source_title pattern
         List<Summary> allSummaries = dataService.loadAllSummaries();
         Summary prevSummary = allSummaries.stream()
                 .filter(s -> s.getBudgetYear() == prevYear)
@@ -145,7 +138,6 @@ public final class AnalysisController {
             if (analysisType == AnalysisType.REVENUE) {
                 prevAmount = prevSummary.getTotalRevenues();
             } else {
-                // Both EXPENSE and MINISTRY analysis use Total Expenses for comparison
                 prevAmount = prevSummary.getTotalExpenses();
             }
 
@@ -158,7 +150,6 @@ public final class AnalysisController {
             String sign = (diff > 0) ? "+" : "";
             diffAmountLabel.setText(sign + BudgetFormatter.formatAmount(diff));
 
-            // Set color for diff
             if (diff > 0) {
                 diffAmountLabel.setStyle("-fx-text-fill: green;");
             } else if (diff < 0) {
@@ -170,7 +161,6 @@ public final class AnalysisController {
             String perfSign = (perf > 0) ? "+" : "";
             perfLabel.setText(String.format("%s%.2f%%", perfSign, perf));
 
-            // Set color for performance
             if (perf > 0) {
                 perfLabel.setStyle("-fx-text-fill: green;");
             } else if (perf < 0) {
@@ -194,28 +184,27 @@ public final class AnalysisController {
         List<DataPoint> dataPoints = new ArrayList<>();
 
         if (analysisType == AnalysisType.REVENUE) {
-            pieChart.setTitle(""); // Removed title as per request
+            pieChart.setTitle("");
             budget.getRevenues().stream()
                     .filter(r -> r.getParentID() == 0)
                     .filter(r -> !r.getName().equalsIgnoreCase("ΔΑΝΕΙΑ") && !r.getName().equals("Δάνεια"))
                     .forEach(r -> dataPoints.add(new DataPoint(r.getName(), r.getAmount())));
         } else if (analysisType == AnalysisType.EXPENSE) {
-            pieChart.setTitle(""); // Removed title as per request
+            pieChart.setTitle("");
             budget.getExpenses().stream()
                     .filter(e -> !e.getName().equalsIgnoreCase("ΔΑΝΕΙΑ") && !e.getName().equals("Δάνεια"))
                     .forEach(e -> dataPoints.add(new DataPoint(e.getName(), e.getAmount())));
         } else if (analysisType == AnalysisType.MINISTRY) {
-            pieChart.setTitle(""); // Removed title as per request
+            pieChart.setTitle("");
 
-            // Calculate total loans to exclude from Ministry of Finance
+            // Exclude loans from Ministry of Finance for clarity
             long loanAmount = budget.getExpenses().stream()
                     .filter(e -> e.getName().equalsIgnoreCase("ΔΑΝΕΙΑ") || e.getName().equals("Δάνεια"))
                     .mapToLong(e -> e.getAmount())
                     .sum();
 
-            budget.getMinistries().stream().forEach(m -> {
+            budget.getMinistries().forEach(m -> {
                 long amount = m.getTotalBudget();
-                // Check for Ministry of Finance and subtract loans
                 if (m.getName().toUpperCase().contains("ΟΙΚΟΝΟΜ")) {
                     amount -= loanAmount;
                 }
@@ -225,7 +214,6 @@ public final class AnalysisController {
             });
         }
 
-        // Sort descending
         dataPoints.sort((a, b) -> Long.compare(b.getAmount(), a.getAmount()));
 
         long combinedTop5 = 0;
@@ -238,7 +226,6 @@ public final class AnalysisController {
             combinedTop5 += dp.getAmount();
         }
 
-        // Calculate "Other" based on the SUM of the FILTERED list, not the global total
         long filteredTotal = dataPoints.stream().mapToLong(dp -> dp.getAmount()).sum();
         long otherAmount = filteredTotal - combinedTop5;
 
@@ -247,16 +234,13 @@ public final class AnalysisController {
             pieChart.getData().add(new PieChart.Data(label, otherAmount));
         }
 
-        // Calculate total of the displayed slices for percentage calculation
         final double chartTotal = pieChart.getData().stream().mapToDouble(PieChart.Data::getPieValue).sum();
 
-        // Add Tooltips
+        // Attach interactive hover tooltips
         for (PieChart.Data data : pieChart.getData()) {
-            // Add hover effect with floating label at cursor
             data.getNode().setOnMouseEntered(event -> {
                 data.getNode().setStyle("-fx-opacity: 0.8; -fx-cursor: hand;");
 
-                // Show floating label at mouse position
                 String text = getFormattedText(data, chartTotal);
                 Label label = new Label(text);
                 label.setStyle("-fx-background-color: rgba(0,0,0,0.8); -fx-text-fill: white; -fx-padding: 5;");
@@ -271,6 +255,9 @@ public final class AnalysisController {
         }
     }
 
+    /**
+     * Internal container for sorting and mapping chart data.
+     */
     private static final class DataPoint {
         private String name;
         private long amount;
@@ -304,13 +291,11 @@ public final class AnalysisController {
         itemsBox.getChildren().clear();
 
         if (analysisType == AnalysisType.REVENUE) {
-            // Pre-compute children map for recursion
             Map<Integer, List<com.detonomics.budgettuner.model.RevenueCategory>> childrenMap = new HashMap<>();
             for (com.detonomics.budgettuner.model.RevenueCategory cat : budget.getRevenues()) {
                 childrenMap.computeIfAbsent(cat.getParentID(), k -> new ArrayList<>()).add(cat);
             }
 
-            // Sort children
             childrenMap.values().forEach(list -> list.sort((a, b) -> Long.compare(b.getAmount(), a.getAmount())));
 
             List<com.detonomics.budgettuner.model.RevenueCategory> roots = childrenMap.getOrDefault(0,
@@ -321,13 +306,11 @@ public final class AnalysisController {
             }
 
         } else if (analysisType == AnalysisType.EXPENSE) {
-            // Group 2: Expenses (Flat list)
             budget.getExpenses().stream()
                     .sorted((a, b) -> Long.compare(b.getAmount(), a.getAmount()))
                     .forEach(e -> addSimpleItem(e.getName(), e.getAmount()));
 
         } else if (analysisType == AnalysisType.MINISTRY) {
-            // Group 3: Ministries (Expandable with Expenses)
             Map<Integer, String> expenseMap = new HashMap<>();
             budget.getExpenses().forEach(e -> expenseMap.put(e.getExpenseID(), e.getName()));
 
@@ -355,7 +338,6 @@ public final class AnalysisController {
         itemsBox.getChildren().add(createSimpleItemBox(name, amount));
     }
 
-    // Recursive based on RevenueCategory
     private Node buildRevenueNode(final com.detonomics.budgettuner.model.RevenueCategory cat,
             final Map<Integer, List<com.detonomics.budgettuner.model.RevenueCategory>> childrenMap) {
 
@@ -366,13 +348,11 @@ public final class AnalysisController {
         } else {
             TitledPane pane = createTitledPane(cat.getName(), cat.getAmount());
 
-            // Lazy Load: Set a placeholder initially
             VBox placeholder = new VBox();
             pane.setContent(placeholder);
 
             pane.expandedProperty().addListener((obs, wasExpanded, isExpanded) -> {
                 if (isExpanded && pane.getUserData() == null) {
-                    // Mark as loaded
                     pane.setUserData(Boolean.TRUE);
 
                     VBox contentBox = new VBox();
@@ -390,7 +370,6 @@ public final class AnalysisController {
         }
     }
 
-    // Generic builder for Ministry
     private Node buildGenericExpandableNode(final String title, final long amount, final List<DataPoint> children) {
         if (children == null || children.isEmpty()) {
             return createSimpleItemBox(title, amount);
@@ -398,13 +377,11 @@ public final class AnalysisController {
 
         TitledPane pane = createTitledPane(title, amount);
 
-        // Lazy Load: Set a placeholder initially
         VBox placeholder = new VBox();
         pane.setContent(placeholder);
 
         pane.expandedProperty().addListener((obs, wasExpanded, isExpanded) -> {
             if (isExpanded && pane.getUserData() == null) {
-                // Mark as loaded
                 pane.setUserData(Boolean.TRUE);
 
                 VBox contentBox = new VBox();
@@ -429,10 +406,10 @@ public final class AnalysisController {
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
         titleLbl.setPrefWidth(280);
-        titleLbl.setStyle("-fx-font-size: 26px;"); // Increased font size
+        titleLbl.setStyle("-fx-font-size: 26px;");
 
         Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
-        amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;"); // Increased font size
+        amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;");
 
         headerBox.getChildren().addAll(titleLbl, amtLbl);
 
@@ -441,8 +418,7 @@ public final class AnalysisController {
         pane.setExpanded(false);
         pane.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
         pane.getStyleClass().add("analysis-pane");
-        pane.setStyle("-fx-box-border: transparent; -fx-font-size: 26px;"); // Increased font size for TitledPane
-                                                                            // content
+        pane.setStyle("-fx-box-border: transparent; -fx-font-size: 26px;");
 
         return pane;
     }
@@ -453,22 +429,20 @@ public final class AnalysisController {
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
         nameLbl.setPrefWidth(300);
-        nameLbl.setStyle("-fx-font-size: 26px;"); // Increased font size
+        nameLbl.setStyle("-fx-font-size: 26px;");
         Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
-        amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;"); // Increased font size
+        amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;");
         hbox.getChildren().addAll(nameLbl, amtLbl);
         return hbox;
     }
 
     /**
-     * Handles the "Back" button click event.
-     * Navigates back to the Budget Details view.
+     * Navigate back to the main budget dashboard.
      *
-     * @param event The action event triggered by the button click.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onBackClick(final ActionEvent event) {
-        // Navigate back to Budget Details View
         viewManager.switchScene("budget-details-view.fxml", "Λεπτομέρειες Προϋπολογισμού",
                 (BudgetDetailsController controller) -> controller.setContext(budget));
     }

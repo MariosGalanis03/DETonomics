@@ -9,26 +9,26 @@ import com.detonomics.budgettuner.model.RevenueCategory;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for RevenueCategory.
+ * Manage revenue classifications and their hierarchical structures.
  */
 public class RevenueCategoryDao {
 
     private final DatabaseManager dbManager;
 
     /**
-     * Constructs a new RevenueCategoryDao.
+     * Initialize with the designated database manager.
      *
-     * @param dbManager The database manager.
+     * @param dbManager Database accessor
      */
     public RevenueCategoryDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
     /**
-     * Loads revenue categories for a given budget ID.
+     * Retrieve a list of all revenue sources associated with a budget.
      *
-     * @param budgetID The ID of the budget.
-     * @return A list of RevenueCategory objects.
+     * @param budgetID Target budget ID
+     * @return List of revenue categories
      */
     public ArrayList<RevenueCategory> loadRevenues(final int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
@@ -55,11 +55,11 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Loads the revenue category ID for a given code.
+     * Resolve the internal database ID for a specific revenue code.
      *
-     * @param budgetID The budget ID.
-     * @param code     The code of the revenue category.
-     * @return The ID of the revenue category.
+     * @param budgetID Working budget ID
+     * @param code     Target revenue code
+     * @return Internal primary key
      */
     public int loadRevenueCategoryIDFromCode(final int budgetID, final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories "
@@ -72,10 +72,10 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Loads the revenue amount for a given category ID.
+     * Fetch the current funding level for a revenue category.
      *
-     * @param revenueCategoryId The ID of the revenue category.
-     * @return The amount of the revenue category.
+     * @param revenueCategoryId Target category ID
+     * @return Financial amount
      */
     public long loadRevenueAmount(final int revenueCategoryId) {
         String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = ?";
@@ -87,10 +87,10 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Loads the parent ID for a given revenue category ID.
+     * Find the immediate parent category for a specific revenue record.
      *
-     * @param revenueCategoryId The ID of the revenue category.
-     * @return The parent ID of the revenue category.
+     * @param revenueCategoryId Target category ID
+     * @return Parent ID, or 0 if it is a root
      */
     public int loadRevenueParentID(final int revenueCategoryId) {
         String sql = "SELECT parent_id FROM RevenueCategories WHERE revenue_category_id = ?";
@@ -103,10 +103,10 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Loads the children IDs for a given revenue category ID.
+     * Identify all sub-categories belonging to a parent revenue source.
      *
-     * @param revenueCategoryID The ID of the revenue category.
-     * @return A list of children IDs.
+     * @param revenueCategoryID Parent category ID
+     * @return List of children IDs
      */
     public ArrayList<Integer> loadRevenueChildren(final int revenueCategoryID) {
         ArrayList<Integer> children = new ArrayList<>();
@@ -119,12 +119,13 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Sets the amount for a revenue category inside a transaction.
+     * Update a revenue category's amount and propagate changes through the
+     * hierarchy.
      *
-     * @param budgetID The budget ID.
-     * @param code     The code of the revenue category.
-     * @param amount   The new amount.
-     * @return The number of rows affected.
+     * @param budgetID Target budget ID
+     * @param code     Target revenue code
+     * @param amount   New financial value
+     * @return Count of records affected
      */
     public int setRevenueAmount(final int budgetID, final long code, final long amount) {
         try {
@@ -142,13 +143,14 @@ public class RevenueCategoryDao {
      * Internal transactional method to set revenue amount.
      */
     /**
-     * Internal transactional method to set revenue amount.
+     * Update revenue amounts within a transaction, handling both parent aggregation
+     * and child scaling.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
-     * @param code     The revenue code.
-     * @param amount   The new amount.
-     * @return The number of rows affected.
+     * @param conn     Active database connection
+     * @param budgetID Working budget ID
+     * @param code     Target revenue code
+     * @param amount   New financial value
+     * @return Count of records affected
      */
     public int setRevenueAmount(final Connection conn, final int budgetID, final long code, final long amount) {
         int rowsAffected = 0;
@@ -262,11 +264,10 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Clones revenue categories from source budget to target budget with proper
-     * parent ID mapping.
+     * Duplicate the entire revenue tree into a new budget context.
      *
-     * @param sourceBudgetID The source budget ID.
-     * @param targetBudgetID The target budget ID.
+     * @param sourceBudgetID Template budget ID
+     * @param targetBudgetID Target budget ID
      */
     public void cloneRevenueCategories(final int sourceBudgetID, final int targetBudgetID) {
         try {
@@ -365,10 +366,10 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Deletes all revenue categories for a budget.
+     * Purge all revenue category records associated with a specific budget.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
      */
     public void deleteByBudget(final Connection conn, final int budgetID) {
         String sql = "DELETE FROM RevenueCategories WHERE budget_id = ?";
@@ -376,11 +377,11 @@ public class RevenueCategoryDao {
     }
 
     /**
-     * Calculates the total revenue for a budget by summing top-level categories.
+     * Derive the total revenue ceiling by aggregating all root-level categories.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
-     * @return The total revenue.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
+     * @return Total aggregate revenue
      */
     public long calculateTotalRevenue(final Connection conn, final int budgetID) {
         // Sum of all roots (parent_id = 0 or NULL)

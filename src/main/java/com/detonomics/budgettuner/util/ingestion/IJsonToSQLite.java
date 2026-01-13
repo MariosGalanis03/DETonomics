@@ -1,15 +1,16 @@
 package com.detonomics.budgettuner.util.ingestion;
 
 /**
- * Interface for JSON to SQLite processing.
+ * Handle the structural mapping and persistence of budget JSON data into
+ * SQLite.
  */
 public interface IJsonToSQLite {
 
     /**
-     * Processes and stores budget data from a JSON file into the database.
+     * Map a structured budget JSON file to database records.
      *
-     * @param jsonFilePath The path to the JSON file.
-     * @throws Exception If an error occurs during processing.
+     * @param jsonFilePath Source JSON data path
+     * @throws Exception If mapping or persistence fails
      */
     void processAndStoreBudget(String jsonFilePath) throws Exception;
 }

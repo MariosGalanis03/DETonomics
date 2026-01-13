@@ -17,7 +17,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 
 /**
- * Controller for the Welcome View (landing page) of the application.
+ * Handle the entry point dashboard showing high-level stats and trends.
  */
 public class WelcomeController {
 
@@ -45,10 +45,10 @@ public class WelcomeController {
         private final BudgetDataService dataService;
 
         /**
-         * Constructs a new WelcomeController.
+         * Initialize with navigation and data services.
          *
-         * @param viewManager The view manager.
-         * @param dataService The data service.
+         * @param viewManager Application view coordinator
+         * @param dataService Budget data provider
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public WelcomeController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -57,67 +57,52 @@ public class WelcomeController {
         }
 
         /**
-         * Initializes the controller class.
-         * Sets up charts and labels with data loaded asynchronously.
+         * Refresh statistics and charts using background threads.
          */
         @FXML
         public void initialize() {
-                // Ensure view starts scrolled to the top immediately
                 Platform.runLater(() -> {
                         welcomeScrollPane.setVvalue(0.0);
                         welcomeScrollPane.requestFocus();
                 });
 
-                // Load data asynchronously to prevent UI lag
                 CompletableFuture.runAsync(() -> {
                         try {
-                                // Load statistics
                                 final SqlSequence stats = dataService.loadStatistics();
-
-                                // Load summaries for charts
                                 final List<Summary> allSummaries = dataService.loadAllSummaries();
 
-                                // Update UI on JavaFX Application Thread
                                 Platform.runLater(() -> {
-                                        // Update Statistics Labels
                                         statsBudgetsLabel.setText(String.valueOf(stats.getBudgets()));
                                         statsRevCatsLabel.setText(String.valueOf(stats.getRevenueCategories()));
                                         statsExpCatsLabel.setText(String.valueOf(stats.getExpenseCategories()));
                                         statsMinistriesLabel.setText(String.valueOf(stats.getMinistries()));
                                         statsMinExpLabel.setText(String.valueOf(stats.getMinistryExpenses()));
 
-                                        // Setup Charts using Helper
                                         setupCharts(allSummaries);
                                 });
                         } catch (Exception e) {
-                                System.err.println("Error loading data: " + e.getMessage());
+                                System.err.println("Error loading statistics: " + e.getMessage());
                                 e.printStackTrace();
                         }
                 });
         }
 
         private void setupCharts(final List<Summary> allSummaries) {
-                // Filter to show only non-modified budgets (where source_title equals
-                // "Προϋπολογισμός {year}")
+                // Focus on original budgets only to highlight primary trends
                 List<Summary> originalBudgets = allSummaries.stream()
                                 .filter(s -> s.getSourceTitle().equals("Προϋπολογισμός " + s.getBudgetYear()))
                                 .toList();
 
-                // Revenue Chart (Blue)
                 GuiUtils.setupChart(revenueChart, "Συνολικά Έσοδα", originalBudgets, Summary::getTotalRevenues);
-
-                // Expense Chart (Blue)
                 GuiUtils.setupChart(expenseChart, "Συνολικά Έξοδα", originalBudgets, Summary::getTotalExpenses);
-
-                // Difference Chart (Blue for positive, Red for negative)
                 GuiUtils.setupChart(differenceChart, "Ισοζύγιο", originalBudgets, Summary::getBudgetResult,
                                 s -> s.getBudgetResult() < 0);
         }
 
         /**
-         * Handles the "Select Budget" button click.
+         * Open the budget browser.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         protected void onSelectBudgetClick(final ActionEvent event) {
@@ -125,9 +110,9 @@ public class WelcomeController {
         }
 
         /**
-         * Handles the "Import New Budget" button click.
+         * Launch the PDF import wizard.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         protected void onImportNewBudgetClick(final ActionEvent event) {
@@ -135,9 +120,9 @@ public class WelcomeController {
         }
 
         /**
-         * Handles the "Compare Budgets" button click.
+         * Open the side-by-side comparison tool.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         protected void onCompareBudgetsClick(final ActionEvent event) {

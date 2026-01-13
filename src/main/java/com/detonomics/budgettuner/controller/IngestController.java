@@ -25,8 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Controller for the Data Ingestion View.
- * Handles parsing and importing of new budgets from PDF files.
+ * Manage the AI-assisted pipeline for importing PDF budget documents.
  */
 public final class IngestController {
 
@@ -53,10 +52,10 @@ public final class IngestController {
     private final BudgetDataService dataService;
 
     /**
-     * Constructs the IngestController.
+     * Initialize with navigation and data services.
      *
-     * @param viewManager The manager for handling view transitions.
-     * @param dataService The service for budget data operations.
+     * @param viewManager Application view coordinator
+     * @param dataService Budget data provider
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public IngestController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -65,9 +64,9 @@ public final class IngestController {
     }
 
     /**
-     * Handles file selection for PDF ingestion.
+     * Open a file picker for the user to select a budget PDF.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onSelectFileClick(final ActionEvent event) {
@@ -88,9 +87,9 @@ public final class IngestController {
     }
 
     /**
-     * Starts the budget ingestion process (PDF -> Text -> JSON -> SQLite).
+     * Execute the multi-step ingestion workflow in a background task.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onStartClick(final ActionEvent event) {
@@ -99,18 +98,17 @@ public final class IngestController {
         }
 
         startButton.setDisable(true);
-        backButton.setDisable(true); // Prevent exit during process
+        backButton.setDisable(true);
         fileSelectButton.setDisable(true);
         filePathField.setDisable(true);
 
-        // Initial State
         statusLabel.setText("Προετοιμασία...");
         subStatusLabel.setText("");
-        progressBar.setProgress(-1.0); // Indeterminate
-        progressBar.getStyleClass().remove("error-bar"); // Remove error class
-        progressBar.setStyle(null); // Clear inline styles
+        progressBar.setProgress(-1.0);
+        progressBar.getStyleClass().remove("error-bar");
+        progressBar.setStyle(null);
 
-        // Start Pulse Animation
+        // Visual feedback during long-running tasks
         if (animation != null) {
             animation.stop();
         }
@@ -124,7 +122,6 @@ public final class IngestController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                // Pass a lambda that updates the text area on the javaFX thread
                 dataService.insertNewBudgetYear(selectedFile.getAbsolutePath(), message -> {
                     Platform.runLater(() -> updateProgressFromLog(message));
                 });
@@ -154,7 +151,6 @@ public final class IngestController {
             Platform.runLater(() -> {
                 statusLabel.setText("ΣΦΑΛΜΑ ΕΙΣΑΓΩΓΗΣ");
 
-                // Check for specific error related to token exhaustion (incomplete JSON)
                 String errorMsg = ex.getMessage();
                 if (ex.getCause() != null) {
                     errorMsg += " " + ex.getCause().getMessage();
@@ -179,7 +175,7 @@ public final class IngestController {
                 }
                 progressBar.setOpacity(1.0);
                 progressBar.getStyleClass().add("error-bar");
-                progressBar.setProgress(1.0); // Full bar but red
+                progressBar.setProgress(1.0);
                 ex.printStackTrace();
                 startButton.setDisable(false);
                 backButton.setDisable(false);
@@ -188,7 +184,6 @@ public final class IngestController {
             });
         });
 
-        // Run the task in a background thread
         executor.submit(task);
 
     }
@@ -213,20 +208,19 @@ public final class IngestController {
     }
 
     /**
-     * Handles the back button click, returning to the Welcome screen.
+     * Return to the application welcome screen.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onBackClick(final ActionEvent event) {
-        // Return to Welcome Screen
         viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 
     /**
-     * Handles the exit button click, closing the application.
+     * Terminate the application.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onExitClick(final ActionEvent event) {

@@ -1,19 +1,19 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Enum representing the type of analysis to perform.
+ * Define the specific category context for budget analysis.
  */
 public enum AnalysisType {
     /**
-     * Analysis based on revenue categories.
+     * Analyze by revenue streams.
      */
     REVENUE,
     /**
-     * Analysis based on expense categories.
+     * Analyze by general expense types.
      */
     EXPENSE,
     /**
-     * Analysis based on ministries.
+     * Analyze by individual ministry allocations.
      */
     MINISTRY
 }

@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Helper class for generating Plotly.js charts in HTML.
+ * Utility for generating HTML and JavaScript snippets to render Plotly.js
+ * charts in embedded WebViews.
  */
 public final class PlotlyHelper {
 
@@ -13,11 +14,11 @@ public final class PlotlyHelper {
         }
 
         /**
-         * Generates HTML content containing a Plotly chart.
+         * Wrap a Plotly configuration in a complete, self-contained HTML document.
          *
-         * @param chartId    The ID of the chart container div.
-         * @param jsonConfig The JSON configuration for the chart.
-         * @return A complete HTML string.
+         * @param chartId    Target DOM element ID
+         * @param jsonConfig Serialized Plotly chart configuration
+         * @return Complete HTML string ready for WebView loading
          */
         public static String getHtml(final String chartId,
                         final String jsonConfig) {
@@ -49,13 +50,13 @@ public final class PlotlyHelper {
         }
 
         /**
-         * Creates a partial JSON string representing a trace (data series).
+         * Construct a JSON representation of a single Plotly data series (trace).
          *
-         * @param name  The name of the trace.
-         * @param x     The X values.
-         * @param y     The Y values.
-         * @param color The color of the line/markers.
-         * @return A JSON object string for the trace.
+         * @param name  Display name for the series
+         * @param x     List of X-axis categories
+         * @param y     List of Y-axis numeric values
+         * @param color CSS color for the line and markers
+         * @return Trace object snippet in JSON format
          */
         public static String createTrace(final String name,
                         final List<String> x, final List<Double> y,
@@ -79,11 +80,11 @@ public final class PlotlyHelper {
         }
 
         /**
-         * Creates a partial JSON string representing the chart layout.
+         * Construct a JSON representation of the Plotly chart layout and aesthetics.
          *
-         * @param title      The chart title.
-         * @param yAxisTitle The Y-axis title.
-         * @return A JSON object string for the layout.
+         * @param title      Main chart title
+         * @param yAxisTitle Label for the vertical value axis
+         * @return Layout object snippet in JSON format
          */
         public static String createLayout(final String title,
                         final String yAxisTitle) {

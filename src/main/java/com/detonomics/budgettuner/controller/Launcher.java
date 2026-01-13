@@ -10,7 +10,9 @@ public final class Launcher {
     }
 
     /**
-     * Main method that delegates to GuiApp.main.
+     * Pass control to the main JavaFX class.
+     * This intermediate step is necessary to trick the JVM into loading JavaFX
+     * modules correctly for the Fat JAR.
      *
      * @param args Command line arguments
      */

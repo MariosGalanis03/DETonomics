@@ -15,8 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Controller for the Budget Comparison selection view.
- * Allows users to select two budget years and view a side-by-side comparison.
+ * Handle initial selection for comparing different budget years.
  */
 public class ComparisonController {
 
@@ -46,10 +45,10 @@ public class ComparisonController {
     private final BudgetDataService dataService;
 
     /**
-     * Constructs the ComparisonController.
+     * Initialize with navigation and data services.
      *
-     * @param viewManager The manager for handling view transitions.
-     * @param dataService The service for budget data retrieval.
+     * @param viewManager Application view coordinator
+     * @param dataService Budget data provider
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ComparisonController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -58,14 +57,12 @@ public class ComparisonController {
     }
 
     /**
-     * Initializes the controller class.
-     * Loads available budget years into the dropdowns.
+     * Set up selection dropdowns and pre-populate with available years.
      */
     @FXML
     public void initialize() {
         loadYears();
 
-        // Προσθήκη Listeners για αυτόματη ενημέρωση όταν αλλάζει η επιλογή
         yearSelectorA.valueProperty().addListener((obs, oldVal, newVal) -> updateComparison());
         yearSelectorB.valueProperty().addListener((obs, oldVal, newVal) -> updateComparison());
     }
@@ -77,8 +74,7 @@ public class ComparisonController {
         yearSelectorA.setItems(FXCollections.observableArrayList(years));
         yearSelectorB.setItems(FXCollections.observableArrayList(years));
 
-        // Default επιλογές αν υπάρχουν αρκετά έτη
-        if (years.size() > 0) {
+        if (!years.isEmpty()) {
             yearSelectorA.setValue(years.get(0));
         }
         if (years.size() > 1) {
@@ -94,7 +90,6 @@ public class ComparisonController {
             return;
         }
 
-        // Φόρτωση δεδομένων
         int idA = dataService.loadBudgetIDByYear(yearA);
         int idB = dataService.loadBudgetIDByYear(yearB);
 
@@ -120,7 +115,6 @@ public class ComparisonController {
         expALabel.setText(formatMoney(expA));
         expBLabel.setText(formatMoney(expB));
 
-        // Υπολογισμός Διαφορών
         long diffRev = revA - revB;
         long diffExp = expA - expB;
 
@@ -161,13 +155,12 @@ public class ComparisonController {
     }
 
     /**
-     * Handles the back button click, returning to the welcome screen.
+     * Return to the application welcome screen.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onBackClick(final ActionEvent event) {
-        // Επιστροφή στο κεντρικό μενού via ViewManager
         viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 }

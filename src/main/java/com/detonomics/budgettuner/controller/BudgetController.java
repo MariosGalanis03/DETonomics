@@ -27,9 +27,7 @@ import javafx.scene.layout.Region;
 import javafx.util.Callback;
 
 /**
- * Controller for the Budget Selection View.
- * allowing users to view a list of available budgets and select one to view
- * details.
+ * Manage the budget selection screen.
  */
 public final class BudgetController {
 
@@ -45,11 +43,10 @@ public final class BudgetController {
         private ObservableList<String> items;
 
         /**
-         * Constructs a new BudgetController with the specified view manager and data
-         * service.
+         * Initialize with navigation and data services.
          *
-         * @param viewManager The view manager for navigating between views.
-         * @param dataService The service for accessing budget data.
+         * @param viewManager Application view coordinator
+         * @param dataService Budget data provider
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public BudgetController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -58,8 +55,7 @@ public final class BudgetController {
         }
 
         /**
-         * Initializes the controller.
-         * Loads the list of available budget years from the database.
+         * Load all available budgets and configure custom cell rendering.
          */
         @FXML
         public void initialize() {
@@ -83,8 +79,7 @@ public final class BudgetController {
 
                                                         hbox.getChildren().addAll(label, spacer);
 
-                                                        // Heuristic: If title is NOT "Προϋπολογισμός YYYY", it's a
-                                                        // clone/modified budget
+                                                        // Add delete button for user-modified scenarios
                                                         if (!item.matches("Προϋπολογισμός \\d{4}")) {
                                                                 Button deleteBtn = new Button("X");
                                                                 deleteBtn.setStyle("-fx-background-color: #ff4444;"
@@ -117,9 +112,9 @@ public final class BudgetController {
         }
 
         /**
-         * Handles the selection of a budget from the list (via mouse click).
+         * Select a budget from the list and open its details.
          *
-         * @param event The mouse event triggered by the selection.
+         * @param event Mouse click event
          */
         @FXML
         public void onBudgetSelect(final javafx.scene.input.MouseEvent event) {
@@ -150,10 +145,9 @@ public final class BudgetController {
         }
 
         /**
-         * Handles the search button click event.
-         * Filters the list of budgets based on the text entered in the search field.
+         * Filter the list of budgets based on the search input.
          *
-         * @param event The action event triggered by the button click.
+         * @param event Action trigger event
          */
         @FXML
         public void onSearchClick(final ActionEvent event) {
@@ -173,10 +167,9 @@ public final class BudgetController {
         }
 
         /**
-         * Handles the "Open" button click event.
-         * Opens the details view for the currently selected budget in the list.
+         * Open the currently selected budget.
          *
-         * @param event The action event triggered by the button click.
+         * @param event Action trigger event
          */
         @FXML
         public void onOpenBudgetClick(final ActionEvent event) {
@@ -194,10 +187,9 @@ public final class BudgetController {
         }
 
         /**
-         * Handles the "Back" button click event.
-         * Navigates back to the Welcome View.
+         * Navigate back to the home screen.
          *
-         * @param event The action event triggered by the button click.
+         * @param event Action trigger event
          */
         @FXML
         public void onBackButtonClick(final ActionEvent event) {
@@ -205,9 +197,9 @@ public final class BudgetController {
         }
 
         /**
-         * Handles the exit button click, terminating the application.
+         * Close the application.
          *
-         * @param event The action event.
+         * @param event Action trigger event
          */
         @FXML
         public void onExitClick(final ActionEvent event) {
@@ -223,7 +215,7 @@ public final class BudgetController {
                         if (summaryOpt.isPresent()) {
                                 int budgetId = summaryOpt.get().getBudgetID();
                                 dataService.deleteBudget(budgetId);
-                                loadBudgetsFromDatabase(); // Refresh list
+                                loadBudgetsFromDatabase();
                         }
                 } catch (Exception e) {
                         System.err.println("Error deleting budget: " + e.getMessage());

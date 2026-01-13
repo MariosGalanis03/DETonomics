@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Controller for ministry analysis with budget modification capabilities.
+ * Manage the "Prime Minister for a Day" modification tool.
  */
 public final class BudgetModificationController {
 
@@ -65,11 +65,11 @@ public final class BudgetModificationController {
     private final BudgetModificationService modificationService;
 
     /**
-     * Constructs the BudgetModificationController.
+     * Initialize with navigation, data, and persistence services.
      *
-     * @param viewManager         The manager for handling view transitions.
-     * @param dataService         The service for budget data retrieval.
-     * @param modificationService The service for budget modification operations.
+     * @param viewManager         Application view coordinator
+     * @param dataService         Budget data provider
+     * @param modificationService Budget cloning and editing logic
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public BudgetModificationController(final ViewManager viewManager, final BudgetDataService dataService,
@@ -80,9 +80,9 @@ public final class BudgetModificationController {
     }
 
     /**
-     * Sets the context (budget) for the controller.
+     * Set the current budget context for editing.
      *
-     * @param budget The budget to modify.
+     * @param budget Target budget for baseline scenario
      */
     public void setContext(final BudgetYear budget) {
         this.budget = budget;
@@ -103,17 +103,14 @@ public final class BudgetModificationController {
             revenueFields.clear();
             originalRevenueAmounts.clear();
 
-            // Build Recursive Tree
             Map<Integer, List<RevenueCategory>> childrenMap = new HashMap<>();
             for (RevenueCategory cat : budget.getRevenues()) {
                 childrenMap.computeIfAbsent(cat.getParentID(), k -> new ArrayList<>()).add(cat);
             }
 
-            // Sort by amount desc
             childrenMap.values().forEach(list -> list.sort((a, b) -> Long.compare(b.getAmount(), a.getAmount())));
 
             List<RevenueCategory> roots = childrenMap.getOrDefault(0, new ArrayList<>());
-            // Also handle NULL parents if any (treated as 0 in DAO but let's be safe)
             if (childrenMap.containsKey(null)) {
                 roots.addAll(childrenMap.get(null));
             }
@@ -140,7 +137,6 @@ public final class BudgetModificationController {
         } else {
             TitledPane pane = createTitledPane(cat.getName(), cat.getAmount(), cat.getCode(), true);
 
-            // Lazy Load or Instant Load? Instant is easier for editing state management
             VBox contentBox = new VBox(5);
             contentBox.setPadding(new Insets(5, 0, 5, 20));
 
@@ -171,7 +167,6 @@ public final class BudgetModificationController {
                     for (MinistryExpense me : mExpenses) {
                         String expenseName = expenseCategoryMap.getOrDefault(me.getExpenseCategoryID(), "Άγνωστο");
 
-                        // Get codes to form compound key
                         long minCode = m.getCode();
                         long expCode = budget.getExpenses().stream()
                                 .filter(e -> e.getExpenseID() == me.getExpenseCategoryID())
@@ -180,8 +175,6 @@ public final class BudgetModificationController {
                                 .orElse(0L);
 
                         String compoundKey = minCode + ":" + expCode;
-
-                        // Store original amount
                         originalExpenseAmounts.put(compoundKey, me.getAmount());
 
                         contentBox.getChildren().add(
@@ -298,13 +291,12 @@ public final class BudgetModificationController {
     }
 
     /**
-     * Handles the save button click, creating a new modified budget.
+     * Save the current modifications as a new budget scenario.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onSaveClick(final ActionEvent event) {
-        // Reset status label
         statusLabel.setVisible(false);
         statusLabel.setText("");
 
@@ -324,18 +316,15 @@ public final class BudgetModificationController {
             return;
         }
 
-        // Show status for saving
         statusLabel.setText("Παρακαλώ περιμένετε, αποθήκευση σε εξέλιξη...");
-        statusLabel.setStyle("-fx-text-fill: #1565C0; -fx-font-weight: bold;"); // Blue for info
+        statusLabel.setStyle("-fx-text-fill: #1565C0; -fx-font-weight: bold;");
         statusLabel.setVisible(true);
 
         saveButton.setDisable(true);
         cancelButton.setDisable(true);
 
-        // Run save operation in background thread
         CompletableFuture.runAsync(() -> {
             try {
-                // Prepare updates
                 Map<Long, Long> revenueUpdates = new HashMap<>();
                 for (Map.Entry<Long, TextField> entry : revenueFields.entrySet()) {
                     long code = entry.getKey();
@@ -356,17 +345,13 @@ public final class BudgetModificationController {
                     }
                 }
 
-                // 1. Clone
                 int sourceBudgetId = budget.getSummary().getBudgetID();
                 int newBudgetId = modificationService.cloneBudget(sourceBudgetId, sourceTitle);
 
                 if (newBudgetId != -1) {
-                    // 2. Apply Updates
                     modificationService.updateBudgetAmounts(newBudgetId, revenueUpdates, ministryUpdates);
 
-                    Platform.runLater(() -> {
-                        navigateToWelcome();
-                    });
+                    Platform.runLater(this::navigateToWelcome);
                 } else {
                     throw new RuntimeException("Failed to clone budget.");
                 }
@@ -394,9 +379,9 @@ public final class BudgetModificationController {
     }
 
     /**
-     * Handles the cancel button click, returning to the welcome screen.
+     * Discard changes and return to the main view.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     public void onCancelClick(final ActionEvent event) {
@@ -414,7 +399,6 @@ public final class BudgetModificationController {
     }
 
     private boolean validateInputs() {
-        // Validate Revenue Fields
         for (TextField field : revenueFields.values()) {
             String text = field.getText().trim();
             try {
@@ -429,7 +413,6 @@ public final class BudgetModificationController {
             }
         }
 
-        // Validate Expense Fields
         for (TextField field : expenseFields.values()) {
             String text = field.getText().trim();
             try {

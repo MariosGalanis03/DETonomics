@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Represents a sequence of SQL counts or statistics.
+ * Track auto-incrementing record IDs and system-wide statistics.
  */
 public final class SqlSequence {
     private int budgets;
@@ -11,13 +11,13 @@ public final class SqlSequence {
     private int ministryExpenses;
 
     /**
-     * Constructs a new SqlSequence.
+     * Initialize a mapping of database sequence counts.
      *
-     * @param budgets           Count of budgets.
-     * @param revenueCategories Count of revenue categories.
-     * @param expenseCategories Count of expense categories.
-     * @param ministries        Count of ministries.
-     * @param ministryExpenses  Count of ministry expenses.
+     * @param budgets           Total budgets
+     * @param revenueCategories Total revenue lines
+     * @param expenseCategories Total expense lines
+     * @param ministries        Total ministries
+     * @param ministryExpenses  Total granular ministry expenses
      */
     public SqlSequence(final int budgets, final int revenueCategories,
             final int expenseCategories, final int ministries,
@@ -30,45 +30,45 @@ public final class SqlSequence {
     }
 
     /**
-     * Gets budget count.
+     * Get the total number of budgets in the system.
      *
-     * @return Budget count.
+     * @return Budget count
      */
     public int getBudgets() {
         return budgets;
     }
 
     /**
-     * Gets revenue categories count.
+     * Get the total number of primary revenue categories.
      *
-     * @return Revenue categories count.
+     * @return Revenue category count
      */
     public int getRevenueCategories() {
         return revenueCategories;
     }
 
     /**
-     * Gets expense categories count.
+     * Get the total number of defined expense categories.
      *
-     * @return Expense categories count.
+     * @return Expense category count
      */
     public int getExpenseCategories() {
         return expenseCategories;
     }
 
     /**
-     * Gets ministries count.
+     * Get the total number of government ministries registered.
      *
-     * @return Ministries count.
+     * @return Ministry count
      */
     public int getMinistries() {
         return ministries;
     }
 
     /**
-     * Gets ministry expenses count.
+     * Get the total count of granular ministry-to-expense mappings.
      *
-     * @return Ministry expenses count.
+     * @return Ministry expense count
      */
     public int getMinistryExpenses() {
         return ministryExpenses;

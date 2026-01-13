@@ -9,26 +9,26 @@ import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for Summary.
+ * Manage high-level budget headers and summary metadata.
  */
 public class SummaryDao {
 
         private final DatabaseManager dbManager;
 
         /**
-         * Constructs a new SummaryDao.
+         * Initialize with a database manager.
          *
-         * @param dbManager The database manager.
+         * @param dbManager Database accessor
          */
         public SummaryDao(final DatabaseManager dbManager) {
                 this.dbManager = dbManager;
         }
 
         /**
-         * Loads the budget summary for a given budget ID.
+         * Fetch the core summary data for a specific budget.
          *
-         * @param budgetID The ID of the budget.
-         * @return A Summary object, or null if not found.
+         * @param budgetID Target budget ID
+         * @return Budget summary metadata
          */
         public Summary loadSummary(final int budgetID) {
                 final String sql = "SELECT * FROM Budgets WHERE budget_id = ?";
@@ -42,9 +42,9 @@ public class SummaryDao {
         }
 
         /**
-         * Loads all budget summaries ordered by budget year.
+         * Return a chronological list of all budget summaries.
          *
-         * @return A list of Summary objects for all budgets.
+         * @return List of all documented budget years
          */
         public List<Summary> loadAllSummaries() {
                 final String sql = "SELECT * FROM Budgets ORDER BY budget_year ASC";
@@ -58,12 +58,12 @@ public class SummaryDao {
         }
 
         /**
-         * Updates budget summary totals.
+         * Sync the top-level financial totals for a specific budget header.
          *
-         * @param budgetId      The budget ID.
-         * @param totalExpenses The new total expenses.
-         * @param budgetResult  The new budget result.
-         * @return Number of rows affected.
+         * @param budgetId      Target budget ID
+         * @param totalExpenses Aggregate expenditure
+         * @param budgetResult  Net financial balance
+         * @return Count of records updated
          */
         public int updateBudgetSummary(final int budgetId, final long totalExpenses, final long budgetResult) {
                 String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = ? WHERE budget_id = ?";
@@ -71,13 +71,13 @@ public class SummaryDao {
         }
 
         /**
-         * Updates budget summary totals using an existing connection.
+         * Sync the top-level financial totals within an active transaction.
          *
-         * @param conn          The database connection.
-         * @param budgetId      The budget ID.
-         * @param totalExpenses The new total expenses.
-         * @param budgetResult  The new budget result.
-         * @return Number of rows affected.
+         * @param conn          Active database connection
+         * @param budgetId      Target budget ID
+         * @param totalExpenses Aggregate expenditure
+         * @param budgetResult  Net financial balance
+         * @return Count of records updated
          */
         public int updateBudgetSummary(final Connection conn, final int budgetId, final long totalExpenses,
                         final long budgetResult) {
@@ -111,10 +111,10 @@ public class SummaryDao {
         }
 
         /**
-         * Deletes the summary (and ostensibly the budget row) for a given budget ID.
+         * Delete the primary budget record from the system.
          *
-         * @param conn     The database connection.
-         * @param budgetID The budget ID.
+         * @param conn     Active database connection
+         * @param budgetID Target budget ID
          */
         public void deleteByBudget(final Connection conn, final int budgetID) {
                 // Summary is stored in Budgets table row, so this technically deletes the

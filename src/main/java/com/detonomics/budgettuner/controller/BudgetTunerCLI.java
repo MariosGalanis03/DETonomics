@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * The main entry point for the Budget Tuner command-line interface.
+ * Execute the Command Line Interface.
+ * This class handles text-based user interaction for the application.
  */
 public final class BudgetTunerCLI {
 
@@ -29,51 +30,44 @@ public final class BudgetTunerCLI {
      * @param args Command line arguments
      */
     public static void main(final String[] args) {
-        // Initialize Database and DAOs
-        com.detonomics.budgettuner.util.DatabaseManager dbManager =
-                        new com.detonomics.budgettuner.util.DatabaseManager(
-                        com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
+        // Wire up the database and Data Access Objects
+        com.detonomics.budgettuner.util.DatabaseManager dbManager = new com.detonomics.budgettuner.util.DatabaseManager(
+                com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
 
-        com.detonomics.budgettuner.dao.SummaryDao summaryDao =
-                        new com.detonomics.budgettuner.dao.SummaryDao(
-                        dbManager);
-        com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao =
-                        new com.detonomics.budgettuner.dao.RevenueCategoryDao(
-                        dbManager);
-        com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao =
-                        new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
-                        dbManager);
-        com.detonomics.budgettuner.dao.MinistryDao ministryDao =
-                        new com.detonomics.budgettuner.dao.MinistryDao(
-                        dbManager);
-        com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao =
-                        new com.detonomics.budgettuner.dao.MinistryExpenseDao(
-                        dbManager);
-        com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao =
-                        new com.detonomics.budgettuner.dao.BudgetTotalsDao(
-                        dbManager);
-        com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao =
-                        new com.detonomics.budgettuner.dao.SqlSequenceDao(
-                        dbManager);
+        com.detonomics.budgettuner.dao.SummaryDao summaryDao = new com.detonomics.budgettuner.dao.SummaryDao(
+                dbManager);
+        com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao = new com.detonomics.budgettuner.dao.RevenueCategoryDao(
+                dbManager);
+        com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao = new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
+                dbManager);
+        com.detonomics.budgettuner.dao.MinistryDao ministryDao = new com.detonomics.budgettuner.dao.MinistryDao(
+                dbManager);
+        com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao = new com.detonomics.budgettuner.dao.MinistryExpenseDao(
+                dbManager);
+        com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao = new com.detonomics.budgettuner.dao.BudgetTotalsDao(
+                dbManager);
+        com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao = new com.detonomics.budgettuner.dao.SqlSequenceDao(
+                dbManager);
 
-        com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao =
-                        new com.detonomics.budgettuner.dao.BudgetYearDao(
-                        dbManager, summaryDao, revenueCategoryDao, expenseCategoryDao, ministryDao,
-                        ministryExpenseDao);
+        com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao = new com.detonomics.budgettuner.dao.BudgetYearDao(
+                dbManager, summaryDao, revenueCategoryDao, expenseCategoryDao, ministryDao,
+                ministryExpenseDao);
 
         BudgetDataService service = new BudgetDataServiceImpl(budgetYearDao, revenueCategoryDao,
                 expenseCategoryDao,
                 ministryDao, ministryExpenseDao, summaryDao, budgetTotalsDao, sqlSequenceDao);
+
+        // Launch the interactive shell
         BudgetTunerCLI app = new BudgetTunerCLI();
         app.run(service, System.in, System.out);
     }
 
     /**
-     * Runs the application logic.
+     * Start the main event loop.
      *
-     * @param dataService The service to access budget data.
-     * @param in          The input stream.
-     * @param out         The output stream.
+     * @param dataService The service layer for data retrieval
+     * @param in          Input stream (usually System.in)
+     * @param out         Output stream (usually System.out)
      */
     public void run(final BudgetDataService dataService,
             final InputStream in, final PrintStream out) {
@@ -96,7 +90,7 @@ public final class BudgetTunerCLI {
                     statistics.getMinistryExpenses());
             out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-            // Load list of budget years
+            // Fetch available budget years to populate the menu
             ArrayList<Integer> years = dataService.loadBudgetYears();
             boolean mainMenurunning = true;
             int choice;
@@ -121,7 +115,7 @@ public final class BudgetTunerCLI {
 
                 switch (choice) {
                     case 1:
-                        // 1. Select Year
+                        // Prompt user to pick a year for analysis
                         int year = selectYear(scanner, years,
                                 "Εισάγετε το έτος προϋπολογισμού: ", out);
                         out.println("Φορτώνεται ο προϋπολογισμός για το έτος "
@@ -131,9 +125,7 @@ public final class BudgetTunerCLI {
                         BudgetYear budget = dataService
                                 .loadBudgetYear(budgetID);
 
-                        // 2. Enter View Menu
-                        // Returns false if the user chose "Exit" (7),
-                        // true if "Change Year" (6)
+                        // Enter the specific budget submenu
                         boolean keepAppRunning = handleViewBudgetMenu(
                                 scanner, budget, year, out);
                         if (!keepAppRunning) {
@@ -164,7 +156,7 @@ public final class BudgetTunerCLI {
                         break;
 
                     case 3:
-                        // Insert new year
+                        // Initiate the PDF ingestion workflow
                         out.println("Εισαγωγή νέου έτους προϋπολογισμού "
                                 + "στη βάση...");
                         out.print("Εισάγετε τη διαδρομή του αρχείου "
@@ -174,7 +166,7 @@ public final class BudgetTunerCLI {
                             try {
                                 dataService.insertNewBudgetYear(pdfPath,
                                         System.out::println);
-                                // Reload years list after insertion
+                                // Refresh the local cache of years to include the new entry
                                 years = dataService.loadBudgetYears();
                                 out.println(
                                         "Η εισαγωγή ολοκληρώθηκε με επιτυχία.");
@@ -201,13 +193,13 @@ public final class BudgetTunerCLI {
     }
 
     /**
-     * Helper method to prompt the user to select a valid year from the list.
+     * Prompt the user until a valid year is selected.
      *
-     * @param scanner        The scanner to read input
-     * @param availableYears The list of available years
-     * @param message        The prompt message
-     * @param out            The output stream
-     * @return The selected year
+     * @param scanner        Input scanner
+     * @param availableYears List of valid years to choose from
+     * @param message        Prompt text
+     * @param out            Output stream
+     * @return The validated selected year
      */
     private int selectYear(final Scanner scanner,
             final ArrayList<Integer> availableYears,
@@ -240,14 +232,13 @@ public final class BudgetTunerCLI {
     }
 
     /**
-     * Handles the menu for viewing a specific budget year.
+     * Manage the View Submenu for a specific budget.
      *
-     * @param scanner The scanner to read input
-     * @param budget  The budget year object
-     * @param year    The year being viewed
-     * @param out     The output stream
-     * @return true if the application should continue running,
-     *         false if the user selected Exit.
+     * @param scanner Input scanner
+     * @param budget  The loaded budget object
+     * @param year    The associated year
+     * @param out     Output stream
+     * @return False if the user chose to exit the app completely, True otherwise
      */
     private boolean handleViewBudgetMenu(final Scanner scanner,
             final BudgetYear budget,
@@ -333,14 +324,14 @@ public final class BudgetTunerCLI {
     }
 
     /**
-     * Handles the menu for comparing two budget years.
+     * Manage the Comparison Submenu.
      *
-     * @param scanner The scanner to read input
-     * @param budget1 The first budget year
-     * @param budget2 The second budget year
-     * @param year1   The first year
-     * @param year2   The second year
-     * @param out     The output stream
+     * @param scanner Input scanner
+     * @param budget1 First budget
+     * @param budget2 Second budget
+     * @param year1   First year
+     * @param year2   Second year
+     * @param out     Output stream
      */
     private void handleCompareBudgetsMenu(final Scanner scanner,
             final BudgetYear budget1,

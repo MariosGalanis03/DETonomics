@@ -15,7 +15,8 @@ import com.detonomics.budgettuner.service.IngestBudgetPdf;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for BudgetYear.
+ * Manage complete budget year records including all associated financial
+ * categories.
  */
 public class BudgetYearDao {
 
@@ -27,14 +28,14 @@ public class BudgetYearDao {
         private final MinistryExpenseDao ministryExpenseDao;
 
         /**
-         * Constructs a new BudgetYearDao.
+         * Initialize the aggregate DAO with its required component dependencies.
          *
-         * @param dbManager          The database manager.
-         * @param summaryDao         The Summary DAO.
-         * @param revenueCategoryDao The RevenueCategory DAO.
-         * @param expenseCategoryDao The ExpenseCategory DAO.
-         * @param ministryDao        The Ministry DAO.
-         * @param ministryExpenseDao The MinistryExpense DAO.
+         * @param dbManager          Central database manager
+         * @param summaryDao         Summary component accessor
+         * @param revenueCategoryDao Revenue category component accessor
+         * @param expenseCategoryDao Expense category component accessor
+         * @param ministryDao        Ministry component accessor
+         * @param ministryExpenseDao Ministry expense mapping component accessor
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public BudgetYearDao(final DatabaseManager dbManager, final SummaryDao summaryDao,
@@ -50,9 +51,9 @@ public class BudgetYearDao {
         }
 
         /**
-         * Loads a list of available budget years.
+         * Fetch a list of all fiscal years currently tracked in the system.
          *
-         * @return A list of years (Integers).
+         * @return List of years
          */
         public ArrayList<Integer> loadBudgetYearsList() {
                 final String sql = "SELECT budget_year FROM Budgets";
@@ -67,10 +68,10 @@ public class BudgetYearDao {
         }
 
         /**
-         * Loads the budget ID for a given year.
+         * Look up the internal primary key for a specific budget year.
          *
-         * @param year The budget year.
-         * @return The budget ID, or -1 if not found.
+         * @param year Fiscal year
+         * @return Database ID, or -1 if the year is missing
          */
         public int loadBudgetIDByYear(final int year) {
                 final String sql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
@@ -84,10 +85,10 @@ public class BudgetYearDao {
         }
 
         /**
-         * Loads the complete BudgetYear object for a given budget ID.
+         * Reconstruct a full budget year entity including all sub-entities.
          *
-         * @param budgetID The ID of the budget.
-         * @return A BudgetYear object.
+         * @param budgetID Target budget ID
+         * @return Composed BudgetYear object
          */
         public BudgetYear loadBudgetYear(final int budgetID) {
                 final Summary summary = summaryDao.loadSummary(budgetID);
@@ -103,11 +104,11 @@ public class BudgetYearDao {
         }
 
         /**
-         * Loads a budget year by the year number.
+         * Fetch the complete data for a specific fiscal year using its numeric value.
          *
-         * @param year The year to load.
-         * @return The BudgetYear object.
-         * @throws IllegalArgumentException if the budget is not found.
+         * @param year Target year
+         * @return Composed BudgetYear object
+         * @throws IllegalArgumentException if the budget record is missing
          */
         public BudgetYear loadBudgetYearByYear(final int year) {
                 final int budgetId = loadBudgetIDByYear(year);
@@ -118,11 +119,11 @@ public class BudgetYearDao {
         }
 
         /**
-         * Inserts a new budget year from a PDF file.
+         * Import a new budget year by parsing an external PDF document.
          *
-         * @param pdfPath The path to the PDF file.
-         * @param logger  A consumer to accept log messages.
-         * @throws Exception If an error occurs during processing.
+         * @param pdfPath Filesystem path to the source PDF
+         * @param logger  Callback for real-time status updates
+         * @throws Exception If the ingestion pipeline fails
          */
         public void insertNewBudgetYear(final String pdfPath, final java.util.function.Consumer<String> logger)
                         throws Exception {
@@ -135,9 +136,10 @@ public class BudgetYearDao {
         }
 
         /**
-         * Deletes a budget and all associated data.
+         * Wipe a budget and all its dependent records from the host database.
+         * This performs a clean cascade deletion to maintain referential integrity.
          *
-         * @param budgetID The ID of the budget to delete.
+         * @param budgetID ID of the budget to purge
          */
         public void deleteBudget(final int budgetID) {
                 try {
@@ -213,12 +215,12 @@ public class BudgetYearDao {
         }
 
         /**
-         * Creates a new budget in the database based on a source budget.
+         * Clone an existing budget's summary into a new database record.
          *
-         * @param conn              The database connection.
-         * @param sourceBudget      The source budget to copy from.
-         * @param targetSourceTitle The title for the new budget.
-         * @return The ID of the newly created budget.
+         * @param conn              Active database connection
+         * @param sourceBudget      Template budget year
+         * @param targetSourceTitle Descriptive title for the clone
+         * @return Newly generated budget ID
          */
         public int createBudget(final Connection conn, final BudgetYear sourceBudget, final String targetSourceTitle) {
                 String insertBudgetSql = "INSERT INTO Budgets (source_title, currency, locale, source_date, "
@@ -243,11 +245,12 @@ public class BudgetYearDao {
         }
 
         /**
-         * Calculates the total expenses for a budget by summing ministry totals.
+         * Compute the aggregate expenditures by summing individual ministry
+         * allocations.
          *
-         * @param conn     The database connection.
-         * @param budgetID The ID of the budget.
-         * @return The total expenses.
+         * @param conn     Active database connection
+         * @param budgetID Target budget ID
+         * @return Sum of all ministry-level budgets
          */
         public long calculateTotalExpenses(final Connection conn, final int budgetID) {
                 String sql = "SELECT SUM(total_budget) as total FROM Ministries WHERE budget_id = ?";
@@ -259,11 +262,11 @@ public class BudgetYearDao {
         }
 
         /**
-         * Updates the total revenue for a budget in the database.
+         * Persist the updated revenue total for a specific budget.
          *
-         * @param conn         The database connection.
-         * @param budgetID     The ID of the budget.
-         * @param totalRevenue The new total revenue.
+         * @param conn         Active database connection
+         * @param budgetID     Target budget ID
+         * @param totalRevenue New revenue ceiling
          */
         public void updateTotalRevenue(final Connection conn, final int budgetID, final long totalRevenue) {
                 String sql = "UPDATE Budgets SET total_revenue = ? WHERE budget_id = ?";
@@ -271,11 +274,11 @@ public class BudgetYearDao {
         }
 
         /**
-         * Updates the total expenses and recalculates the budget result.
+         * Sync total expenses and automatically derive the new budget balance.
          *
-         * @param conn          The database connection.
-         * @param budgetID      The ID of the budget.
-         * @param totalExpenses The new total expenses.
+         * @param conn          Active database connection
+         * @param budgetID      Target budget ID
+         * @param totalExpenses New expense ceiling
          */
         public void updateTotalExpensesAndResult(final Connection conn, final int budgetID, final long totalExpenses) {
                 String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = total_revenue - ? "

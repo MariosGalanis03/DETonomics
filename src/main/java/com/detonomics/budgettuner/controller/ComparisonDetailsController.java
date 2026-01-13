@@ -25,25 +25,24 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
- * Controller for the Comparison Details View.
- * Displays detailed line-item analysis comparing two selected budget years.
+ * Handle line-by-line comparison of two selected budgets.
  */
 public final class ComparisonDetailsController {
 
     /**
-     * Enumeration for the type of analysis comparison.
+     * Categories available for granular comparison.
      */
     public enum ComparisonType {
         /**
-         * Compare revenue data.
+         * Compare nested revenue codes.
          */
         REVENUE,
         /**
-         * Compare expense data.
+         * Compare economic expense categories.
          */
         EXPENSE,
         /**
-         * Compare ministry data.
+         * Compare ministry-level allocations.
          */
         MINISTRY
     }
@@ -61,10 +60,10 @@ public final class ComparisonDetailsController {
     private final BudgetDataService dataService;
 
     /**
-     * Constructs the ComparisonDetailsController.
+     * Initialize with navigation and data services.
      *
-     * @param viewManager The manager for view transitions.
-     * @param dataService The service for budget data.
+     * @param viewManager Application view coordinator
+     * @param dataService Budget data provider
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ComparisonDetailsController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -73,11 +72,11 @@ public final class ComparisonDetailsController {
     }
 
     /**
-     * Sets the context for the comparison.
+     * Build the comparison view for the selected budgets and type.
      *
-     * @param s1   The summary of the first budget.
-     * @param s2   The summary of the second budget.
-     * @param type The type of analysis to perform.
+     * @param s1   Baseline budget summary
+     * @param s2   Target budget summary
+     * @param type Selected analysis mode
      */
     public void setContext(final Summary s1, final Summary s2, final ComparisonType type) {
         this.s1 = s1;
@@ -91,7 +90,6 @@ public final class ComparisonDetailsController {
 
         itemsBox.getChildren().clear();
 
-        // Add header row
         createHeaderRow(s1.getSourceTitle(), s2.getSourceTitle());
 
         Map<Long, String> names = new HashMap<>();
@@ -128,7 +126,6 @@ public final class ComparisonDetailsController {
             return;
         }
         for (RevenueCategory rc : dataService.loadRevenues(budgetId)) {
-            // Only include revenues without parent (parent_id = 0)
             if (rc.getParentID() == 0) {
                 amounts.put(rc.getCode(), rc.getAmount());
                 names.putIfAbsent(rc.getCode(), rc.getName());
@@ -219,16 +216,15 @@ public final class ComparisonDetailsController {
         val2.setMinWidth(100);
         val2.setAlignment(Pos.CENTER_RIGHT);
 
-        // Calculate percentage change
         String percentText;
         String percentColor;
 
         if (v1 == 0 && v2 != 0) {
             percentText = "+Ꝏ%";
-            percentColor = "#4CAF50"; // Green for positive infinity
+            percentColor = "#4CAF50";
         } else if (v1 == 0 && v2 == 0) {
             percentText = "0.0%";
-            percentColor = "#888"; // Gray for no change
+            percentColor = "#888";
         } else {
             double percentChange = ((double) (v2 - v1) / v1) * 100;
             percentText = String.format("%+.1f%%", percentChange);
@@ -245,9 +241,9 @@ public final class ComparisonDetailsController {
     }
 
     /**
-     * Handles the back button click, returning to the Comparison Selection view.
+     * Return to the high-level budget comparison screen.
      *
-     * @param event The action event.
+     * @param event Triggering ActionEvent
      */
     @FXML
     void onBackClick(final ActionEvent event) {

@@ -11,13 +11,14 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 /**
- * A class that handles the entire process of extracting text from a PDF
- * and saving it to a corresponding .txt file.
+ * Handle extraction of raw text from PDF documents using Apache PDFBox.
+ * Provides cleaning logic to produce normalized plain text suitable for
+ * parsing.
  */
 public class PdfToText implements IPdfToText {
 
     /**
-     * Default constructor.
+     * Initialize a new PDF extraction engine.
      */
     public PdfToText() {
     }
@@ -28,21 +29,14 @@ public class PdfToText implements IPdfToText {
             .getLogger("org.apache.pdfbox.pdmodel.font.PDTrueTypeFont");
 
     /**
-     * Configures PDFBox loggers to reduce noise.
+     * Mute verbose PDFBox logging output.
      */
     public static void configureLoggers() {
         PDFBOX_LOGGER.setLevel(java.util.logging.Level.SEVERE);
         FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
     }
 
-    /**
-     * Public method to orchestrate the extraction and saving process.
-     * It reads a PDF, determines the output file name automatically,
-     * and saves the extracted text.
-     *
-     * @param pdfPath The path to the input PDF file.
-     * @throws IOException If any error occurs during file reading or writing.
-     */
+    @Override
     public void extractAndSaveText(final String pdfPath) throws IOException {
 
         Path outputDir = Path.of("data", "processed");
@@ -55,15 +49,10 @@ public class PdfToText implements IPdfToText {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING);
 
-        System.out.println("Text successfully extracted and saved to '"
-                + outputFileName + "'");
+        System.out.println("Text successfully extracted and saved to '" + outputFileName + "'");
     }
 
-    /**
-     * Extracts all text from a given PDF file.
-     */
-    private String extractTextFromFile(final String pdfPath)
-            throws IOException {
+    private String extractTextFromFile(final String pdfPath) throws IOException {
         File pdfFile = new File(pdfPath);
         try (PDDocument document = PDDocument.load(pdfFile)) {
             PDFTextStripper pdfStripper = new PDFTextStripper();
@@ -73,11 +62,11 @@ public class PdfToText implements IPdfToText {
     }
 
     /**
-     * Cleans the extracted text to reduce token consumption.
-     * Removes empty lines and collapses multiple spaces.
+     * Remove redundant whitespace and empty lines to optimize subsequent parsing
+     * steps.
      *
-     * @param text The raw extracted text.
-     * @return The cleaned text.
+     * @param text Raw source text
+     * @return Cleaned, compact text
      */
     String cleanText(final String text) {
         if (text == null) {
@@ -91,12 +80,12 @@ public class PdfToText implements IPdfToText {
     }
 
     /**
-     * Creates the output filename by taking the base name of the PDF
-     * and appending ".txt".
-     * Example: "document.pdf" -> "document.txt"
+     * Resolve the output text filename based on the source PDF name.
+     *
+     * @param pdfPath Source document path
+     * @return Target text filename
      */
     String getOutputFileName(final String pdfPath) {
-        // Handle both forward and backward slashes as separators
         String normalized = pdfPath.replace('\\', '/');
         String baseName = normalized;
         int lastSlash = normalized.lastIndexOf('/');

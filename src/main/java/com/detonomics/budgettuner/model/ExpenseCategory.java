@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Represents an expense category.
+ * Model representing a high-level category of state expenditure.
  */
 public final class ExpenseCategory {
     private final int expenseID;
@@ -10,12 +10,12 @@ public final class ExpenseCategory {
     private long amount;
 
     /**
-     * Constructs a new ExpenseCategory.
+     * Initialize a new expense category.
      *
-     * @param expenseID The unique ID of the expense category.
-     * @param code      The code of the expense category.
-     * @param name      The name of the expense category.
-     * @param amount    The amount allocated to this category.
+     * @param expenseID Unique internal ID
+     * @param code      Category system code
+     * @param name      Category display name
+     * @param amount    Allocated funding
      */
     public ExpenseCategory(final int expenseID, final long code,
             final String name, final long amount) {
@@ -26,36 +26,36 @@ public final class ExpenseCategory {
     }
 
     /**
-     * Gets the expense ID.
+     * Get the expense ID.
      *
-     * @return The expense ID.
+     * @return Internal primary key
      */
     public int getExpenseID() {
         return expenseID;
     }
 
     /**
-     * Gets the code.
+     * Get the system code.
      *
-     * @return The code.
+     * @return Category code
      */
     public long getCode() {
         return code;
     }
 
     /**
-     * Gets the name.
+     * Get the category name.
      *
-     * @return The name.
+     * @return Display name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Gets the amount.
+     * Get the amount.
      *
-     * @return The amount.
+     * @return Allocated amount
      */
     public long getAmount() {
         return amount;
