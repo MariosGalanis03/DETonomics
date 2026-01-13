@@ -39,32 +39,33 @@ public final class GuiApp extends Application {
         public void start(final Stage stage) throws IOException {
                 // Initialize Database and DAOs
                 com.detonomics.budgettuner.util.DatabaseManager dbManager =
-                        new com.detonomics.budgettuner.util.DatabaseManager(
+                                new com.detonomics.budgettuner.util.DatabaseManager(
                                 com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
 
                 com.detonomics.budgettuner.dao.SummaryDao summaryDao =
-                        new com.detonomics.budgettuner.dao.SummaryDao(
+                                new com.detonomics.budgettuner.dao.SummaryDao(
                                 dbManager);
                 com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao =
-                        new com.detonomics.budgettuner.dao.RevenueCategoryDao(
+                                new com.detonomics.budgettuner.dao.RevenueCategoryDao(
                                 dbManager);
                 com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao =
-                        new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
+                                new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
                                 dbManager);
                 com.detonomics.budgettuner.dao.MinistryDao ministryDao =
-                        new com.detonomics.budgettuner.dao.MinistryDao(
+                                new com.detonomics.budgettuner.dao.MinistryDao(
                                 dbManager);
                 com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao =
-                        new com.detonomics.budgettuner.dao.MinistryExpenseDao(
+                                new com.detonomics.budgettuner.dao.MinistryExpenseDao(
                                 dbManager);
                 com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao =
-                        new com.detonomics.budgettuner.dao.BudgetTotalsDao(
+                                new com.detonomics.budgettuner.dao.BudgetTotalsDao(
                                 dbManager);
                 com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao =
-                        new com.detonomics.budgettuner.dao.SqlSequenceDao(
+                                new com.detonomics.budgettuner.dao.SqlSequenceDao(
                                 dbManager);
 
-                com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao = new com.detonomics.budgettuner.dao.BudgetYearDao(
+                com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao =
+                                new com.detonomics.budgettuner.dao.BudgetYearDao(
                                 dbManager, summaryDao, revenueCategoryDao, expenseCategoryDao, ministryDao,
                                 ministryExpenseDao);
 
