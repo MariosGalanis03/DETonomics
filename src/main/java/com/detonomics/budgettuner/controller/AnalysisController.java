@@ -301,36 +301,55 @@ public final class AnalysisController {
             List<com.detonomics.budgettuner.model.RevenueCategory> roots = childrenMap.getOrDefault(0,
                     new ArrayList<>());
 
-            for (com.detonomics.budgettuner.model.RevenueCategory root : roots) {
+            for (int i = 0; i < roots.size(); i++) {
+                com.detonomics.budgettuner.model.RevenueCategory root = roots.get(i);
                 itemsBox.getChildren().add(buildRevenueNode(root, childrenMap));
+                if (i < roots.size() - 1) {
+                    itemsBox.getChildren().add(new javafx.scene.control.Separator());
+                }
             }
 
         } else if (analysisType == AnalysisType.EXPENSE) {
-            budget.getExpenses().stream()
+            List<com.detonomics.budgettuner.model.ExpenseCategory> expenses = budget.getExpenses().stream()
                     .sorted((a, b) -> Long.compare(b.getAmount(), a.getAmount()))
-                    .forEach(e -> addSimpleItem(e.getName(), e.getAmount()));
+                    .collect(Collectors.toList());
+
+            for (int i = 0; i < expenses.size(); i++) {
+                com.detonomics.budgettuner.model.ExpenseCategory e = expenses.get(i);
+                addSimpleItem(e.getName(), e.getAmount());
+                if (i < expenses.size() - 1) {
+                    itemsBox.getChildren().add(new javafx.scene.control.Separator());
+                }
+            }
 
         } else if (analysisType == AnalysisType.MINISTRY) {
             Map<Integer, String> expenseMap = new HashMap<>();
             budget.getExpenses().forEach(e -> expenseMap.put(e.getExpenseID(), e.getName()));
 
-            budget.getMinistries().stream()
+            List<com.detonomics.budgettuner.model.Ministry> ministries = budget.getMinistries().stream()
                     .sorted((a, b) -> Long.compare(b.getTotalBudget(), a.getTotalBudget()))
-                    .forEach(m -> {
-                        List<MinistryExpense> mExpenses = budget.getMinistryExpenses().stream()
-                                .filter(me -> me.getMinistryID() == m.getMinistryID())
-                                .sorted((me1, me2) -> Long.compare(me2.getAmount(), me1.getAmount()))
-                                .collect(Collectors.toList());
+                    .collect(Collectors.toList());
 
-                        List<DataPoint> childItems = new ArrayList<>();
-                        for (MinistryExpense me : mExpenses) {
-                            String expenseName = expenseMap.getOrDefault(me.getExpenseCategoryID(), "Άγνωστο Έξοδο");
-                            childItems.add(new DataPoint(expenseName, me.getAmount()));
-                        }
+            for (int i = 0; i < ministries.size(); i++) {
+                com.detonomics.budgettuner.model.Ministry m = ministries.get(i);
+                List<MinistryExpense> mExpenses = budget.getMinistryExpenses().stream()
+                        .filter(me -> me.getMinistryID() == m.getMinistryID())
+                        .sorted((me1, me2) -> Long.compare(me2.getAmount(), me1.getAmount()))
+                        .collect(Collectors.toList());
 
-                        itemsBox.getChildren()
-                                .add(buildGenericExpandableNode(m.getName(), m.getTotalBudget(), childItems));
-                    });
+                List<DataPoint> childItems = new ArrayList<>();
+                for (MinistryExpense me : mExpenses) {
+                    String expenseName = expenseMap.getOrDefault(me.getExpenseCategoryID(), "Άγνωστο Έξοδο");
+                    childItems.add(new DataPoint(expenseName, me.getAmount()));
+                }
+
+                itemsBox.getChildren()
+                        .add(buildGenericExpandableNode(m.getName(), m.getTotalBudget(), childItems));
+
+                if (i < ministries.size() - 1) {
+                    itemsBox.getChildren().add(new javafx.scene.control.Separator());
+                }
+            }
         }
     }
 
@@ -400,12 +419,12 @@ public final class AnalysisController {
 
     private TitledPane createTitledPane(final String title, final long amount) {
         javafx.scene.layout.HBox headerBox = new javafx.scene.layout.HBox();
-        headerBox.setSpacing(10);
+        headerBox.setSpacing(100);
         headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         Label titleLbl = new Label(title);
         titleLbl.setWrapText(true);
-        titleLbl.setPrefWidth(280);
+        titleLbl.setPrefWidth(800);
         titleLbl.setStyle("-fx-font-size: 26px;");
 
         Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
@@ -425,10 +444,10 @@ public final class AnalysisController {
 
     private javafx.scene.layout.HBox createSimpleItemBox(final String name, final long amount) {
         javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
-        hbox.setSpacing(10);
+        hbox.setSpacing(100);
         Label nameLbl = new Label(name);
         nameLbl.setWrapText(true);
-        nameLbl.setPrefWidth(300);
+        nameLbl.setPrefWidth(800);
         nameLbl.setStyle("-fx-font-size: 26px;");
         Label amtLbl = new Label(BudgetFormatter.formatAmount(amount));
         amtLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 26px;");
