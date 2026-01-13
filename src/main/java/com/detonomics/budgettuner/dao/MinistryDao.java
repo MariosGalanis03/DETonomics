@@ -166,12 +166,25 @@ public class MinistryDao {
         for (Map<String, Object> row : minTotals) {
             int mid = ((Number) row.get("ministry_id")).intValue();
             long total = ((Number) row.get("total")).longValue();
-            // Assuming MinistryExpenses represent the Regular Budget decomposition.
-            // We update regular_budget to match the sum of expenses.
-            // We calculate total_budget as Regular + PIB.
-            String updateMinSql = "UPDATE Ministries SET regular_budget = ?, "
-                    + "total_budget = ? + COALESCE(public_investment_budget, 0) WHERE ministry_id = ?";
+            // We update total_budget to match the sum of expenses.
+            // We calculate regular_budget as Total - PIB.
+            String updateMinSql = "UPDATE Ministries SET total_budget = ?, "
+                    + "regular_budget = ? - COALESCE(public_investment_budget, 0) WHERE ministry_id = ?";
             dbManager.executeUpdate(conn, updateMinSql, total, total, mid);
         }
+    }
+
+    /**
+     * Adds a delta amount to a specific ministry's total and regular budget.
+     *
+     * @param conn        The database connection.
+     * @param ministryId  The ministry ID.
+     * @param deltaAmount The amount to add (can be negative).
+     */
+    public void addAmountToMinistry(final Connection conn, final int ministryId, final long deltaAmount) {
+        // Update both total_budget and regular_budget by the delta
+        String sql = "UPDATE Ministries SET total_budget = total_budget + ?, "
+                + "regular_budget = regular_budget + ? WHERE ministry_id = ?";
+        dbManager.executeUpdate(conn, sql, deltaAmount, deltaAmount, ministryId);
     }
 }
