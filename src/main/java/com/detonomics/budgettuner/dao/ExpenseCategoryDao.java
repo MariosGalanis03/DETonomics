@@ -162,4 +162,19 @@ public class ExpenseCategoryDao {
             dbManager.executeUpdate(conn, updateEcSql, total, ecid);
         }
     }
+
+    /**
+     * Adds a delta amount to a specific expense category.
+     *
+     * @param conn                The database connection.
+     * @param budgetId            The budget ID.
+     * @param expenseCategoryCode The expense category code.
+     * @param deltaAmount         The amount to add (can be negative).
+     */
+    public void addAmountToCategory(final Connection conn, final int budgetId, final long expenseCategoryCode,
+            final long deltaAmount) {
+        String sql = "UPDATE ExpenseCategories SET amount = amount + ? "
+                + "WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
+        dbManager.executeUpdate(conn, sql, deltaAmount, budgetId, expenseCategoryCode);
+    }
 }

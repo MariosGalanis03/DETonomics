@@ -98,39 +98,74 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
                     revenueCategoryDao.setRevenueAmount(conn, budgetID, code, amount);
                 }
 
-                // 2. Update Ministry Expenses
+                // 2. Update Ministry Expenses & Calculate Deltas
                 for (Map.Entry<String, Long> entry : ministryUpdates.entrySet()) {
                     String key = entry.getKey();
-                    long amount = entry.getValue();
+                    long newAmount = entry.getValue();
 
                     String[] parts = key.split(":");
                     if (parts.length == 2) {
                         long minCode = Long.parseLong(parts[0]);
                         long expCode = Long.parseLong(parts[1]);
-                        ministryExpenseDao.updateExpenseAmount(conn, budgetID, minCode, expCode, amount);
+
+                        // Fetch old amount to calculate delta
+                        String fetchSql = "SELECT amount FROM MinistryExpenses "
+                                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? AND CAST(code AS INTEGER) = ?) "
+                                + "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories WHERE budget_id = ? AND CAST(code AS INTEGER) = ?)";
+
+                        long oldAmount = 0;
+                        java.util.List<Map<String, Object>> res = dbManager.executeQuery(conn, fetchSql, budgetID,
+                                minCode, budgetID, expCode);
+                        if (!res.isEmpty()) {
+                            Object val = res.get(0).get("amount");
+                            if (val != null) {
+                                oldAmount = ((Number) val).longValue();
+                            }
+                        }
+
+                        // Apply the update to Ministry Expense
+                        ministryExpenseDao.updateExpenseAmount(conn, budgetID, minCode, expCode, newAmount);
+
+                        // Apply the Delta to Expense Category Total & Ministry Total
+                        long delta = newAmount - oldAmount;
+                        if (delta != 0) {
+                            // Update Category Total
+                            expenseCategoryDao.addAmountToCategory(conn, budgetID, expCode, delta);
+
+                            // Update Ministry Total
+                            // Get ministry ID from external code
+                            String minIdSql = "SELECT ministry_id FROM Ministries WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
+                            java.util.List<Map<String, Object>> mRes = dbManager.executeQuery(conn, minIdSql, budgetID,
+                                    minCode);
+                            if (!mRes.isEmpty()) {
+                                int minId = ((Number) mRes.get(0).get("ministry_id")).intValue();
+                                ministryDao.addAmountToMinistry(conn, minId, delta);
+                            }
+                        }
                     }
                 }
 
                 // 3. Cascading Updates
 
-                // 3a & 3b. Recalculate Ministry & Expense Category Totals ONLY if expenses
-                // changed
+                // 3a & 3b. DISABLE Recalculate Totals (Using Delta Logic Instead)
                 if (!ministryUpdates.isEmpty()) {
-                    ministryDao.recalculateTotals(conn, budgetID);
-                    expenseCategoryDao.recalculateTotals(conn, budgetID);
+                    // ministryDao.recalculateTotals(conn, budgetID); // DISABLED: Using Delta Logic
+                    // expenseCategoryDao.recalculateTotals(conn, budgetID); // DISABLED: Using
+                    // Delta Logic
                 }
 
                 // 3c. Recalculate Revenue Total (Always needed as revenue might change)
                 long totalRevenue = revenueCategoryDao.calculateTotalRevenue(conn, budgetID);
                 budgetYearDao.updateTotalRevenue(conn, budgetID, totalRevenue);
 
-                // 3d. Recalculate Budget Expenses and Result
-                // Even if we didn't update expenses, we need to update the result (Rev - Exp).
-                // calculateTotalExpenses sums up Ministry Totals. If Ministry Totals didn't
-                // change (step 3a skipped),
-                // this returns the correct existing total.
+                // 3d. Update Budget Expenses and Result
+                // Note: calculateTotalExpenses sums up Ministry Totals.
+                // Since we updated Ministry Totals via Delta, this sum will be correct and
+                // consistent.
                 long totalExpenses = budgetYearDao.calculateTotalExpenses(conn, budgetID);
                 budgetYearDao.updateTotalExpensesAndResult(conn, budgetID, totalExpenses);
+
+                return null;
             });
         } catch (SQLException e) {
             throw new RuntimeException("Update budget amounts failed", e);
