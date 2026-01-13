@@ -4,7 +4,6 @@ package com.detonomics.budgettuner.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.detonomics.budgettuner.model.BudgetYear;
 import com.detonomics.budgettuner.model.ExpenseCategory;
@@ -19,9 +18,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,9 +57,7 @@ class BudgetDetailsControllerTest {
                 BudgetYear budget = new BudgetYear(s1, new ArrayList<>(List.of(r1)), new ArrayList<>(List.of(e1)),
                         new ArrayList<>(List.of(m1)), new ArrayList<>());
 
-
-
-                BudgetDetailsController controller = new BudgetDetailsController(viewManager, dataService);
+                BudgetDetailsController controller = new BudgetDetailsController(viewManager);
 
                 // Inject fields
                 Label titleLabel = new Label();
@@ -108,7 +102,7 @@ class BudgetDetailsControllerTest {
 
     @Test
     void testNavigation() throws Exception {
-        BudgetDetailsController controller = new BudgetDetailsController(viewManager, dataService);
+        BudgetDetailsController controller = new BudgetDetailsController(viewManager);
         controller.onBackClick(null);
         verify(viewManager).switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
     }

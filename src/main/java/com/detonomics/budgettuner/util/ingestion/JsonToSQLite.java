@@ -55,7 +55,8 @@ public class JsonToSQLite implements IJsonToSQLite {
         if (args.length == 0) {
             System.err.println("Error: Please provide the path to the JSON file as an argument.");
             System.err.println(
-                    "Usage Example: java com.detonomics.budgettuner.util.ingestion.JsonToSQLite \"data/BudgetGreece2025.json\"");
+                    "Usage Example: java com.detonomics.budgettuner.util.ingestion.JsonToSQLite "
+                    + "\"data/BudgetGreece2025.json\"");
             return;
         }
         String jsonFilePath = args[0];
@@ -69,6 +70,12 @@ public class JsonToSQLite implements IJsonToSQLite {
         }
     }
 
+    /**
+     * Parse and store budget data from a JSON file into the database.
+     *
+     * @param jsonFilePath Path to the JSON file containing budget data
+     * @throws Exception If parsing or database operations fail
+     */
     @Override
     public void processAndStoreBudget(final String jsonFilePath) throws Exception {
         System.out.println("Processing file for database insertion: " + jsonFilePath);
@@ -198,8 +205,11 @@ public class JsonToSQLite implements IJsonToSQLite {
         }
     }
 
-    private long insertBudget(final Connection conn, final BudgetFile budgetFile) throws SQLException {
-        String sql = "INSERT INTO Budgets(source_title, source_date, budget_year, currency, locale, total_revenue, total_expenses, budget_result, coverage_with_cash_reserves) VALUES(?,?,?,?,?,?,?,?,?)";
+    private long insertBudget(final Connection conn, final BudgetFile budgetFile)
+            throws SQLException {
+        String sql = "INSERT INTO Budgets(source_title, source_date, budget_year, currency, "
+                + "locale, total_revenue, total_expenses, budget_result, "
+                + "coverage_with_cash_reserves) VALUES(?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String sourceTitle = "Προϋπολογισμός " + budgetFile.getMetadata().getBudgetYear();
             pstmt.setString(1, sourceTitle);
@@ -262,10 +272,11 @@ public class JsonToSQLite implements IJsonToSQLite {
         }
     }
 
-    private Map<String, Integer> insertExpenseCategories(final Connection conn, final List<ExpenseCategory> categories,
-            final long budgetId) throws SQLException {
+    private Map<String, Integer> insertExpenseCategories(final Connection conn,
+            final List<ExpenseCategory> categories, final long budgetId) throws SQLException {
         Map<String, Integer> expenseCategoryIds = new HashMap<>();
-        String sql = "INSERT INTO ExpenseCategories(budget_id, code, name, amount) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO ExpenseCategories(budget_id, code, name, amount) "
+                + "VALUES(?,?,?,?)";
 
         for (ExpenseCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -290,10 +301,13 @@ public class JsonToSQLite implements IJsonToSQLite {
         return expenseCategoryIds;
     }
 
-    private void insertMinistriesAndExpenses(final Connection conn, final List<Ministry> ministries,
-            final long budgetId, final Map<String, Integer> expenseCategoryIds) throws SQLException {
-        String sqlMinistry = "INSERT INTO Ministries(budget_id, code, name, regular_budget, public_investment_budget, total_budget) VALUES(?,?,?,?,?,?)";
-        String sqlMinistryExpense = "INSERT INTO MinistryExpenses(ministry_id, expense_category_id, amount) VALUES(?,?,?)";
+    private void insertMinistriesAndExpenses(final Connection conn,
+            final List<Ministry> ministries, final long budgetId,
+            final Map<String, Integer> expenseCategoryIds) throws SQLException {
+        String sqlMinistry = "INSERT INTO Ministries(budget_id, code, name, regular_budget, "
+                + "public_investment_budget, total_budget) VALUES(?,?,?,?,?,?)";
+        String sqlMinistryExpense = "INSERT INTO MinistryExpenses(ministry_id, "
+                + "expense_category_id, amount) VALUES(?,?,?)";
 
         for (Ministry ministry : ministries) {
             try (PreparedStatement pstmtMinistry = conn.prepareStatement(sqlMinistry)) {

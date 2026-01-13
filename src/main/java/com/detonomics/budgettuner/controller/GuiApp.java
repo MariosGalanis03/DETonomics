@@ -36,34 +36,36 @@ public final class GuiApp extends Application {
          */
         @Override
         public void start(final Stage stage) throws IOException {
-                com.detonomics.budgettuner.util.DatabaseManager dbManager = new com.detonomics.budgettuner.util.DatabaseManager(
+                com.detonomics.budgettuner.util.DatabaseManager dbManager =
+                        new com.detonomics.budgettuner.util.DatabaseManager(
                                 com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
 
-                com.detonomics.budgettuner.dao.SummaryDao summaryDao = new com.detonomics.budgettuner.dao.SummaryDao(
-                                dbManager);
-                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao = new com.detonomics.budgettuner.dao.RevenueCategoryDao(
-                                dbManager);
-                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao = new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
-                                dbManager);
-                com.detonomics.budgettuner.dao.MinistryDao ministryDao = new com.detonomics.budgettuner.dao.MinistryDao(
-                                dbManager);
-                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao = new com.detonomics.budgettuner.dao.MinistryExpenseDao(
-                                dbManager);
-                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao = new com.detonomics.budgettuner.dao.BudgetTotalsDao(
-                                dbManager);
-                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao = new com.detonomics.budgettuner.dao.SqlSequenceDao(
-                                dbManager);
+                com.detonomics.budgettuner.dao.SummaryDao summaryDao =
+                        new com.detonomics.budgettuner.dao.SummaryDao(dbManager);
+                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao =
+                        new com.detonomics.budgettuner.dao.RevenueCategoryDao(dbManager);
+                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao =
+                        new com.detonomics.budgettuner.dao.ExpenseCategoryDao(dbManager);
+                com.detonomics.budgettuner.dao.MinistryDao ministryDao =
+                        new com.detonomics.budgettuner.dao.MinistryDao(dbManager);
+                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao =
+                        new com.detonomics.budgettuner.dao.MinistryExpenseDao(dbManager);
+                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao =
+                        new com.detonomics.budgettuner.dao.BudgetTotalsDao(dbManager);
+                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao =
+                        new com.detonomics.budgettuner.dao.SqlSequenceDao(dbManager);
 
-                com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao = new com.detonomics.budgettuner.dao.BudgetYearDao(
-                                dbManager, summaryDao, revenueCategoryDao, expenseCategoryDao, ministryDao,
-                                ministryExpenseDao);
+                com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao =
+                        new com.detonomics.budgettuner.dao.BudgetYearDao(dbManager, summaryDao,
+                        revenueCategoryDao, expenseCategoryDao, ministryDao, ministryExpenseDao);
 
                 BudgetDataService dataService = new BudgetDataServiceImpl(budgetYearDao, revenueCategoryDao,
                                 expenseCategoryDao,
                                 ministryDao, ministryExpenseDao, summaryDao, budgetTotalsDao, sqlSequenceDao);
-                BudgetModificationService modificationService = new BudgetModificationServiceImpl(dbManager,
-                                budgetYearDao,
-                                revenueCategoryDao, expenseCategoryDao, ministryDao, ministryExpenseDao, summaryDao);
+                BudgetModificationService modificationService =
+                        new BudgetModificationServiceImpl(dbManager, budgetYearDao,
+                        revenueCategoryDao, expenseCategoryDao, ministryDao,
+                        ministryExpenseDao, summaryDao);
 
                 ViewManager viewManager = new ViewManager(stage, dataService, modificationService);
 
@@ -74,7 +76,8 @@ public final class GuiApp extends Application {
                                 var taskbar = Taskbar.getTaskbar();
                                 if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
                                         java.awt.Image image = Toolkit.getDefaultToolkit()
-                                                        .getImage(getClass().getResource("Budget_Tuner.png"));
+                                                .getImage(getClass().getResource(
+                                                "Budget_Tuner.png"));
                                         taskbar.setIconImage(image);
                                 }
                         }
@@ -84,9 +87,11 @@ public final class GuiApp extends Application {
 
                 try {
                         stage.getIcons().add(new javafx.scene.image.Image(
-                                        Objects.requireNonNull(getClass().getResourceAsStream("Budget_Tuner.png"))));
+                                Objects.requireNonNull(getClass().getResourceAsStream(
+                                "Budget_Tuner.png"))));
                 } catch (Exception e) {
-                        System.err.println("Failed to set window icon: " + e.getMessage());
+                        System.err.println("Failed to set window icon: "
+                                + e.getMessage());
                 }
 
                 viewManager.switchScene("welcome-view.fxml", "Budget Tuner");

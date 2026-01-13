@@ -138,6 +138,7 @@ public class ComparisonController {
         return com.detonomics.budgettuner.util.BudgetFormatter.formatAmount(amount);
     }
 
+    @SuppressWarnings("unchecked")
     private void updateChart(final BudgetYear bA, final BudgetYear bB, final int yearA, final int yearB) {
         comparisonChart.getData().clear();
 

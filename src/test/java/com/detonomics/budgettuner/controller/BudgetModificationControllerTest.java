@@ -150,6 +150,7 @@ class BudgetModificationControllerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void testCancelClick() {
         BudgetModificationController controller = new BudgetModificationController(viewManager, dataService,
                 modificationService);

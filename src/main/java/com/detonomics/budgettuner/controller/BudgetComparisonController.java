@@ -215,6 +215,7 @@ public final class BudgetComparisonController {
         updateChart(s1, s2);
     }
 
+    @SuppressWarnings("unchecked")
     private void updateChart(final Summary s1, final Summary s2) {
         revenueChart.getData().clear();
         expenseChart.getData().clear();

@@ -36,6 +36,12 @@ public class PdfToText implements IPdfToText {
         FONT_LOGGER.setLevel(java.util.logging.Level.OFF);
     }
 
+    /**
+     * Extract text from PDF and save to default location.
+     *
+     * @param pdfPath Path to the PDF file to process
+     * @throws IOException If file operations fail
+     */
     @Override
     public void extractAndSaveText(final String pdfPath) throws IOException {
 

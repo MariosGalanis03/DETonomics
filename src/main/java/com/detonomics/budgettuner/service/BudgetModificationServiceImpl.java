@@ -108,12 +108,15 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
 
                         // Fetch old amount to calculate delta
                         String fetchSql = "SELECT amount FROM MinistryExpenses "
-                                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? AND CAST(code AS INTEGER) = ?) "
-                                + "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories WHERE budget_id = ? AND CAST(code AS INTEGER) = ?)";
+                                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries "
+                                + "WHERE budget_id = ? AND CAST(code AS INTEGER) = ?) "
+                                + "AND expense_category_id = (SELECT expense_category_id "
+                                + "FROM ExpenseCategories WHERE budget_id = ? "
+                                + "AND CAST(code AS INTEGER) = ?)";
 
                         long oldAmount = 0;
-                        java.util.List<Map<String, Object>> res = dbManager.executeQuery(conn, fetchSql, budgetID,
-                                minCode, budgetID, expCode);
+                        java.util.List<Map<String, Object>> res = dbManager.executeQuery(conn,
+                                fetchSql, budgetID, minCode, budgetID, expCode);
                         if (!res.isEmpty()) {
                             Object val = res.get(0).get("amount");
                             if (val != null) {
@@ -122,7 +125,8 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
                         }
 
                         // Apply the update to Ministry Expense
-                        ministryExpenseDao.updateExpenseAmount(conn, budgetID, minCode, expCode, newAmount);
+                        ministryExpenseDao.updateExpenseAmount(conn, budgetID, minCode,
+                                expCode, newAmount);
 
                         // Apply the Delta to Expense Category Total & Ministry Total
                         long delta = newAmount - oldAmount;
@@ -132,11 +136,13 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
 
                             // Update Ministry Total
                             // Get ministry ID from external code
-                            String minIdSql = "SELECT ministry_id FROM Ministries WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
-                            java.util.List<Map<String, Object>> mRes = dbManager.executeQuery(conn, minIdSql, budgetID,
-                                    minCode);
+                            String minIdSql = "SELECT ministry_id FROM Ministries "
+                                    + "WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
+                            java.util.List<Map<String, Object>> mRes =
+                                    dbManager.executeQuery(conn, minIdSql, budgetID, minCode);
                             if (!mRes.isEmpty()) {
-                                int minId = ((Number) mRes.get(0).get("ministry_id")).intValue();
+                                int minId = ((Number) mRes.get(0).get("ministry_id"))
+                                        .intValue();
                                 ministryDao.addAmountToMinistry(conn, minId, delta);
                             }
                         }
@@ -147,9 +153,8 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
 
                 // Recalculate Ministry & Expense Category aggregates if detailed lines changed
                 if (!ministryUpdates.isEmpty()) {
-                    // ministryDao.recalculateTotals(conn, budgetID); // DISABLED: Using Delta Logic
-                    // expenseCategoryDao.recalculateTotals(conn, budgetID); // DISABLED: Using
-                    // Delta Logic
+                    // Future extension point for recalculation logic
+                    System.out.println("Ministry updates processed: " + ministryUpdates.size());
                 }
 
                 // Refresh the global Revenue ceiling

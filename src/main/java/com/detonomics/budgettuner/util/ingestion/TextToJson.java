@@ -212,6 +212,13 @@ public class TextToJson implements ITextToJson {
       Return only the JSON defined by the schema. No extra information.
       """;
 
+  /**
+   * Convert unstructured text to structured JSON using AI processing.
+   *
+   * @param inTxt   Path to input text file
+   * @param outJson Path to output JSON file
+   * @throws Exception If conversion fails
+   */
   @Override
   public void textFileToJson(final Path inTxt, final Path outJson) throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");

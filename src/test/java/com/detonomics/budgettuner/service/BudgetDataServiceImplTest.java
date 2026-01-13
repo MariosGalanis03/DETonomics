@@ -96,6 +96,7 @@ class BudgetDataServiceImplTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void testInsertNewBudgetYear() throws Exception {
         String pdfPath = "path/to/budget.pdf";
         Consumer<String> logger = System.out::println;

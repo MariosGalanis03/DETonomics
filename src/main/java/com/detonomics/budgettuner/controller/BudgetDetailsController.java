@@ -3,7 +3,6 @@ package com.detonomics.budgettuner.controller;
 import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
 
-import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.ViewManager;
 
@@ -40,7 +39,6 @@ public final class BudgetDetailsController {
 
         private BudgetYear budget;
         private final ViewManager viewManager;
-        private final BudgetDataService dataService;
 
         /**
          * Initialize with navigation and data services.
@@ -48,10 +46,8 @@ public final class BudgetDetailsController {
          * @param viewManager Application view coordinator
          * @param dataService Budget data provider
          */
-        @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-        public BudgetDetailsController(final ViewManager viewManager, final BudgetDataService dataService) {
+        public BudgetDetailsController(final ViewManager viewManager) {
                 this.viewManager = viewManager;
-                this.dataService = dataService;
         }
 
         /**

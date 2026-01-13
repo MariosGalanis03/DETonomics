@@ -114,7 +114,7 @@ public class ViewManager {
         } else if (param == BudgetController.class) {
             return new BudgetController(this, budgetDataService);
         } else if (param == BudgetDetailsController.class) {
-            return new BudgetDetailsController(this, budgetDataService);
+            return new BudgetDetailsController(this);
         } else if (param == AnalysisController.class) {
             return new AnalysisController(this, budgetDataService);
         } else if (param == BudgetModificationController.class) {

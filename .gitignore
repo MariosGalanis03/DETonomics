@@ -9,3 +9,5 @@ dependency-reduced-pom.xml
 .idea
 # Data folder
 data/
+# Dependency Reduced POM
+dependency-reduced-pom.xml

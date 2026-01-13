@@ -11,7 +11,6 @@ import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
