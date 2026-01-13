@@ -17,7 +17,7 @@ import java.util.Objects;
  * The main entry point for the Budget Tuner application.
  * Initializes the database, services, and launches the JavaFX interface.
  */
-public class GuiApp extends Application {
+public final class GuiApp extends Application {
         /** Default width of the application window. */
         public static final int DEFAULT_WIDTH = 1000;
         /** Default height of the application window. */
@@ -36,24 +36,32 @@ public class GuiApp extends Application {
          * @throws IOException If loading FXML resources fails.
          */
         @Override
-        public void start(Stage stage) throws IOException {
+        public void start(final Stage stage) throws IOException {
                 // Initialize Database and DAOs
-                com.detonomics.budgettuner.util.DatabaseManager dbManager = new com.detonomics.budgettuner.util.DatabaseManager(
+                com.detonomics.budgettuner.util.DatabaseManager dbManager =
+                        new com.detonomics.budgettuner.util.DatabaseManager(
                                 com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
 
-                com.detonomics.budgettuner.dao.SummaryDao summaryDao = new com.detonomics.budgettuner.dao.SummaryDao(
+                com.detonomics.budgettuner.dao.SummaryDao summaryDao =
+                        new com.detonomics.budgettuner.dao.SummaryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao = new com.detonomics.budgettuner.dao.RevenueCategoryDao(
+                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao =
+                        new com.detonomics.budgettuner.dao.RevenueCategoryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao = new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
+                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao =
+                        new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.MinistryDao ministryDao = new com.detonomics.budgettuner.dao.MinistryDao(
+                com.detonomics.budgettuner.dao.MinistryDao ministryDao =
+                        new com.detonomics.budgettuner.dao.MinistryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao = new com.detonomics.budgettuner.dao.MinistryExpenseDao(
+                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao =
+                        new com.detonomics.budgettuner.dao.MinistryExpenseDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao = new com.detonomics.budgettuner.dao.BudgetTotalsDao(
+                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao =
+                        new com.detonomics.budgettuner.dao.BudgetTotalsDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao = new com.detonomics.budgettuner.dao.SqlSequenceDao(
+                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao =
+                        new com.detonomics.budgettuner.dao.SqlSequenceDao(
                                 dbManager);
 
                 com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao = new com.detonomics.budgettuner.dao.BudgetYearDao(

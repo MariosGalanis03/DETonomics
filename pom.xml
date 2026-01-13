@@ -163,7 +163,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.detonomics.budgettuner.Launcher</mainClass>
+                  <mainClass>com.detonomics.budgettuner.controller.Launcher</mainClass>
                 </transformer>
               </transformers>
               <filters>
@@ -189,7 +189,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.detonomics.budgettuner.Launcher</mainClass>
+              <mainClass>com.detonomics.budgettuner.controller.Launcher</mainClass>
             </manifest>
           </archive>
         </configuration>

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Controller for ministry analysis with budget modification capabilities.
  */
-public class BudgetModificationController {
+public final class BudgetModificationController {
 
     @FXML
     private Label titleLabel;
@@ -72,8 +72,8 @@ public class BudgetModificationController {
      * @param modificationService The service for budget modification operations.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public BudgetModificationController(ViewManager viewManager, BudgetDataService dataService,
-            BudgetModificationService modificationService) {
+    public BudgetModificationController(final ViewManager viewManager, final BudgetDataService dataService,
+            final BudgetModificationService modificationService) {
         this.viewManager = viewManager;
         this.dataService = dataService;
         this.modificationService = modificationService;
@@ -84,7 +84,7 @@ public class BudgetModificationController {
      *
      * @param budget The budget to modify.
      */
-    public void setContext(BudgetYear budget) {
+    public void setContext(final BudgetYear budget) {
         this.budget = budget;
         loadEditors();
     }
@@ -131,7 +131,8 @@ public class BudgetModificationController {
         }
     }
 
-    private Node buildRevenueNode(RevenueCategory cat, Map<Integer, List<RevenueCategory>> childrenMap) {
+    private Node buildRevenueNode(final RevenueCategory cat,
+            final Map<Integer, List<RevenueCategory>> childrenMap) {
         List<RevenueCategory> children = childrenMap.get(cat.getRevenueID());
 
         if (children == null || children.isEmpty()) {
@@ -192,7 +193,8 @@ public class BudgetModificationController {
                 });
     }
 
-    private TitledPane createTitledPane(String title, long amount, long code, boolean isRevenue) {
+    private TitledPane createTitledPane(final String title, final long amount, final long code,
+            final boolean isRevenue) {
         HBox headerBox = new HBox(20);
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(10));
@@ -224,7 +226,7 @@ public class BudgetModificationController {
         return pane;
     }
 
-    private TitledPane createMinistryTitledPane(String title, long totalAmount) {
+    private TitledPane createMinistryTitledPane(final String title, final long totalAmount) {
         HBox headerBox = new HBox(20);
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(10));
@@ -250,7 +252,7 @@ public class BudgetModificationController {
         return pane;
     }
 
-    private HBox createLeafItemBox(String name, long amount, long idOrCode, boolean isRevenue) {
+    private HBox createLeafItemBox(final String name, final long amount, final long idOrCode, final boolean isRevenue) {
         HBox hbox = new HBox(20);
         hbox.setPadding(new Insets(15));
 
@@ -274,7 +276,7 @@ public class BudgetModificationController {
         return hbox;
     }
 
-    private HBox createMinistryExpenseItemBox(String name, long amount, String compoundKey) {
+    private HBox createMinistryExpenseItemBox(final String name, final long amount, final String compoundKey) {
         HBox hbox = new HBox(20);
         hbox.setPadding(new Insets(15));
 
@@ -301,7 +303,7 @@ public class BudgetModificationController {
      * @param event The action event.
      */
     @FXML
-    public void onSaveClick(ActionEvent event) {
+    public void onSaveClick(final ActionEvent event) {
         // Reset status label
         statusLabel.setVisible(false);
         statusLabel.setText("");
@@ -385,7 +387,7 @@ public class BudgetModificationController {
         });
     }
 
-    private void showInlineError(String message) {
+    private void showInlineError(final String message) {
         statusLabel.setText(message);
         statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         statusLabel.setVisible(true);
@@ -397,11 +399,11 @@ public class BudgetModificationController {
      * @param event The action event.
      */
     @FXML
-    public void onCancelClick(ActionEvent event) {
+    public void onCancelClick(final ActionEvent event) {
         navigateToWelcome();
     }
 
-    private boolean sourceTitleExists(String sourceTitle) {
+    private boolean sourceTitleExists(final String sourceTitle) {
         return dataService.loadAllSummaries().stream()
                 .anyMatch(s -> s.getSourceTitle().equalsIgnoreCase(sourceTitle));
     }

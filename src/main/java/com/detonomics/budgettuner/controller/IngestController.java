@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
  * Controller for the Data Ingestion View.
  * Handles parsing and importing of new budgets from PDF files.
  */
-public class IngestController {
+public final class IngestController {
 
     @FXML
     private TextField filePathField;
@@ -59,7 +59,7 @@ public class IngestController {
      * @param dataService The service for budget data operations.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public IngestController(ViewManager viewManager, BudgetDataService dataService) {
+    public IngestController(final ViewManager viewManager, final BudgetDataService dataService) {
         this.viewManager = viewManager;
         this.dataService = dataService;
     }
@@ -70,7 +70,7 @@ public class IngestController {
      * @param event The action event.
      */
     @FXML
-    public void onSelectFileClick(ActionEvent event) {
+    public void onSelectFileClick(final ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Επιλογή Αρχείου PDF Προϋπολογισμού");
         fileChooser.getExtensionFilters().addAll(
@@ -93,9 +93,10 @@ public class IngestController {
      * @param event The action event.
      */
     @FXML
-    public void onStartClick(ActionEvent event) {
-        if (selectedFile == null)
+    public void onStartClick(final ActionEvent event) {
+        if (selectedFile == null) {
             return;
+        }
 
         startButton.setDisable(true);
         backButton.setDisable(true); // Prevent exit during process
@@ -110,8 +111,9 @@ public class IngestController {
         progressBar.setStyle(null); // Clear inline styles
 
         // Start Pulse Animation
-        if (animation != null)
+        if (animation != null) {
             animation.stop();
+        }
         animation = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(progressBar.opacityProperty(), 1.0)),
                 new KeyFrame(Duration.seconds(0.8), new KeyValue(progressBar.opacityProperty(), 0.6)),
@@ -132,8 +134,9 @@ public class IngestController {
 
         task.setOnSucceeded(e -> {
             Platform.runLater(() -> {
-                if (animation != null)
+                if (animation != null) {
                     animation.stop();
+                }
                 progressBar.setOpacity(1.0);
 
                 statusLabel.setText("Η διαδικασία ολοκληρώθηκε επιτυχώς!");
@@ -160,16 +163,20 @@ public class IngestController {
                 if (errorMsg != null
                         && (errorMsg.contains("Unexpected end-of-input") || errorMsg.contains("JsonEOFException"))) {
                     subStatusLabel.setText(
-                            "Σφάλμα κατά το πέρασμα των δεδομένων σε αρχείο JSON λόγω εξάντλησης των πόρων του βοηθού Τεχνητής Νοημοσύνης");
+                            "Σφάλμα κατά το πέρασμα των δεδομένων σε αρχείο JSON "
+                                    + "λόγω εξάντλησης των πόρων του βοηθού Τεχνητής Νοημοσύνης");
                 } else if (errorMsg != null && errorMsg.contains("GEMINI_API_KEY")) {
                     subStatusLabel.setText(
-                            "Σφάλμα κατά την αξιοποίηση κλειδιού Google API. Προσπαθήστε ξανά αφού ενσωματώσετε ένα έγκυρο κλειδί Google API στο τρέχον ψηφιακό περιβάλλον");
+                            "Σφάλμα κατά την αξιοποίηση κλειδιού Google API. "
+                                    + "Προσπαθήστε ξανά αφού ενσωματώσετε ένα έγκυρο κλειδί "
+                                    + "Google API στο τρέχον ψηφιακό περιβάλλον");
                 } else {
                     subStatusLabel.setText(ex.getMessage());
                 }
 
-                if (animation != null)
+                if (animation != null) {
                     animation.stop();
+                }
                 progressBar.setOpacity(1.0);
                 progressBar.getStyleClass().add("error-bar");
                 progressBar.setProgress(1.0); // Full bar but red
@@ -186,7 +193,7 @@ public class IngestController {
 
     }
 
-    private void updateProgressFromLog(String message) {
+    private void updateProgressFromLog(final String message) {
         if (message.contains("STEP 1")) {
             statusLabel.setText("Μετατροπή PDF κειμένου Προϋπολογισμού σε αρχείο απλού κειμένου...");
             subStatusLabel.setText("Η διαδικασία θα διαρκέσει μερικά δευτερόλεπτα");
@@ -211,7 +218,7 @@ public class IngestController {
      * @param event The action event.
      */
     @FXML
-    public void onBackClick(ActionEvent event) {
+    public void onBackClick(final ActionEvent event) {
         // Return to Welcome Screen
         viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
@@ -222,7 +229,7 @@ public class IngestController {
      * @param event The action event.
      */
     @FXML
-    public void onExitClick(ActionEvent event) {
+    public void onExitClick(final ActionEvent event) {
         System.exit(0);
     }
 }

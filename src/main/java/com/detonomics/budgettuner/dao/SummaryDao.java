@@ -20,7 +20,7 @@ public class SummaryDao {
          *
          * @param dbManager The database manager.
          */
-        public SummaryDao(DatabaseManager dbManager) {
+        public SummaryDao(final DatabaseManager dbManager) {
                 this.dbManager = dbManager;
         }
 
@@ -79,7 +79,7 @@ public class SummaryDao {
          * @param budgetResult  The new budget result.
          * @return Number of rows affected.
          */
-        public int updateBudgetSummary(Connection conn, final int budgetId, final long totalExpenses,
+        public int updateBudgetSummary(final Connection conn, final int budgetId, final long totalExpenses,
                         final long budgetResult) {
                 String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = ? WHERE budget_id = ?";
                 return dbManager.executeUpdate(conn, sql, totalExpenses, budgetResult, budgetId);
@@ -116,7 +116,7 @@ public class SummaryDao {
          * @param conn     The database connection.
          * @param budgetID The budget ID.
          */
-        public void deleteByBudget(Connection conn, int budgetID) {
+        public void deleteByBudget(final Connection conn, final int budgetID) {
                 // Summary is stored in Budgets table row, so this technically deletes the
                 // Budget row
                 // IF we consider Summary == Budget row.

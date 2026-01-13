@@ -36,7 +36,7 @@ public class DatabaseManager {
      *
      * @param dbPath The path to the SQLite database file.
      */
-    public DatabaseManager(String dbPath) {
+    public DatabaseManager(final String dbPath) {
         this.dbPath = dbPath;
     }
 
@@ -58,7 +58,7 @@ public class DatabaseManager {
      * @param action The action to execute with the connection.
      * @throws SQLException If an error occurs.
      */
-    public void inTransaction(Consumer<Connection> action) throws SQLException {
+    public void inTransaction(final Consumer<Connection> action) throws SQLException {
         try (Connection conn = createConnection()) {
             boolean originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
@@ -86,7 +86,7 @@ public class DatabaseManager {
      * @return The result of the action.
      * @throws SQLException If an error occurs.
      */
-    public <T> T inTransaction(java.util.function.Function<Connection, T> action) throws SQLException {
+    public <T> T inTransaction(final java.util.function.Function<Connection, T> action) throws SQLException {
         try (Connection conn = createConnection()) {
             boolean originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
@@ -116,7 +116,7 @@ public class DatabaseManager {
      * @param params The parameters for the statement.
      * @return The number of rows affected.
      */
-    public int executeUpdate(Connection conn, String sql, Object... params) {
+    public int executeUpdate(final Connection conn, final String sql, final Object... params) {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             bindParameters(ps, params);
             return ps.executeUpdate();
@@ -134,7 +134,7 @@ public class DatabaseManager {
      * @param params The parameters for the statement.
      * @return The number of rows affected.
      */
-    public int executeUpdate(String sql, Object... params) {
+    public int executeUpdate(final String sql, final Object... params) {
         try (Connection conn = createConnection()) {
             return executeUpdate(conn, sql, params);
         } catch (SQLException e) {
@@ -151,7 +151,7 @@ public class DatabaseManager {
      * @param params The parameters for the statement.
      * @return A list of maps representing the result rows.
      */
-    public List<Map<String, Object>> executeQuery(Connection conn, String sql, Object... params) {
+    public List<Map<String, Object>> executeQuery(final Connection conn, final String sql, final Object... params) {
         List<Map<String, Object>> results = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             bindParameters(ps, params);
@@ -181,7 +181,7 @@ public class DatabaseManager {
      * @param params The parameters for the statement.
      * @return A list of maps representing the result rows.
      */
-    public List<Map<String, Object>> executeQuery(String sql, Object... params) {
+    public List<Map<String, Object>> executeQuery(final String sql, final Object... params) {
         try (Connection conn = createConnection()) {
             return executeQuery(conn, sql, params);
         } catch (SQLException e) {
@@ -227,7 +227,7 @@ public class DatabaseManager {
     private static class CloseShieldConnection implements Connection {
         private final Connection delegate;
 
-        CloseShieldConnection(Connection delegate) {
+        CloseShieldConnection(final Connection delegate) {
             this.delegate = delegate;
         }
 
@@ -247,12 +247,12 @@ public class DatabaseManager {
         }
 
         @Override
-        public PreparedStatement prepareStatement(String sql) throws SQLException {
+        public PreparedStatement prepareStatement(final String sql) throws SQLException {
             return delegate.prepareStatement(sql);
         }
 
         @Override
-        public void setAutoCommit(boolean autoCommit) throws SQLException {
+        public void setAutoCommit(final boolean autoCommit) throws SQLException {
             delegate.setAutoCommit(autoCommit);
         }
 
@@ -273,28 +273,29 @@ public class DatabaseManager {
 
         // ... delegate all other methods ...
         @Override
-        public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+        public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
             return delegate.createStatement(resultSetType, resultSetConcurrency);
         }
 
         @Override
-        public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
+        public PreparedStatement prepareStatement(final String sql, final int resultSetType,
+                final int resultSetConcurrency)
                 throws SQLException {
             return delegate.prepareStatement(sql, resultSetType, resultSetConcurrency);
         }
 
         @Override
-        public java.sql.CallableStatement prepareCall(String sql) throws SQLException {
+        public java.sql.CallableStatement prepareCall(final String sql) throws SQLException {
             return delegate.prepareCall(sql);
         }
 
         @Override
-        public String nativeSQL(String sql) throws SQLException {
+        public String nativeSQL(final String sql) throws SQLException {
             return delegate.nativeSQL(sql);
         }
 
         @Override
-        public void setReadOnly(boolean readOnly) throws SQLException {
+        public void setReadOnly(final boolean readOnly) throws SQLException {
             delegate.setReadOnly(readOnly);
         }
 
@@ -304,7 +305,7 @@ public class DatabaseManager {
         }
 
         @Override
-        public void setCatalog(String catalog) throws SQLException {
+        public void setCatalog(final String catalog) throws SQLException {
             delegate.setCatalog(catalog);
         }
 
@@ -314,7 +315,7 @@ public class DatabaseManager {
         }
 
         @Override
-        public void setTransactionIsolation(int level) throws SQLException {
+        public void setTransactionIsolation(final int level) throws SQLException {
             delegate.setTransactionIsolation(level);
         }
 
@@ -334,41 +335,44 @@ public class DatabaseManager {
         }
 
         @Override
-        public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
-                throws SQLException {
+        public Statement createStatement(final int resultSetType, final int resultSetConcurrency,
+                final int resultSetHoldability) throws SQLException {
             return delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
         }
 
         @Override
-        public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
-                int resultSetHoldability) throws SQLException {
+        public PreparedStatement prepareStatement(final String sql, final int resultSetType,
+                final int resultSetConcurrency,
+                final int resultSetHoldability) throws SQLException {
             return delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
         }
 
         @Override
-        public java.sql.CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
+        public java.sql.CallableStatement prepareCall(final String sql, final int resultSetType,
+                final int resultSetConcurrency)
                 throws SQLException {
             return delegate.prepareCall(sql, resultSetType, resultSetConcurrency);
         }
 
         @Override
-        public java.sql.CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
-                int resultSetHoldability) throws SQLException {
+        public java.sql.CallableStatement prepareCall(final String sql, final int resultSetType,
+                final int resultSetConcurrency,
+                final int resultSetHoldability) throws SQLException {
             return delegate.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
         }
 
         @Override
-        public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+        public PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
             return delegate.prepareStatement(sql, autoGeneratedKeys);
         }
 
         @Override
-        public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
+        public PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
             return delegate.prepareStatement(sql, columnIndexes);
         }
 
         @Override
-        public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
+        public PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
             return delegate.prepareStatement(sql, columnNames);
         }
 
@@ -393,22 +397,22 @@ public class DatabaseManager {
         }
 
         @Override
-        public boolean isValid(int timeout) throws SQLException {
+        public boolean isValid(final int timeout) throws SQLException {
             return delegate.isValid(timeout);
         }
 
         @Override
-        public void setClientInfo(String name, String value) throws java.sql.SQLClientInfoException {
+        public void setClientInfo(final String name, final String value) throws java.sql.SQLClientInfoException {
             delegate.setClientInfo(name, value);
         }
 
         @Override
-        public void setClientInfo(java.util.Properties properties) throws java.sql.SQLClientInfoException {
+        public void setClientInfo(final java.util.Properties properties) throws java.sql.SQLClientInfoException {
             delegate.setClientInfo(properties);
         }
 
         @Override
-        public String getClientInfo(String name) throws SQLException {
+        public String getClientInfo(final String name) throws SQLException {
             return delegate.getClientInfo(name);
         }
 
@@ -418,17 +422,17 @@ public class DatabaseManager {
         }
 
         @Override
-        public java.sql.Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+        public java.sql.Array createArrayOf(final String typeName, final Object[] elements) throws SQLException {
             return delegate.createArrayOf(typeName, elements);
         }
 
         @Override
-        public java.sql.Struct createStruct(String typeName, Object[] attributes) throws SQLException {
+        public java.sql.Struct createStruct(final String typeName, final Object[] attributes) throws SQLException {
             return delegate.createStruct(typeName, attributes);
         }
 
         @Override
-        public void setSchema(String schema) throws SQLException {
+        public void setSchema(final String schema) throws SQLException {
             delegate.setSchema(schema);
         }
 
@@ -438,12 +442,13 @@ public class DatabaseManager {
         }
 
         @Override
-        public void abort(java.util.concurrent.Executor executor) throws SQLException {
+        public void abort(final java.util.concurrent.Executor executor) throws SQLException {
             delegate.abort(executor);
         }
 
         @Override
-        public void setNetworkTimeout(java.util.concurrent.Executor executor, int milliseconds) throws SQLException {
+        public void setNetworkTimeout(final java.util.concurrent.Executor executor, final int milliseconds)
+                throws SQLException {
             delegate.setNetworkTimeout(executor, milliseconds);
         }
 
@@ -453,12 +458,12 @@ public class DatabaseManager {
         }
 
         @Override
-        public <T> T unwrap(Class<T> iface) throws SQLException {
+        public <T> T unwrap(final Class<T> iface) throws SQLException {
             return delegate.unwrap(iface);
         }
 
         @Override
-        public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        public boolean isWrapperFor(final Class<?> iface) throws SQLException {
             return delegate.isWrapperFor(iface);
         }
 
@@ -468,7 +473,7 @@ public class DatabaseManager {
         }
 
         @Override
-        public void setHoldability(int holdability) throws SQLException {
+        public void setHoldability(final int holdability) throws SQLException {
             delegate.setHoldability(holdability);
         }
 
@@ -483,17 +488,17 @@ public class DatabaseManager {
         }
 
         @Override
-        public java.sql.Savepoint setSavepoint(String name) throws SQLException {
+        public java.sql.Savepoint setSavepoint(final String name) throws SQLException {
             return delegate.setSavepoint(name);
         }
 
         @Override
-        public void rollback(java.sql.Savepoint savepoint) throws SQLException {
+        public void rollback(final java.sql.Savepoint savepoint) throws SQLException {
             delegate.rollback(savepoint);
         }
 
         @Override
-        public void releaseSavepoint(java.sql.Savepoint savepoint) throws SQLException {
+        public void releaseSavepoint(final java.sql.Savepoint savepoint) throws SQLException {
             delegate.releaseSavepoint(savepoint);
         }
 
@@ -503,7 +508,7 @@ public class DatabaseManager {
         }
 
         @Override
-        public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
+        public void setTypeMap(final Map<String, Class<?>> map) throws SQLException {
             delegate.setTypeMap(map);
         }
     }

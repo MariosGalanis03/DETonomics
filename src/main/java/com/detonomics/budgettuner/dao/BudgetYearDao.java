@@ -37,9 +37,10 @@ public class BudgetYearDao {
          * @param ministryExpenseDao The MinistryExpense DAO.
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-        public BudgetYearDao(DatabaseManager dbManager, SummaryDao summaryDao, RevenueCategoryDao revenueCategoryDao,
-                        ExpenseCategoryDao expenseCategoryDao, MinistryDao ministryDao,
-                        MinistryExpenseDao ministryExpenseDao) {
+        public BudgetYearDao(final DatabaseManager dbManager, final SummaryDao summaryDao,
+                        final RevenueCategoryDao revenueCategoryDao,
+                        final ExpenseCategoryDao expenseCategoryDao, final MinistryDao ministryDao,
+                        final MinistryExpenseDao ministryExpenseDao) {
                 this.dbManager = dbManager;
                 this.summaryDao = summaryDao;
                 this.revenueCategoryDao = revenueCategoryDao;
@@ -142,7 +143,8 @@ public class BudgetYearDao {
                 try {
                         dbManager.inTransaction(conn -> {
                                 // Delete Ministry Expenses
-                                String deleteMinistryExpenses = "DELETE FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
+                                String deleteMinistryExpenses = "DELETE FROM MinistryExpenses WHERE ministry_id IN "
+                                                + "(SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
                                 dbManager.executeUpdate(conn, deleteMinistryExpenses, budgetID);
 
                                 // Delete Ministries
@@ -174,15 +176,16 @@ public class BudgetYearDao {
                 }
         }
 
-        private void checkAndResetSequences(Connection conn) {
+        private void checkAndResetSequences(final Connection conn) {
                 // Need to check if Budgets is empty using the connection
                 String countSql = "SELECT COUNT(*) as count FROM Budgets";
                 List<Map<String, Object>> results = dbManager.executeQuery(conn, countSql);
                 long count = 0;
                 if (!results.isEmpty()) {
                         Object c = results.get(0).get("count");
-                        if (c instanceof Number)
+                        if (c instanceof Number) {
                                 count = ((Number) c).longValue();
+                        }
                 }
 
                 if (count == 0) {
@@ -198,7 +201,7 @@ public class BudgetYearDao {
                 }
         }
 
-        private void updateSequence(Connection conn, String tableName, String idColumn) {
+        private void updateSequence(final Connection conn, final String tableName, final String idColumn) {
                 String updateSeq = "UPDATE sqlite_sequence SET seq = (SELECT COALESCE(MAX(" + idColumn + "), 0) FROM "
                                 + tableName + ") WHERE name = '" + tableName + "'";
                 try {
@@ -217,8 +220,10 @@ public class BudgetYearDao {
          * @param targetSourceTitle The title for the new budget.
          * @return The ID of the newly created budget.
          */
-        public int createBudget(Connection conn, BudgetYear sourceBudget, String targetSourceTitle) {
-                String insertBudgetSql = "INSERT INTO Budgets (source_title, currency, locale, source_date, budget_year, total_revenue, total_expenses, budget_result, coverage_with_cash_reserves) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        public int createBudget(final Connection conn, final BudgetYear sourceBudget, final String targetSourceTitle) {
+                String insertBudgetSql = "INSERT INTO Budgets (source_title, currency, locale, source_date, "
+                                + "budget_year, total_revenue, total_expenses, budget_result, "
+                                + "coverage_with_cash_reserves) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 dbManager.executeUpdate(conn, insertBudgetSql,
                                 targetSourceTitle,
                                 sourceBudget.getSummary().getCurrency(),
@@ -244,7 +249,7 @@ public class BudgetYearDao {
          * @param budgetID The ID of the budget.
          * @return The total expenses.
          */
-        public long calculateTotalExpenses(Connection conn, int budgetID) {
+        public long calculateTotalExpenses(final Connection conn, final int budgetID) {
                 String sql = "SELECT SUM(total_budget) as total FROM Ministries WHERE budget_id = ?";
                 List<Map<String, Object>> res = dbManager.executeQuery(conn, sql, budgetID);
                 if (!res.isEmpty() && res.get(0).get("total") != null) {
@@ -260,7 +265,7 @@ public class BudgetYearDao {
          * @param budgetID     The ID of the budget.
          * @param totalRevenue The new total revenue.
          */
-        public void updateTotalRevenue(Connection conn, int budgetID, long totalRevenue) {
+        public void updateTotalRevenue(final Connection conn, final int budgetID, final long totalRevenue) {
                 String sql = "UPDATE Budgets SET total_revenue = ? WHERE budget_id = ?";
                 dbManager.executeUpdate(conn, sql, totalRevenue, budgetID);
         }
@@ -272,8 +277,9 @@ public class BudgetYearDao {
          * @param budgetID      The ID of the budget.
          * @param totalExpenses The new total expenses.
          */
-        public void updateTotalExpensesAndResult(Connection conn, int budgetID, long totalExpenses) {
-                String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = total_revenue - ? WHERE budget_id = ?";
+        public void updateTotalExpensesAndResult(final Connection conn, final int budgetID, final long totalExpenses) {
+                String sql = "UPDATE Budgets SET total_expenses = ?, budget_result = total_revenue - ? "
+                                + "WHERE budget_id = ?";
                 dbManager.executeUpdate(conn, sql, totalExpenses, totalExpenses, budgetID);
         }
 }

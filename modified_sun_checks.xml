@@ -3,14 +3,7 @@
           "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
           "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
-<!--
-
-  Checkstyle configuration based on Sun/Oracle conventions, but with
-  all Javadoc requirements, Hidden Field check and the Magic Number rule removed for a more
-  relaxed environment. Also, Method Length max is set to 200 lines (default: 150)
-  and Parameter Number max is set to 10 parameters (default: 7).
-
--->
+<!-- Checkstyle configuration based on Sun/Oracle conventions, but with minor modifications. -->
 
 <module name="Checker">
   <!--

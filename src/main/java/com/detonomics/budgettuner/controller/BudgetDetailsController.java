@@ -2,12 +2,11 @@ package com.detonomics.budgettuner.controller;
 
 import com.detonomics.budgettuner.model.AnalysisType;
 import com.detonomics.budgettuner.model.BudgetYear;
-import com.detonomics.budgettuner.model.Summary;
+
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 import com.detonomics.budgettuner.util.ViewManager;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -19,7 +18,7 @@ import javafx.scene.layout.VBox;
  * Controller for the Budget Details View.
  * Displays detailed information about a selected budget year.
  */
-public class BudgetDetailsController {
+public final class BudgetDetailsController {
 
         @FXML
         private Label titleLabel;
@@ -51,7 +50,7 @@ public class BudgetDetailsController {
          * @param dataService The service for budget data retrieval.
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-        public BudgetDetailsController(ViewManager viewManager, BudgetDataService dataService) {
+        public BudgetDetailsController(final ViewManager viewManager, final BudgetDataService dataService) {
                 this.viewManager = viewManager;
                 this.dataService = dataService;
         }
@@ -113,7 +112,7 @@ public class BudgetDetailsController {
                                                 .add(createListItem(m.getName(), m.getTotalBudget())));
         }
 
-        private Node createListItem(String name, long amount) {
+        private Node createListItem(final String name, final long amount) {
                 javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
                 hbox.setSpacing(5);
                 hbox.setPadding(new javafx.geometry.Insets(5)); // Reduced padding
@@ -141,7 +140,7 @@ public class BudgetDetailsController {
          * @param event The action event.
          */
         @FXML
-        public void onMenuButtonClick(ActionEvent event) {
+        public void onMenuButtonClick(final ActionEvent event) {
                 menuOverlay.setVisible(true);
                 menuDrawer.setVisible(true);
                 menuDrawer.setTranslateX(0);
@@ -153,7 +152,7 @@ public class BudgetDetailsController {
          * @param event The mouse event.
          */
         @FXML
-        public void onMenuOverlayClick(javafx.scene.input.MouseEvent event) {
+        public void onMenuOverlayClick(final javafx.scene.input.MouseEvent event) {
                 menuOverlay.setVisible(false);
                 menuDrawer.setVisible(false);
         }
@@ -164,7 +163,7 @@ public class BudgetDetailsController {
          * @param event The action event.
          */
         @FXML
-        public void onMenuExitClick(ActionEvent event) {
+        public void onMenuExitClick(final ActionEvent event) {
                 javafx.application.Platform.exit();
         }
 
@@ -174,7 +173,7 @@ public class BudgetDetailsController {
          * @param event The action event.
          */
         @FXML
-        public void onMenuSelectBudgetClick(ActionEvent event) {
+        public void onMenuSelectBudgetClick(final ActionEvent event) {
                 viewManager.switchScene("budget-view.fxml", "Επιλογή Προϋπολογισμού");
         }
 

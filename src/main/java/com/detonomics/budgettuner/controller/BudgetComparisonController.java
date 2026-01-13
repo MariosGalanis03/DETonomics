@@ -23,7 +23,7 @@ import javafx.util.StringConverter;
  * Handles the logic for comparing two budget years, displaying charts and
  * statistics.
  */
-public class BudgetComparisonController {
+public final class BudgetComparisonController {
 
     @FXML
     private BarChart<String, Number> revenueChart;
@@ -74,7 +74,7 @@ public class BudgetComparisonController {
      * @param dataService The service for budget data retrieval.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public BudgetComparisonController(ViewManager viewManager, BudgetDataService dataService) {
+    public BudgetComparisonController(final ViewManager viewManager, final BudgetDataService dataService) {
         this.viewManager = viewManager;
         this.dataService = dataService;
     }
@@ -91,12 +91,12 @@ public class BudgetComparisonController {
         // Setup StringConverter to display source_title
         StringConverter<Summary> converter = new StringConverter<>() {
             @Override
-            public String toString(Summary object) {
+            public String toString(final Summary object) {
                 return object == null ? "" : object.getSourceTitle();
             }
 
             @Override
-            public Summary fromString(String string) {
+            public Summary fromString(final String string) {
                 return year1ComboBox.getItems().stream()
                         .filter(s -> s.getSourceTitle().equals(string))
                         .findFirst().orElse(null);
@@ -134,7 +134,7 @@ public class BudgetComparisonController {
      * @param s1 The summary for the first year.
      * @param s2 The summary for the second year.
      */
-    public void setPreselectedYears(Summary s1, Summary s2) {
+    public void setPreselectedYears(final Summary s1, final Summary s2) {
         if (s1 != null) {
             // Find the object in the items list that aligns (equals might rely on ref or
             // content)
@@ -227,7 +227,7 @@ public class BudgetComparisonController {
         updateChart(s1, s2);
     }
 
-    private void updateChart(Summary s1, Summary s2) {
+    private void updateChart(final Summary s1, final Summary s2) {
         revenueChart.getData().clear();
         expenseChart.getData().clear();
         balanceChart.getData().clear();
@@ -271,33 +271,33 @@ public class BudgetComparisonController {
     }
 
     @FXML
-    void onBackClick(ActionEvent event) {
+    void onBackClick(final ActionEvent event) {
         viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }
 
     @FXML
-    void onExitClick(ActionEvent event) {
+    void onExitClick(final ActionEvent event) {
         System.exit(0);
     }
 
-    private void navigateToAnalysis(ActionEvent event, ComparisonDetailsController.ComparisonType type) {
+    private void navigateToAnalysis(final ActionEvent event, final ComparisonDetailsController.ComparisonType type) {
         viewManager.switchScene("comparison-details-view.fxml", "Σύγκριση Ανάλυσης",
                 (ComparisonDetailsController controller) -> controller.setContext(year1ComboBox.getValue(),
                         year2ComboBox.getValue(), type));
     }
 
     @FXML
-    void onRevenueAnalysisClick(ActionEvent event) {
+    void onRevenueAnalysisClick(final ActionEvent event) {
         navigateToAnalysis(event, ComparisonDetailsController.ComparisonType.REVENUE);
     }
 
     @FXML
-    void onExpenseAnalysisClick(ActionEvent event) {
+    void onExpenseAnalysisClick(final ActionEvent event) {
         navigateToAnalysis(event, ComparisonDetailsController.ComparisonType.EXPENSE);
     }
 
     @FXML
-    void onMinistryAnalysisClick(ActionEvent event) {
+    void onMinistryAnalysisClick(final ActionEvent event) {
         navigateToAnalysis(event, ComparisonDetailsController.ComparisonType.MINISTRY);
     }
 }

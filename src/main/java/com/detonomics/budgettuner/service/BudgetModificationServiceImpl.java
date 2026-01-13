@@ -16,7 +16,7 @@ import java.sql.SQLException;
  * Implementation of the BudgetModificationService.
  * Handles the logic for cloning and updating budgets.
  */
-public class BudgetModificationServiceImpl implements BudgetModificationService {
+public final class BudgetModificationServiceImpl implements BudgetModificationService {
 
     private final DatabaseManager dbManager;
     private final BudgetYearDao budgetYearDao;
@@ -41,10 +41,10 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
      * @param summaryDao         DAO for summaries.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public BudgetModificationServiceImpl(DatabaseManager dbManager, BudgetYearDao budgetYearDao,
-            RevenueCategoryDao revenueCategoryDao, ExpenseCategoryDao expenseCategoryDao,
-            MinistryDao ministryDao, MinistryExpenseDao ministryExpenseDao,
-            SummaryDao summaryDao) {
+    public BudgetModificationServiceImpl(final DatabaseManager dbManager, final BudgetYearDao budgetYearDao,
+            final RevenueCategoryDao revenueCategoryDao, final ExpenseCategoryDao expenseCategoryDao,
+            final MinistryDao ministryDao, final MinistryExpenseDao ministryExpenseDao,
+            final SummaryDao summaryDao) {
         this.dbManager = dbManager;
         this.budgetYearDao = budgetYearDao;
         this.revenueCategoryDao = revenueCategoryDao;
@@ -55,7 +55,7 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
     }
 
     @Override
-    public int cloneBudget(int sourceBudgetID, String targetSourceTitle) {
+    public int cloneBudget(final int sourceBudgetID, final String targetSourceTitle) {
         final BudgetYear sourceBudget = budgetYearDao.loadBudgetYear(sourceBudgetID);
         if (sourceBudget == null) {
             throw new IllegalArgumentException("Source budget not found: " + sourceBudgetID);
@@ -87,7 +87,8 @@ public class BudgetModificationServiceImpl implements BudgetModificationService 
     }
 
     @Override
-    public void updateBudgetAmounts(int budgetID, Map<Long, Long> revenueUpdates, Map<String, Long> ministryUpdates) {
+    public void updateBudgetAmounts(final int budgetID, final Map<Long, Long> revenueUpdates,
+            final Map<String, Long> ministryUpdates) {
         try {
             dbManager.inTransaction(conn -> {
                 // 1. Update Revenues

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.util.DatabaseManager;
@@ -23,7 +21,7 @@ public class MinistryDao {
      *
      * @param dbManager The database manager.
      */
-    public MinistryDao(DatabaseManager dbManager) {
+    public MinistryDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
@@ -68,7 +66,7 @@ public class MinistryDao {
      * @param budgetID The budget ID.
      * @return A list of Ministries.
      */
-    public ArrayList<Ministry> loadMinistries(Connection conn, final int budgetID) {
+    public ArrayList<Ministry> loadMinistries(final Connection conn, final int budgetID) {
         ArrayList<Ministry> ministries = new ArrayList<>();
         String sql = "SELECT * FROM Ministries WHERE budget_id = ?";
         List<Map<String, Object>> results = dbManager.executeQuery(conn, sql, budgetID);
@@ -109,7 +107,7 @@ public class MinistryDao {
      * @param newTotalBudget The new total budget.
      * @return Number of rows affected.
      */
-    public int updateMinistryTotalBudget(Connection conn, final int budgetId, final String ministryCode,
+    public int updateMinistryTotalBudget(final Connection conn, final int budgetId, final String ministryCode,
             final long newTotalBudget) {
         String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(conn, sql, newTotalBudget, budgetId, ministryCode);
@@ -121,7 +119,7 @@ public class MinistryDao {
      * @param conn     The database connection.
      * @param budgetID The budget ID.
      */
-    public void deleteByBudget(Connection conn, int budgetID) {
+    public void deleteByBudget(final Connection conn, final int budgetID) {
         String sql = "DELETE FROM Ministries WHERE budget_id = ?";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
@@ -134,10 +132,12 @@ public class MinistryDao {
      * @param newBudgetID    The new budget ID.
      * @return A map mapping old ministry IDs to new ministry IDs.
      */
-    public Map<Integer, Integer> cloneMinistries(Connection conn, int sourceBudgetID, int newBudgetID) {
+    public Map<Integer, Integer> cloneMinistries(final Connection conn, final int sourceBudgetID,
+            final int newBudgetID) {
         Map<Integer, Integer> idMap = new HashMap<>();
         ArrayList<Ministry> sourceMinistries = loadMinistries(conn, sourceBudgetID);
-        String insertMinistrySql = "INSERT INTO Ministries (code, name, regular_budget, public_investment_budget, total_budget, budget_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertMinistrySql = "INSERT INTO Ministries (code, name, regular_budget, public_investment_budget, "
+                + "total_budget, budget_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         for (Ministry m : sourceMinistries) {
             dbManager.executeUpdate(conn, insertMinistrySql, m.getCode(), m.getName(), m.getRegularBudget(),
@@ -157,8 +157,9 @@ public class MinistryDao {
      * @param conn     The database connection.
      * @param budgetID The budget ID.
      */
-    public void recalculateTotals(Connection conn, int budgetID) {
-        String recalcMinistrySql = "SELECT ministry_id, SUM(amount) as total FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?) GROUP BY ministry_id";
+    public void recalculateTotals(final Connection conn, final int budgetID) {
+        String recalcMinistrySql = "SELECT ministry_id, SUM(amount) as total FROM MinistryExpenses "
+                + "WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?) GROUP BY ministry_id";
         List<Map<String, Object>> minTotals = dbManager.executeQuery(conn, recalcMinistrySql, budgetID);
 
         for (Map<String, Object> row : minTotals) {
@@ -167,7 +168,8 @@ public class MinistryDao {
             // Assuming MinistryExpenses represent the Regular Budget decomposition.
             // We update regular_budget to match the sum of expenses.
             // We calculate total_budget as Regular + PIB.
-            String updateMinSql = "UPDATE Ministries SET regular_budget = ?, total_budget = ? + COALESCE(public_investment_budget, 0) WHERE ministry_id = ?";
+            String updateMinSql = "UPDATE Ministries SET regular_budget = ?, "
+                    + "total_budget = ? + COALESCE(public_investment_budget, 0) WHERE ministry_id = ?";
             dbManager.executeUpdate(conn, updateMinSql, total, total, mid);
         }
     }

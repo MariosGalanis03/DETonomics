@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.util.DatabaseManager;
@@ -22,7 +21,7 @@ public class ExpenseCategoryDao {
      *
      * @param dbManager The database manager.
      */
-    public ExpenseCategoryDao(DatabaseManager dbManager) {
+    public ExpenseCategoryDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
@@ -64,7 +63,7 @@ public class ExpenseCategoryDao {
      * @param budgetID The ID of the budget.
      * @return A list of ExpenseCategory objects.
      */
-    public ArrayList<ExpenseCategory> loadExpenses(Connection conn, final int budgetID) {
+    public ArrayList<ExpenseCategory> loadExpenses(final Connection conn, final int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
         String sql = "SELECT * FROM ExpenseCategories WHERE budget_id = ?";
         List<Map<String, Object>> results = dbManager.executeQuery(conn, sql, budgetID);
@@ -101,7 +100,7 @@ public class ExpenseCategoryDao {
      * @param newAmount   The new amount.
      * @return The number of rows affected.
      */
-    public int updateExpenseCategoryAmount(Connection conn, final int budgetId, final String expenseCode,
+    public int updateExpenseCategoryAmount(final Connection conn, final int budgetId, final String expenseCode,
             final long newAmount) {
         String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         return dbManager.executeUpdate(conn, sql, newAmount, budgetId, expenseCode);
@@ -113,7 +112,7 @@ public class ExpenseCategoryDao {
      * @param conn     The database connection.
      * @param budgetID The ID of the budget.
      */
-    public void deleteByBudget(Connection conn, int budgetID) {
+    public void deleteByBudget(final Connection conn, final int budgetID) {
         String sql = "DELETE FROM ExpenseCategories WHERE budget_id = ?";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
@@ -126,7 +125,8 @@ public class ExpenseCategoryDao {
      * @param newBudgetID    The target budget ID.
      * @return A map of old expense category IDs to new expense category IDs.
      */
-    public Map<Integer, Integer> cloneExpenseCategories(Connection conn, int sourceBudgetID, int newBudgetID) {
+    public Map<Integer, Integer> cloneExpenseCategories(final Connection conn, final int sourceBudgetID,
+            final int newBudgetID) {
         Map<Integer, Integer> idMap = new HashMap<>(); // Old ID -> New ID
         ArrayList<ExpenseCategory> sourceExpenses = loadExpenses(conn, sourceBudgetID);
         String insertExpCatSql = "INSERT INTO ExpenseCategories (code, name, amount, budget_id) VALUES (?, ?, ?, ?)";
@@ -149,8 +149,10 @@ public class ExpenseCategoryDao {
      * @param conn     The database connection.
      * @param budgetID The budget ID.
      */
-    public void recalculateTotals(Connection conn, int budgetID) {
-        String recalcExpCatSql = "SELECT expense_category_id, SUM(amount) as total FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?) GROUP BY expense_category_id";
+    public void recalculateTotals(final Connection conn, final int budgetID) {
+        String recalcExpCatSql = "SELECT expense_category_id, SUM(amount) as total FROM MinistryExpenses "
+                + "WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?) "
+                + "GROUP BY expense_category_id";
         List<Map<String, Object>> expTotals = dbManager.executeQuery(conn, recalcExpCatSql, budgetID);
 
         for (Map<String, Object> row : expTotals) {

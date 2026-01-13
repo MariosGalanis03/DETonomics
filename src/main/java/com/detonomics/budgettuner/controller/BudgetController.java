@@ -5,7 +5,6 @@ import com.detonomics.budgettuner.model.Summary;
 import com.detonomics.budgettuner.service.BudgetDataService;
 import com.detonomics.budgettuner.util.ViewManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,7 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -32,7 +31,7 @@ import javafx.util.Callback;
  * allowing users to view a list of available budgets and select one to view
  * details.
  */
-public class BudgetController {
+public final class BudgetController {
 
         @FXML
         private ListView<String> budgetList;
@@ -53,7 +52,7 @@ public class BudgetController {
          * @param dataService The service for accessing budget data.
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-        public BudgetController(ViewManager viewManager, BudgetDataService dataService) {
+        public BudgetController(final ViewManager viewManager, final BudgetDataService dataService) {
                 this.viewManager = viewManager;
                 this.dataService = dataService;
         }
@@ -68,10 +67,10 @@ public class BudgetController {
 
                 budgetList.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
                         @Override
-                        public ListCell<String> call(ListView<String> param) {
+                        public ListCell<String> call(final ListView<String> param) {
                                 return new ListCell<String>() {
                                         @Override
-                                        protected void updateItem(String item, boolean empty) {
+                                        protected void updateItem(final String item, final boolean empty) {
                                                 super.updateItem(item, empty);
                                                 if (empty || item == null) {
                                                         setText(null);
@@ -88,8 +87,10 @@ public class BudgetController {
                                                         // clone/modified budget
                                                         if (!item.matches("Προϋπολογισμός \\d{4}")) {
                                                                 Button deleteBtn = new Button("X");
-                                                                deleteBtn.setStyle(
-                                                                                "-fx-background-color: #ff4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                                                                deleteBtn.setStyle("-fx-background-color: #ff4444;"
+                                                                                + " -fx-text-fill: white; "
+                                                                                + "-fx-font-weight: bold; "
+                                                                                + "-fx-cursor: hand;");
                                                                 deleteBtn.setOnAction(event -> {
                                                                         deleteBudget(item);
                                                                 });
@@ -185,8 +186,9 @@ public class BudgetController {
                 }
 
                 String selectedItem = budgetList.getSelectionModel().getSelectedItem();
-                if (selectedItem == null)
+                if (selectedItem == null) {
                         return;
+                }
 
                 openBudgetDetailsBySourceTitle(selectedItem);
         }
@@ -212,7 +214,7 @@ public class BudgetController {
                 System.exit(0);
         }
 
-        private void deleteBudget(String sourceTitle) {
+        private void deleteBudget(final String sourceTitle) {
                 try {
                         Optional<Summary> summaryOpt = budgetSummaries.stream()
                                         .filter(s -> s.getSourceTitle().equals(sourceTitle))

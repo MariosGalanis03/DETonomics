@@ -51,7 +51,7 @@ public class WelcomeController {
          * @param dataService The data service.
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-        public WelcomeController(ViewManager viewManager, BudgetDataService dataService) {
+        public WelcomeController(final ViewManager viewManager, final BudgetDataService dataService) {
                 this.viewManager = viewManager;
                 this.dataService = dataService;
         }
@@ -96,7 +96,7 @@ public class WelcomeController {
                 });
         }
 
-        private void setupCharts(List<Summary> allSummaries) {
+        private void setupCharts(final List<Summary> allSummaries) {
                 // Filter to show only non-modified budgets (where source_title equals
                 // "Προϋπολογισμός {year}")
                 List<Summary> originalBudgets = allSummaries.stream()

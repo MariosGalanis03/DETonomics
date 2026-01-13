@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
@@ -29,7 +29,7 @@ import javafx.stage.Popup;
  * Handles the display of budget analysis charts and lists (Revenue, Expense,
  * Ministry).
  */
-public class AnalysisController {
+public final class AnalysisController {
 
     @FXML
     private Label titleLabel;
@@ -64,7 +64,7 @@ public class AnalysisController {
      * @param dataService The service for retrieving budget data.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public AnalysisController(ViewManager viewManager, BudgetDataService dataService) {
+    public AnalysisController(final ViewManager viewManager, final BudgetDataService dataService) {
         this.viewManager = viewManager;
         this.dataService = dataService;
     }
@@ -83,8 +83,9 @@ public class AnalysisController {
     }
 
     private void loadAnalysisData() {
-        if (budget == null)
+        if (budget == null) {
             return;
+        }
 
         int currentYear = budget.getSummary().getBudgetYear();
         long totalAmount = 0;
@@ -158,23 +159,25 @@ public class AnalysisController {
             diffAmountLabel.setText(sign + BudgetFormatter.formatAmount(diff));
 
             // Set color for diff
-            if (diff > 0)
+            if (diff > 0) {
                 diffAmountLabel.setStyle("-fx-text-fill: green;");
-            else if (diff < 0)
+            } else if (diff < 0) {
                 diffAmountLabel.setStyle("-fx-text-fill: red;");
-            else
+            } else {
                 diffAmountLabel.setStyle("-fx-text-fill: black;");
+            }
 
             String perfSign = (perf > 0) ? "+" : "";
             perfLabel.setText(String.format("%s%.2f%%", perfSign, perf));
 
             // Set color for performance
-            if (perf > 0)
+            if (perf > 0) {
                 perfLabel.setStyle("-fx-text-fill: green;");
-            else if (perf < 0)
+            } else if (perf < 0) {
                 perfLabel.setStyle("-fx-text-fill: red;");
-            else
+            } else {
                 perfLabel.setStyle("-fx-text-fill: black;");
+            }
 
         } else {
             diffAmountLabel.setText("-");
@@ -185,7 +188,7 @@ public class AnalysisController {
         setupList();
     }
 
-    private void setupCharts(long totalAmount) {
+    private void setupCharts(final long totalAmount) {
         pieChart.getData().clear();
 
         List<DataPoint> dataPoints = new ArrayList<>();
@@ -223,20 +226,20 @@ public class AnalysisController {
         }
 
         // Sort descending
-        dataPoints.sort((a, b) -> Long.compare(b.amount, a.amount));
+        dataPoints.sort((a, b) -> Long.compare(b.getAmount(), a.getAmount()));
 
         long combinedTop5 = 0;
         int limit = Math.min(dataPoints.size(), 5);
 
         for (int i = 0; i < limit; i++) {
             DataPoint dp = dataPoints.get(i);
-            String label = dp.name + " (" + BudgetFormatter.formatAmount(dp.amount) + ")";
-            pieChart.getData().add(new PieChart.Data(label, dp.amount));
-            combinedTop5 += dp.amount;
+            String label = dp.getName() + " (" + BudgetFormatter.formatAmount(dp.getAmount()) + ")";
+            pieChart.getData().add(new PieChart.Data(label, dp.getAmount()));
+            combinedTop5 += dp.getAmount();
         }
 
         // Calculate "Other" based on the SUM of the FILTERED list, not the global total
-        long filteredTotal = dataPoints.stream().mapToLong(dp -> dp.amount).sum();
+        long filteredTotal = dataPoints.stream().mapToLong(dp -> dp.getAmount()).sum();
         long otherAmount = filteredTotal - combinedTop5;
 
         if (otherAmount > 0) {
@@ -268,18 +271,26 @@ public class AnalysisController {
         }
     }
 
-    private static class DataPoint {
-        String name;
-        long amount;
+    private static final class DataPoint {
+        private String name;
+        private long amount;
 
-        DataPoint(String name, long amount) {
+        DataPoint(final String name, final long amount) {
             this.name = name;
             this.amount = amount;
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public long getAmount() {
+            return amount;
+        }
+
     }
 
-    private String getFormattedText(PieChart.Data data, double total) {
+    private String getFormattedText(final PieChart.Data data, final double total) {
         String fullName = data.getName();
         String name = fullName;
         if (fullName.contains(" (")) {
@@ -340,13 +351,13 @@ public class AnalysisController {
         }
     }
 
-    private void addSimpleItem(String name, long amount) {
+    private void addSimpleItem(final String name, final long amount) {
         itemsBox.getChildren().add(createSimpleItemBox(name, amount));
     }
 
     // Recursive based on RevenueCategory
-    private Node buildRevenueNode(com.detonomics.budgettuner.model.RevenueCategory cat,
-            Map<Integer, List<com.detonomics.budgettuner.model.RevenueCategory>> childrenMap) {
+    private Node buildRevenueNode(final com.detonomics.budgettuner.model.RevenueCategory cat,
+            final Map<Integer, List<com.detonomics.budgettuner.model.RevenueCategory>> childrenMap) {
 
         List<com.detonomics.budgettuner.model.RevenueCategory> children = childrenMap.get(cat.getRevenueID());
 
@@ -380,7 +391,7 @@ public class AnalysisController {
     }
 
     // Generic builder for Ministry
-    private Node buildGenericExpandableNode(String title, long amount, List<DataPoint> children) {
+    private Node buildGenericExpandableNode(final String title, final long amount, final List<DataPoint> children) {
         if (children == null || children.isEmpty()) {
             return createSimpleItemBox(title, amount);
         }
@@ -401,7 +412,7 @@ public class AnalysisController {
                 contentBox.setPadding(new javafx.geometry.Insets(5, 0, 5, 20));
 
                 for (DataPoint dp : children) {
-                    contentBox.getChildren().add(createSimpleItemBox(dp.name, dp.amount));
+                    contentBox.getChildren().add(createSimpleItemBox(dp.getName(), dp.getAmount()));
                 }
                 pane.setContent(contentBox);
             }
@@ -410,7 +421,7 @@ public class AnalysisController {
         return pane;
     }
 
-    private TitledPane createTitledPane(String title, long amount) {
+    private TitledPane createTitledPane(final String title, final long amount) {
         javafx.scene.layout.HBox headerBox = new javafx.scene.layout.HBox();
         headerBox.setSpacing(10);
         headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
@@ -436,7 +447,7 @@ public class AnalysisController {
         return pane;
     }
 
-    private javafx.scene.layout.HBox createSimpleItemBox(String name, long amount) {
+    private javafx.scene.layout.HBox createSimpleItemBox(final String name, final long amount) {
         javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
         hbox.setSpacing(10);
         Label nameLbl = new Label(name);

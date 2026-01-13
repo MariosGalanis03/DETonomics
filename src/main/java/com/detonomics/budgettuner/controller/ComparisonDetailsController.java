@@ -28,7 +28,7 @@ import javafx.scene.layout.VBox;
  * Controller for the Comparison Details View.
  * Displays detailed line-item analysis comparing two selected budget years.
  */
-public class ComparisonDetailsController {
+public final class ComparisonDetailsController {
 
     /**
      * Enumeration for the type of analysis comparison.
@@ -67,7 +67,7 @@ public class ComparisonDetailsController {
      * @param dataService The service for budget data.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public ComparisonDetailsController(ViewManager viewManager, BudgetDataService dataService) {
+    public ComparisonDetailsController(final ViewManager viewManager, final BudgetDataService dataService) {
         this.viewManager = viewManager;
         this.dataService = dataService;
     }
@@ -79,7 +79,7 @@ public class ComparisonDetailsController {
      * @param s2   The summary of the second budget.
      * @param type The type of analysis to perform.
      */
-    public void setContext(Summary s1, Summary s2, ComparisonType type) {
+    public void setContext(final Summary s1, final Summary s2, final ComparisonType type) {
         this.s1 = s1;
         this.s2 = s2;
         String title = switch (type) {
@@ -123,9 +123,10 @@ public class ComparisonDetailsController {
         }
     }
 
-    private void loadRevenueData(int budgetId, Map<Long, Long> amounts, Map<Long, String> names) {
-        if (budgetId == -1)
+    private void loadRevenueData(final int budgetId, final Map<Long, Long> amounts, final Map<Long, String> names) {
+        if (budgetId == -1) {
             return;
+        }
         for (RevenueCategory rc : dataService.loadRevenues(budgetId)) {
             // Only include revenues without parent (parent_id = 0)
             if (rc.getParentID() == 0) {
@@ -135,25 +136,27 @@ public class ComparisonDetailsController {
         }
     }
 
-    private void loadExpenseData(int budgetId, Map<Long, Long> amounts, Map<Long, String> names) {
-        if (budgetId == -1)
+    private void loadExpenseData(final int budgetId, final Map<Long, Long> amounts, final Map<Long, String> names) {
+        if (budgetId == -1) {
             return;
+        }
         for (ExpenseCategory ec : dataService.loadExpenses(budgetId)) {
             amounts.put(ec.getCode(), ec.getAmount());
             names.putIfAbsent(ec.getCode(), ec.getName());
         }
     }
 
-    private void loadMinistryData(int budgetId, Map<Long, Long> amounts, Map<Long, String> names) {
-        if (budgetId == -1)
+    private void loadMinistryData(final int budgetId, final Map<Long, Long> amounts, final Map<Long, String> names) {
+        if (budgetId == -1) {
             return;
+        }
         for (Ministry m : dataService.loadMinistries(budgetId)) {
             amounts.put(m.getCode(), m.getTotalBudget());
             names.putIfAbsent(m.getCode(), m.getName());
         }
     }
 
-    private void createHeaderRow(String title1, String title2) {
+    private void createHeaderRow(final String title1, final String title2) {
         HBox headerRow = new HBox(15);
         headerRow.setAlignment(Pos.CENTER_LEFT);
         headerRow.setStyle("-fx-background-color: #f5f5f5; -fx-padding: 15; -fx-background-radius: 5;");
@@ -188,11 +191,11 @@ public class ComparisonDetailsController {
         itemsBox.getChildren().add(headerRow);
     }
 
-    private void createRow(String name, long v1, long v2) {
+    private void createRow(final String name, final long v1, final long v2) {
         HBox row = new HBox(15);
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle(
-                "-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);");
+        row.setStyle("-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5;"
+                + " -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);");
 
         Label nameLbl = new Label(name);
         nameLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
@@ -247,7 +250,7 @@ public class ComparisonDetailsController {
      * @param event The action event.
      */
     @FXML
-    void onBackClick(ActionEvent event) {
+    void onBackClick(final ActionEvent event) {
         viewManager.switchScene("budget-comparison-view.fxml", "Σύγκριση Προϋπολογισμών",
                 (BudgetComparisonController controller) -> controller.setPreselectedYears(s1, s2));
     }

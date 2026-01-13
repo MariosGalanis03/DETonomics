@@ -20,7 +20,7 @@ public class MinistryExpenseDao {
      *
      * @param dbManager The database manager.
      */
-    public MinistryExpenseDao(DatabaseManager dbManager) {
+    public MinistryExpenseDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
@@ -61,7 +61,7 @@ public class MinistryExpenseDao {
      * @param budgetID The budget ID.
      * @return A list of MinistryExpense objects.
      */
-    public ArrayList<MinistryExpense> loadMinistryExpenses(Connection conn, final int budgetID) {
+    public ArrayList<MinistryExpense> loadMinistryExpenses(final Connection conn, final int budgetID) {
         ArrayList<MinistryExpense> expenses = new ArrayList<>();
         String sql = "SELECT ME.* FROM MinistryExpenses ME "
                 + "JOIN Ministries MI ON ME.ministry_id = MI.ministry_id "
@@ -97,7 +97,7 @@ public class MinistryExpenseDao {
      * @param newAmount         The new amount.
      * @return Number of rows affected.
      */
-    public int updateExpenseAmount(Connection conn, final int ministryExpenseId, final long newAmount) {
+    public int updateExpenseAmount(final Connection conn, final int ministryExpenseId, final long newAmount) {
         String sql = "UPDATE MinistryExpenses SET amount = ? WHERE ministry_expense_id = ?";
         return dbManager.executeUpdate(conn, sql, newAmount, ministryExpenseId);
     }
@@ -112,11 +112,13 @@ public class MinistryExpenseDao {
      * @param newAmount           The new amount.
      * @return Number of rows affected.
      */
-    public int updateExpenseAmount(Connection conn, final int budgetId, final long ministryCode,
+    public int updateExpenseAmount(final Connection conn, final int budgetId, final long ministryCode,
             final long expenseCategoryCode, final long newAmount) {
         String sql = "UPDATE MinistryExpenses SET amount = ? "
-                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? AND CAST(code AS INTEGER) = ?) "
-                + "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories WHERE budget_id = ? AND CAST(code AS INTEGER) = ?)";
+                + "WHERE ministry_id = (SELECT ministry_id FROM Ministries WHERE budget_id = ? "
+                + "AND CAST(code AS INTEGER) = ?) "
+                + "AND expense_category_id = (SELECT expense_category_id FROM ExpenseCategories "
+                + "WHERE budget_id = ? AND CAST(code AS INTEGER) = ?)";
         return dbManager.executeUpdate(conn, sql, newAmount, budgetId, ministryCode, budgetId,
                 expenseCategoryCode);
     }
@@ -127,9 +129,10 @@ public class MinistryExpenseDao {
      * @param conn     The database connection.
      * @param budgetID The budget ID.
      */
-    public void deleteByBudget(Connection conn, int budgetID) {
+    public void deleteByBudget(final Connection conn, final int budgetID) {
         // Delete via join equivalent logic (SQLite supports subquery in DELETE)
-        String sql = "DELETE FROM MinistryExpenses WHERE ministry_id IN (SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
+        String sql = "DELETE FROM MinistryExpenses WHERE ministry_id IN "
+                + "(SELECT ministry_id FROM Ministries WHERE budget_id = ?)";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
 
@@ -143,10 +146,12 @@ public class MinistryExpenseDao {
      * @param expenseIdMap   Map of old expense category IDs to new expense category
      *                       IDs.
      */
-    public void cloneMinistryExpenses(Connection conn, int sourceBudgetID, Map<Integer, Integer> ministryIdMap,
-            Map<Integer, Integer> expenseIdMap) {
+    public void cloneMinistryExpenses(final Connection conn, final int sourceBudgetID,
+            final Map<Integer, Integer> ministryIdMap,
+            final Map<Integer, Integer> expenseIdMap) {
         ArrayList<MinistryExpense> sourceExpenses = loadMinistryExpenses(conn, sourceBudgetID);
-        String insertMinExpSql = "INSERT INTO MinistryExpenses (ministry_id, expense_category_id, amount) VALUES (?, ?, ?)";
+        String insertMinExpSql = "INSERT INTO MinistryExpenses (ministry_id, expense_category_id, amount) "
+                + "VALUES (?, ?, ?)";
 
         for (MinistryExpense me : sourceExpenses) {
             Integer newMinistryID = ministryIdMap.get(me.getMinistryID());

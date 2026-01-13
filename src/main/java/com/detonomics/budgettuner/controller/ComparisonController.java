@@ -52,7 +52,7 @@ public class ComparisonController {
      * @param dataService The service for budget data retrieval.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public ComparisonController(ViewManager viewManager, BudgetDataService dataService) {
+    public ComparisonController(final ViewManager viewManager, final BudgetDataService dataService) {
         this.viewManager = viewManager;
         this.dataService = dataService;
     }
@@ -78,10 +78,12 @@ public class ComparisonController {
         yearSelectorB.setItems(FXCollections.observableArrayList(years));
 
         // Default επιλογές αν υπάρχουν αρκετά έτη
-        if (years.size() > 0)
+        if (years.size() > 0) {
             yearSelectorA.setValue(years.get(0));
-        if (years.size() > 1)
+        }
+        if (years.size() > 1) {
             yearSelectorB.setValue(years.get(1));
+        }
     }
 
     private void updateComparison() {
@@ -96,8 +98,9 @@ public class ComparisonController {
         int idA = dataService.loadBudgetIDByYear(yearA);
         int idB = dataService.loadBudgetIDByYear(yearB);
 
-        if (idA == -1 || idB == -1)
+        if (idA == -1 || idB == -1) {
             return;
+        }
 
         BudgetYear budgetA = dataService.loadBudgetYear(idA);
         BudgetYear budgetB = dataService.loadBudgetYear(idB);
@@ -106,7 +109,7 @@ public class ComparisonController {
         updateChart(budgetA, budgetB, yearA, yearB);
     }
 
-    private void updateLabels(BudgetYear bA, BudgetYear bB) {
+    private void updateLabels(final BudgetYear bA, final BudgetYear bB) {
         long revA = bA.getSummary().getTotalRevenues();
         long revB = bB.getSummary().getTotalRevenues();
         long expA = bA.getSummary().getTotalExpenses();
@@ -125,22 +128,23 @@ public class ComparisonController {
         setDiffLabel(expDiffLabel, diffExp);
     }
 
-    private void setDiffLabel(Label label, long diff) {
+    private void setDiffLabel(final Label label, final long diff) {
         String sign = (diff > 0) ? "+" : "";
         label.setText("Διαφορά: " + sign + formatMoney(diff));
-        if (diff > 0)
+        if (diff > 0) {
             label.setStyle("-fx-text-fill: green; -fx-font-size: 14px;");
-        else if (diff < 0)
+        } else if (diff < 0) {
             label.setStyle("-fx-text-fill: red; -fx-font-size: 14px;");
-        else
+        } else {
             label.setStyle("-fx-text-fill: black; -fx-font-size: 14px;");
+        }
     }
 
-    private String formatMoney(long amount) {
+    private String formatMoney(final long amount) {
         return com.detonomics.budgettuner.util.BudgetFormatter.formatAmount(amount);
     }
 
-    private void updateChart(BudgetYear bA, BudgetYear bB, int yearA, int yearB) {
+    private void updateChart(final BudgetYear bA, final BudgetYear bB, final int yearA, final int yearB) {
         comparisonChart.getData().clear();
 
         XYChart.Series<String, Number> seriesA = new XYChart.Series<>();
@@ -162,7 +166,7 @@ public class ComparisonController {
      * @param event The action event.
      */
     @FXML
-    public void onBackClick(ActionEvent event) {
+    public void onBackClick(final ActionEvent event) {
         // Επιστροφή στο κεντρικό μενού via ViewManager
         viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
     }

@@ -20,7 +20,7 @@ public class RevenueCategoryDao {
      *
      * @param dbManager The database manager.
      */
-    public RevenueCategoryDao(DatabaseManager dbManager) {
+    public RevenueCategoryDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
@@ -62,7 +62,8 @@ public class RevenueCategoryDao {
      * @return The ID of the revenue category.
      */
     public int loadRevenueCategoryIDFromCode(final int budgetID, final long code) {
-        String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
+        String sql = "SELECT revenue_category_id FROM RevenueCategories "
+                + "WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(sql, budgetID, code);
         if (queryResults.isEmpty()) {
             throw new IllegalArgumentException("Δεν βρέθηκε ο κωδικός " + code);
@@ -149,7 +150,7 @@ public class RevenueCategoryDao {
      * @param amount   The new amount.
      * @return The number of rows affected.
      */
-    public int setRevenueAmount(Connection conn, final int budgetID, final long code, final long amount) {
+    public int setRevenueAmount(final Connection conn, final int budgetID, final long code, final long amount) {
         int rowsAffected = 0;
 
         int revenueCategoryID = loadRevenueCategoryIDFromCode(conn, budgetID, code);
@@ -176,7 +177,7 @@ public class RevenueCategoryDao {
     }
 
     // Internal read helpers taking Connection to reuse inside transaction
-    private int loadRevenueCategoryIDFromCode(Connection conn, int budgetID, long code) {
+    private int loadRevenueCategoryIDFromCode(final Connection conn, final int budgetID, final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE budget_id = ? AND code = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(conn, sql, budgetID, code);
         if (queryResults.isEmpty()) {
@@ -185,7 +186,7 @@ public class RevenueCategoryDao {
         return (Integer) queryResults.getFirst().get("revenue_category_id");
     }
 
-    private long loadRevenueAmount(Connection conn, int revenueCategoryID) {
+    private long loadRevenueAmount(final Connection conn, final int revenueCategoryID) {
         String sql = "SELECT amount FROM RevenueCategories WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(conn, sql, revenueCategoryID);
         if (queryResults.isEmpty()) {
@@ -194,7 +195,7 @@ public class RevenueCategoryDao {
         return ((Number) queryResults.getFirst().get("amount")).longValue();
     }
 
-    private int loadRevenueParentID(Connection conn, int revenueCategoryID) {
+    private int loadRevenueParentID(final Connection conn, final int revenueCategoryID) {
         String sql = "SELECT parent_id FROM RevenueCategories WHERE revenue_category_id = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(conn, sql, revenueCategoryID);
         if (queryResults.isEmpty()) {
@@ -204,7 +205,7 @@ public class RevenueCategoryDao {
         return (rawParentID == null) ? 0 : rawParentID;
     }
 
-    private ArrayList<Integer> loadRevenueChildren(Connection conn, int revenueCategoryID) {
+    private ArrayList<Integer> loadRevenueChildren(final Connection conn, final int revenueCategoryID) {
         ArrayList<Integer> children = new ArrayList<>();
         String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE parent_id = ?";
         List<Map<String, Object>> queryResults = dbManager.executeQuery(conn, sql, revenueCategoryID);
@@ -214,7 +215,7 @@ public class RevenueCategoryDao {
         return children;
     }
 
-    private int updateRevenueParentAmounts(Connection conn, final int revenueCategoryID, final long difference) {
+    private int updateRevenueParentAmounts(final Connection conn, final int revenueCategoryID, final long difference) {
         int rowsAffected = 0;
         int parentID = loadRevenueParentID(conn, revenueCategoryID);
 
@@ -230,7 +231,8 @@ public class RevenueCategoryDao {
         return rowsAffected;
     }
 
-    private int updateRevenueChildrenAmounts(Connection conn, final int revenueCategoryID, final long oldParentAmount,
+    private int updateRevenueChildrenAmounts(final Connection conn, final int revenueCategoryID,
+            final long oldParentAmount,
             final long newParentAmount) {
         int rowsAffected = 0;
 
@@ -284,7 +286,7 @@ public class RevenueCategoryDao {
      * @param sourceBudgetID The source budget ID.
      * @param targetBudgetID The target budget ID.
      */
-    public void cloneRevenueCategories(Connection conn, int sourceBudgetID, int targetBudgetID) {
+    public void cloneRevenueCategories(final Connection conn, final int sourceBudgetID, final int targetBudgetID) {
         // Re-implement existing logic but using `conn`
         // We need source categories.
         // NOTE: loadRevenues does NOT take conn yet in public API, but we can reuse the
@@ -323,7 +325,7 @@ public class RevenueCategoryDao {
         }
     }
 
-    private ArrayList<RevenueCategory> loadRevenues(Connection conn, int budgetID) {
+    private ArrayList<RevenueCategory> loadRevenues(final Connection conn, final int budgetID) {
         ArrayList<RevenueCategory> revenues = new ArrayList<>();
         String sql = "SELECT * FROM RevenueCategories WHERE budget_id = ?";
         List<Map<String, Object>> results = dbManager.executeQuery(conn, sql, budgetID);
@@ -339,7 +341,7 @@ public class RevenueCategoryDao {
         return revenues;
     }
 
-    private void insertRevenueCategory(Connection conn, final int budgetID, final long code, final String name,
+    private void insertRevenueCategory(final Connection conn, final int budgetID, final long code, final String name,
             final long amount,
             final Integer parentID) {
         String sql = "INSERT INTO RevenueCategories (budget_id, code, name, amount, parent_id) VALUES (?, ?, ?, ?, ?)";
@@ -351,13 +353,13 @@ public class RevenueCategoryDao {
                 .orElse(0L);
     }
 
-    private int findNewCategoryIDByCode(Connection conn, final int budgetID, final long code) {
+    private int findNewCategoryIDByCode(final Connection conn, final int budgetID, final long code) {
         String sql = "SELECT revenue_category_id FROM RevenueCategories WHERE budget_id = ? AND code = ?";
         List<Map<String, Object>> results = dbManager.executeQuery(conn, sql, budgetID, String.valueOf(code));
         return results.isEmpty() ? 0 : (Integer) results.getFirst().get("revenue_category_id");
     }
 
-    private void updateParentID(Connection conn, final int budgetID, final long code, final int newParentID) {
+    private void updateParentID(final Connection conn, final int budgetID, final long code, final int newParentID) {
         String sql = "UPDATE RevenueCategories SET parent_id = ? WHERE budget_id = ? AND code = ?";
         dbManager.executeUpdate(conn, sql, newParentID, budgetID, String.valueOf(code));
     }
@@ -368,7 +370,7 @@ public class RevenueCategoryDao {
      * @param conn     The database connection.
      * @param budgetID The budget ID.
      */
-    public void deleteByBudget(Connection conn, int budgetID) {
+    public void deleteByBudget(final Connection conn, final int budgetID) {
         String sql = "DELETE FROM RevenueCategories WHERE budget_id = ?";
         dbManager.executeUpdate(conn, sql, budgetID);
     }
@@ -380,9 +382,10 @@ public class RevenueCategoryDao {
      * @param budgetID The budget ID.
      * @return The total revenue.
      */
-    public long calculateTotalRevenue(Connection conn, int budgetID) {
+    public long calculateTotalRevenue(final Connection conn, final int budgetID) {
         // Sum of all roots (parent_id = 0 or NULL)
-        String recalcRevSql = "SELECT SUM(amount) as total FROM RevenueCategories WHERE budget_id = ? AND (parent_id = 0 OR parent_id IS NULL)";
+        String recalcRevSql = "SELECT SUM(amount) as total FROM RevenueCategories "
+                + "WHERE budget_id = ? AND (parent_id = 0 OR parent_id IS NULL)";
         List<Map<String, Object>> revTotalRes = dbManager.executeQuery(conn, recalcRevSql, budgetID);
         if (!revTotalRes.isEmpty() && revTotalRes.get(0).get("total") != null) {
             return ((Number) revTotalRes.get(0).get("total")).longValue();

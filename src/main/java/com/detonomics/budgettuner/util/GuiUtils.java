@@ -20,7 +20,7 @@ import java.util.function.Predicate;
  * Utility class for GUI-related operations.
  * Provides helper methods for setting up charts and navigation.
  */
-public class GuiUtils {
+public final class GuiUtils {
 
     /**
      * Private constructor to prevent instantiation.
@@ -40,9 +40,10 @@ public class GuiUtils {
      * @param colorCondition    Predicate to determine if a specific data point
      *                          should be highlighted.
      */
-    public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
-            Function<Summary, Number> valueExtractor, Function<Summary, String> categoryExtractor,
-            Predicate<Summary> colorCondition) {
+    public static void setupChart(final BarChart<String, Number> chart, final String seriesName,
+            final List<Summary> data,
+            final Function<Summary, Number> valueExtractor, final Function<Summary, String> categoryExtractor,
+            final Predicate<Summary> colorCondition) {
         chart.getData().clear();
 
         // Fix: Explicitly set axis categories if it's a CategoryAxis.
@@ -101,8 +102,9 @@ public class GuiUtils {
      * @param colorCondition Predicate to determine if a specific data point should
      *                       be highlighted.
      */
-    public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
-            Function<Summary, Number> valueExtractor, Predicate<Summary> colorCondition) {
+    public static void setupChart(final BarChart<String, Number> chart, final String seriesName,
+            final List<Summary> data,
+            final Function<Summary, Number> valueExtractor, final Predicate<Summary> colorCondition) {
         setupChart(chart, seriesName, data, valueExtractor, s -> String.valueOf(s.getBudgetYear()), colorCondition);
     }
 
@@ -114,8 +116,9 @@ public class GuiUtils {
      * @param data           The list of Summary objects to plot.
      * @param valueExtractor Function to extract the Number value from a Summary.
      */
-    public static void setupChart(BarChart<String, Number> chart, String seriesName, List<Summary> data,
-            Function<Summary, Number> valueExtractor) {
+    public static void setupChart(final BarChart<String, Number> chart, final String seriesName,
+            final List<Summary> data,
+            final Function<Summary, Number> valueExtractor) {
         setupChart(chart, seriesName, data, valueExtractor, s -> String.valueOf(s.getBudgetYear()), s -> false);
     }
 
@@ -127,7 +130,7 @@ public class GuiUtils {
      * @param fxmlPath The path to the FXML file (relative to this package).
      * @throws IOException If FXML loading fails.
      */
-    public static void navigate(ActionEvent event, String fxmlPath) throws IOException {
+    public static void navigate(final ActionEvent event, final String fxmlPath) throws IOException {
         // Use GuiApp.class to load resources from the controller package
         final FXMLLoader loader = new FXMLLoader(
                 com.detonomics.budgettuner.controller.GuiApp.class.getResource(fxmlPath));

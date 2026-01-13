@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * Implementation of the BudgetDataService interface.
  * Provides methods to load and manage budget data using various DAOs.
  */
-public class BudgetDataServiceImpl implements BudgetDataService {
+public final class BudgetDataServiceImpl implements BudgetDataService {
 
     private final BudgetYearDao budgetYearDao;
     private final RevenueCategoryDao revenueCategoryDao;
@@ -49,10 +49,10 @@ public class BudgetDataServiceImpl implements BudgetDataService {
      * @param sqlSequenceDao     DAO for SQLite sequence operations.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public BudgetDataServiceImpl(BudgetYearDao budgetYearDao, RevenueCategoryDao revenueCategoryDao,
-            ExpenseCategoryDao expenseCategoryDao, MinistryDao ministryDao,
-            MinistryExpenseDao ministryExpenseDao, SummaryDao summaryDao,
-            BudgetTotalsDao budgetTotalsDao, SqlSequenceDao sqlSequenceDao) {
+    public BudgetDataServiceImpl(final BudgetYearDao budgetYearDao, final RevenueCategoryDao revenueCategoryDao,
+            final ExpenseCategoryDao expenseCategoryDao, final MinistryDao ministryDao,
+            final MinistryExpenseDao ministryExpenseDao, final SummaryDao summaryDao,
+            final BudgetTotalsDao budgetTotalsDao, final SqlSequenceDao sqlSequenceDao) {
         this.budgetYearDao = budgetYearDao;
         this.revenueCategoryDao = revenueCategoryDao;
         this.expenseCategoryDao = expenseCategoryDao;
@@ -95,7 +95,7 @@ public class BudgetDataServiceImpl implements BudgetDataService {
     }
 
     @Override
-    public void deleteBudget(int budgetID) {
+    public void deleteBudget(final int budgetID) {
         budgetYearDao.deleteBudget(budgetID);
     }
 
@@ -105,7 +105,7 @@ public class BudgetDataServiceImpl implements BudgetDataService {
     }
 
     @Override
-    public Summary loadSummary(int budgetID) {
+    public Summary loadSummary(final int budgetID) {
         return summaryDao.loadSummary(budgetID);
     }
 
@@ -115,47 +115,47 @@ public class BudgetDataServiceImpl implements BudgetDataService {
     }
 
     @Override
-    public ArrayList<RevenueCategory> loadRevenues(int budgetID) {
+    public ArrayList<RevenueCategory> loadRevenues(final int budgetID) {
         return revenueCategoryDao.loadRevenues(budgetID);
     }
 
     @Override
-    public ArrayList<ExpenseCategory> loadExpenses(int budgetID) {
+    public ArrayList<ExpenseCategory> loadExpenses(final int budgetID) {
         return expenseCategoryDao.loadExpenses(budgetID);
     }
 
     @Override
-    public ArrayList<Ministry> loadMinistries(int budgetID) {
+    public ArrayList<Ministry> loadMinistries(final int budgetID) {
         return ministryDao.loadMinistries(budgetID);
     }
 
     @Override
-    public ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID) {
+    public ArrayList<MinistryExpense> loadMinistryExpenses(final int budgetID) {
         return ministryExpenseDao.loadMinistryExpenses(budgetID);
     }
 
     @Override
-    public void setRevenueAmount(int budgetID, long code, long amount) {
+    public void setRevenueAmount(final int budgetID, final long code, final long amount) {
         revenueCategoryDao.setRevenueAmount(budgetID, code, amount);
     }
 
     @Override
-    public void updateExpenseCategoryAmount(int budgetId, String expenseCode, long newAmount) {
+    public void updateExpenseCategoryAmount(final int budgetId, final String expenseCode, final long newAmount) {
         expenseCategoryDao.updateExpenseCategoryAmount(budgetId, expenseCode, newAmount);
     }
 
     @Override
-    public void updateMinistryTotalBudget(int budgetId, String ministryCode, long newTotalBudget) {
+    public void updateMinistryTotalBudget(final int budgetId, final String ministryCode, final long newTotalBudget) {
         ministryDao.updateMinistryTotalBudget(budgetId, ministryCode, newTotalBudget);
     }
 
     @Override
-    public void updateMinistryExpenseAmount(int ministryExpenseId, long newAmount) {
+    public void updateMinistryExpenseAmount(final int ministryExpenseId, final long newAmount) {
         ministryExpenseDao.updateExpenseAmount(ministryExpenseId, newAmount);
     }
 
     @Override
-    public void updateBudgetSummary(int budgetId, long totalExpenses, long budgetResult) {
+    public void updateBudgetSummary(final int budgetId, final long totalExpenses, final long budgetResult) {
         summaryDao.updateBudgetSummary(budgetId, totalExpenses, budgetResult);
     }
 }

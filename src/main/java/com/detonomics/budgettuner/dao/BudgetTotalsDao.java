@@ -19,7 +19,7 @@ public class BudgetTotalsDao {
          *
          * @param dbManager The database manager.
          */
-        public BudgetTotalsDao(DatabaseManager dbManager) {
+        public BudgetTotalsDao(final DatabaseManager dbManager) {
                 this.dbManager = dbManager;
         }
 

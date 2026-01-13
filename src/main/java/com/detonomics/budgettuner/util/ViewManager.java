@@ -40,8 +40,8 @@ public class ViewManager {
      *                                  operations.
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public ViewManager(Stage primaryStage, BudgetDataService budgetDataService,
-            BudgetModificationService budgetModificationService) {
+    public ViewManager(final Stage primaryStage, final BudgetDataService budgetDataService,
+            final BudgetModificationService budgetModificationService) {
         this.primaryStage = primaryStage;
         this.budgetDataService = budgetDataService;
         this.budgetModificationService = budgetModificationService;
@@ -56,7 +56,7 @@ public class ViewManager {
      *                        arguments).
      * @param <T>             The type of the controller.
      */
-    public <T> void switchScene(String fxmlFile, String title, Consumer<T> controllerSetup) {
+    public <T> void switchScene(final String fxmlFile, final String title, final Consumer<T> controllerSetup) {
         try {
             FXMLLoader loader = new FXMLLoader(GuiApp.class.getResource(fxmlFile));
             loader.setControllerFactory(this::createController);
@@ -88,7 +88,7 @@ public class ViewManager {
 
         } catch (IOException e) {
             e.printStackTrace();
-            // TODO: simpler error handling for now
+            // Note: simpler error handling for now
         }
     }
 
@@ -99,7 +99,7 @@ public class ViewManager {
      * @param fxmlFile The name of the FXML file.
      * @param title    The title of the window.
      */
-    public void switchScene(String fxmlFile, String title) {
+    public void switchScene(final String fxmlFile, final String title) {
         switchScene(fxmlFile, title, null);
     }
 
@@ -110,7 +110,7 @@ public class ViewManager {
      * @return The instantiated controller.
      */
 
-    private Object createController(Class<?> param) {
+    private Object createController(final Class<?> param) {
         if (param == WelcomeController.class) {
             return new WelcomeController(this, budgetDataService);
         } else if (param == BudgetController.class) {

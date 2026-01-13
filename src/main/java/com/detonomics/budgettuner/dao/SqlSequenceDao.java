@@ -18,7 +18,7 @@ public class SqlSequenceDao {
      *
      * @param dbManager The database manager.
      */
-    public SqlSequenceDao(DatabaseManager dbManager) {
+    public SqlSequenceDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
