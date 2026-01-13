@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.dao;
 
 /**
- * Configuration for Data Access Objects.
+ * Configure global settings and paths for the data access layer.
  */
 public final class DaoConfig {
     private static String dbPath = "data/output/BudgetDB.db";
@@ -11,18 +11,18 @@ public final class DaoConfig {
     }
 
     /**
-     * Gets the database path.
+     * Retrieve the current filesystem path to the SQLite database.
      *
-     * @return The database path.
+     * @return Path to the .db file
      */
     public static String getDbPath() {
         return dbPath;
     }
 
     /**
-     * Sets the database path.
+     * Override the default database storage path.
      *
-     * @param path The new database path.
+     * @param path New location for the SQLite database
      */
     public static void setDbPath(final String path) {
         dbPath = path;

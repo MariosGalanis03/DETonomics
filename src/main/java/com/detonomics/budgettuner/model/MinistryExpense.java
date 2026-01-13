@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Represents a Ministry Expense entity.
+ * Model representing a specific expense mapping for a ministry.
  */
 public final class MinistryExpense {
     private final int ministryExpenseID;
@@ -10,12 +10,12 @@ public final class MinistryExpense {
     private long amount;
 
     /**
-     * Constructs a new MinistryExpense.
+     * Initialize a ministry-specific expense allocation.
      *
-     * @param ministryExpenseID The ID of the ministry expense.
-     * @param ministryID        The ID of the ministry.
-     * @param expenseCategoryID The ID of the expense category.
-     * @param amount            The expense amount.
+     * @param ministryExpenseID Unique internal ID
+     * @param ministryID        Associated ministry ID
+     * @param expenseCategoryID Associated expense category ID
+     * @param amount            Financial allocation
      */
     public MinistryExpense(final int ministryExpenseID, final int ministryID,
             final int expenseCategoryID, final long amount) {
@@ -26,36 +26,36 @@ public final class MinistryExpense {
     }
 
     /**
-     * Gets the ministry expense ID.
+     * Get the ministry expense ID.
      *
-     * @return The ministry expense ID.
+     * @return Internal primary key
      */
     public int getMinistryExpenseID() {
         return ministryExpenseID;
     }
 
     /**
-     * Gets the ministry ID.
+     * Get the ministry ID.
      *
-     * @return The ministry ID.
+     * @return Associated ministry ID
      */
     public int getMinistryID() {
         return ministryID;
     }
 
     /**
-     * Gets the expense category ID.
+     * Get the expense category ID.
      *
-     * @return The expense category ID.
+     * @return Associated expense category ID
      */
     public int getExpenseCategoryID() {
         return expenseCategoryID;
     }
 
     /**
-     * Gets the amount.
+     * Get the amount.
      *
-     * @return The amount.
+     * @return Allocated amount
      */
     public long getAmount() {
         return amount;

@@ -22,8 +22,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Manages the JavaFX stage and scene transitions.
- * Serves as a central place to handle Dependency Injection for Controllers.
+ * Handle scene transitions and dependency injection for application
+ * controllers.
+ * Acts as the central navigator for the JavaFX stage.
  */
 public class ViewManager {
 
@@ -32,12 +33,11 @@ public class ViewManager {
     private final BudgetModificationService budgetModificationService;
 
     /**
-     * Constructs the ViewManager with the main Stage and required services.
+     * Initialize with the primary application stage and global business services.
      *
-     * @param primaryStage              The JavaFX primary stage.
-     * @param budgetDataService         The service for budget data operations.
-     * @param budgetModificationService The service for budget modification
-     *                                  operations.
+     * @param primaryStage              Main JavaFX stage
+     * @param budgetDataService         Core data access service
+     * @param budgetModificationService Specialized modification service
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ViewManager(final Stage primaryStage, final BudgetDataService budgetDataService,
@@ -48,13 +48,13 @@ public class ViewManager {
     }
 
     /**
-     * Switches the scene to the specified FXML file.
+     * Load an FXML view and switch the primary stage to it.
      *
-     * @param fxmlFile        The name of the FXML file (relative to GuiApp class).
-     * @param title           The title of the window.
-     * @param controllerSetup A consumer to setup the controller (e.g., passing
-     *                        arguments).
-     * @param <T>             The type of the controller.
+     * @param fxmlFile        Resource path to the FXML file
+     * @param title           New window title
+     * @param controllerSetup Optional callback for post-initialization
+     *                        configuration
+     * @param <T>             Expected controller type
      */
     public <T> void switchScene(final String fxmlFile, final String title, final Consumer<T> controllerSetup) {
         try {
@@ -88,28 +88,26 @@ public class ViewManager {
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Note: simpler error handling for now
         }
     }
 
     /**
-     * Switches the scene to the specified FXML file without additional controller
-     * setup.
+     * Load an FXML view without any additional configuration.
      *
-     * @param fxmlFile The name of the FXML file.
-     * @param title    The title of the window.
+     * @param fxmlFile Resource path to the FXML file
+     * @param title    New window title
      */
     public void switchScene(final String fxmlFile, final String title) {
         switchScene(fxmlFile, title, null);
     }
 
     /**
-     * Factory method to create controllers with dependencies injected.
+     * Factory for instantiating controllers with their required service
+     * dependencies.
      *
-     * @param param The controller class to instantiate.
-     * @return The instantiated controller.
+     * @param param Target controller class
+     * @return Fully initialized controller instance
      */
-
     private Object createController(final Class<?> param) {
         if (param == WelcomeController.class) {
             return new WelcomeController(this, budgetDataService);

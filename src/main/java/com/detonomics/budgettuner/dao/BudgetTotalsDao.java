@@ -8,25 +8,25 @@ import com.detonomics.budgettuner.model.BudgetTotals;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for determining budget totals.
+ * Determine annual budget totals from the database.
  */
 public class BudgetTotalsDao {
 
         private final DatabaseManager dbManager;
 
         /**
-         * Constructs a new BudgetTotalsDao.
+         * Initialize with the specified database manager.
          *
-         * @param dbManager The database manager.
+         * @param dbManager Database accessor
          */
         public BudgetTotalsDao(final DatabaseManager dbManager) {
                 this.dbManager = dbManager;
         }
 
         /**
-         * Loads totals for all budgets found in the database.
+         * Retrieve financial totals for all stored budget years.
          *
-         * @return A list of BudgetTotals objects.
+         * @return List of summarized budget totals
          */
         public List<BudgetTotals> loadAllBudgetTotals() {
                 final String sql = "SELECT budget_year, total_revenue, "

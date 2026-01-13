@@ -15,8 +15,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 /**
- * Controller for the Budget Details View.
- * Displays detailed information about a selected budget year.
+ * Handle the dashboard for a specific budget year.
  */
 public final class BudgetDetailsController {
 
@@ -44,10 +43,10 @@ public final class BudgetDetailsController {
         private final BudgetDataService dataService;
 
         /**
-         * Constructs the BudgetDetailsController.
+         * Initialize with navigation and data services.
          *
-         * @param viewManager The manager for handling view transitions.
-         * @param dataService The service for budget data retrieval.
+         * @param viewManager Application view coordinator
+         * @param dataService Budget data provider
          */
         @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
         public BudgetDetailsController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -56,9 +55,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Sets the context for the controller explicitly.
+         * Provide the budget object for the current view session.
          *
-         * @param budgetIn The BudgetYear object to display details for.
+         * @param budgetIn Selected budget year data
          */
         public void setContext(final BudgetYear budgetIn) {
                 this.budget = budgetIn;
@@ -86,7 +85,7 @@ public final class BudgetDetailsController {
         }
 
         private void setupLists() {
-                // Top Revenues (Parent ID == 0 only)
+                // Render top 5 revenue sources
                 topRevenuesBox.getChildren().clear();
                 budget.getRevenues().stream()
                                 .filter(r -> r.getParentID() == 0)
@@ -95,7 +94,7 @@ public final class BudgetDetailsController {
                                 .forEach(r -> topRevenuesBox.getChildren()
                                                 .add(createListItem(r.getName(), r.getAmount())));
 
-                // Top Expenses
+                // Render top 5 expense types
                 topExpensesBox.getChildren().clear();
                 budget.getExpenses().stream()
                                 .sorted((a, b) -> Long.compare(b.getAmount(), a.getAmount()))
@@ -103,7 +102,7 @@ public final class BudgetDetailsController {
                                 .forEach(e -> topExpensesBox.getChildren()
                                                 .add(createListItem(e.getName(), e.getAmount())));
 
-                // Top Ministries
+                // Render top 5 ministry allocations
                 topMinistriesBox.getChildren().clear();
                 budget.getMinistries().stream()
                                 .sorted((a, b) -> Long.compare(b.getTotalBudget(), a.getTotalBudget()))
@@ -115,30 +114,23 @@ public final class BudgetDetailsController {
         private Node createListItem(final String name, final long amount) {
                 javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox();
                 hbox.setSpacing(5);
-                hbox.setPadding(new javafx.geometry.Insets(5)); // Reduced padding
+                hbox.setPadding(new javafx.geometry.Insets(5));
                 hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
                 Label nameLabel = new Label(name);
                 nameLabel.setWrapText(true);
                 nameLabel.setPrefWidth(300);
-                nameLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #333;"); // Reduced font size
+                nameLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #333;");
                 javafx.scene.layout.HBox.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
                 nameLabel.setMaxWidth(Double.MAX_VALUE);
 
                 Label amountLabel = new Label(BudgetFormatter.formatAmount(amount));
-                amountLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #1565C0;"); // Reduced
-                                                                                                             // font
-                                                                                                             // size
+                amountLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #1565C0;");
 
                 hbox.getChildren().addAll(nameLabel, amountLabel);
                 return hbox;
         }
 
-        /**
-         * Opens the side menu drawer.
-         *
-         * @param event The action event.
-         */
         @FXML
         public void onMenuButtonClick(final ActionEvent event) {
                 menuOverlay.setVisible(true);
@@ -146,11 +138,6 @@ public final class BudgetDetailsController {
                 menuDrawer.setTranslateX(0);
         }
 
-        /**
-         * Closes the side menu drawer when clicking the overlay.
-         *
-         * @param event The mouse event.
-         */
         @FXML
         public void onMenuOverlayClick(final javafx.scene.input.MouseEvent event) {
                 menuOverlay.setVisible(false);
@@ -158,9 +145,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Exits the application from the menu.
+         * Terminate the application.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onMenuExitClick(final ActionEvent event) {
@@ -168,9 +155,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Navigates to the Budget Selection view.
+         * Switch to the budget selection screen.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onMenuSelectBudgetClick(final ActionEvent event) {
@@ -178,9 +165,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Navigates to the Budget Import view.
+         * Launch the budget import tool.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onMenuImportBudgetClick(final ActionEvent event) {
@@ -188,9 +175,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Navigates to the Budget Comparison view.
+         * Launch the multi-budget comparison tool.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onMenuCompareBudgetsClick(final ActionEvent event) {
@@ -198,9 +185,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Opens the Revenue Analysis view.
+         * Explore detailed revenue breakdown.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onRevenueAnalysisClick(final ActionEvent event) {
@@ -208,9 +195,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Opens the Expense Analysis view.
+         * Explore detailed expense breakdown.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onExpenseAnalysisClick(final ActionEvent event) {
@@ -218,9 +205,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Opens the Ministry Analysis view.
+         * Explore detailed ministry allocations.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onMinistryAnalysisClick(final ActionEvent event) {
@@ -228,9 +215,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Opens the Expense Editor (Budget Modification) view.
+         * Enter modification mode for the current budget.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onModifyExpenseClick(final ActionEvent event) {
@@ -239,9 +226,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Handles the back click, returning to the Budget Selection view.
+         * Go back to the previous view.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onBackClick(final ActionEvent event) {
@@ -254,10 +241,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Handles the back button click (alternative), returning to the Budget
-         * Selection view.
+         * Go back to the previous view (Secondary button).
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onBackButtonClick(final ActionEvent event) {
@@ -265,9 +251,9 @@ public final class BudgetDetailsController {
         }
 
         /**
-         * Handles the exit button click, closing the application.
+         * Close the application.
          *
-         * @param event The action event.
+         * @param event Triggering ActionEvent
          */
         @FXML
         public void onExitClick(final ActionEvent event) {

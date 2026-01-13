@@ -13,8 +13,7 @@ import com.detonomics.budgettuner.util.DatabaseManager;
 import java.sql.SQLException;
 
 /**
- * Implementation of the BudgetModificationService.
- * Handles the logic for cloning and updating budgets.
+ * Coordinate transaction-aware budget modifications and cloning processes.
  */
 public final class BudgetModificationServiceImpl implements BudgetModificationService {
 
@@ -24,21 +23,20 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
     private final ExpenseCategoryDao expenseCategoryDao;
     private final MinistryExpenseDao ministryExpenseDao;
     private final RevenueCategoryDao revenueCategoryDao;
-    // Keeping summaryDao if needed for other methods not shown, but seemingly
-    // unused in clone/update logic directly now
+    // Keeping summaryDao for potential future extensions
     @SuppressWarnings("unused")
     private final SummaryDao summaryDao;
 
     /**
-     * Constructs a new BudgetModificationServiceImpl.
+     * Initialize with the required transactional and data access components.
      *
-     * @param dbManager          The database manager.
-     * @param budgetYearDao      DAO for budget years.
-     * @param revenueCategoryDao DAO for revenue categories.
-     * @param expenseCategoryDao DAO for expense categories.
-     * @param ministryDao        DAO for ministries.
-     * @param ministryExpenseDao DAO for ministry expenses.
-     * @param summaryDao         DAO for summaries.
+     * @param dbManager          System database orchestrator
+     * @param budgetYearDao      DAO for budget header lifecycle
+     * @param revenueCategoryDao DAO for revenue hierarchies
+     * @param expenseCategoryDao DAO for expense classifications
+     * @param ministryDao        DAO for ministry definitions
+     * @param ministryExpenseDao DAO for detailed mappings
+     * @param summaryDao         DAO for budget summaries
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public BudgetModificationServiceImpl(final DatabaseManager dbManager, final BudgetYearDao budgetYearDao,
@@ -63,26 +61,26 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
 
         try {
             return dbManager.inTransaction(conn -> {
-                // 1. Create new Budget
+                // 1. Create new Budget header
                 int newBudgetID = budgetYearDao.createBudget(conn, sourceBudget, targetSourceTitle);
 
-                // 2. Clone Revenue Categories
+                // 2. Clone Revenue tree
                 revenueCategoryDao.cloneRevenueCategories(conn, sourceBudgetID, newBudgetID);
 
-                // 3. Clone Ministries (and get ID map)
+                // 3. Clone Ministries and capture identity mappings
                 Map<Integer, Integer> ministryIdMap = ministryDao.cloneMinistries(conn, sourceBudgetID, newBudgetID);
 
-                // 4. Clone Expense Categories (and get ID map)
+                // 4. Clone Expense Categories and capture identity mappings
                 Map<Integer, Integer> expenseIdMap = expenseCategoryDao.cloneExpenseCategories(conn, sourceBudgetID,
                         newBudgetID);
 
-                // 5. Clone Ministry Expenses
+                // 5. Replicate granular Ministry Expenses using the resolved ID maps
                 ministryExpenseDao.cloneMinistryExpenses(conn, sourceBudgetID, ministryIdMap, expenseIdMap);
 
                 return newBudgetID;
             });
         } catch (SQLException e) {
-            throw new RuntimeException("Clone budget failed", e);
+            throw new RuntimeException("Clone operation failed", e);
         }
     }
 
@@ -91,14 +89,14 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
             final Map<String, Long> ministryUpdates) {
         try {
             dbManager.inTransaction(conn -> {
-                // 1. Update Revenues
+                // 1. Update individual Revenue targets
                 for (Map.Entry<Long, Long> entry : revenueUpdates.entrySet()) {
                     long code = entry.getKey();
                     long amount = entry.getValue();
                     revenueCategoryDao.setRevenueAmount(conn, budgetID, code, amount);
                 }
 
-                // 2. Update Ministry Expenses & Calculate Deltas
+                // 2. Update specific Ministry Expense lines
                 for (Map.Entry<String, Long> entry : ministryUpdates.entrySet()) {
                     String key = entry.getKey();
                     long newAmount = entry.getValue();
@@ -145,30 +143,27 @@ public final class BudgetModificationServiceImpl implements BudgetModificationSe
                     }
                 }
 
-                // 3. Cascading Updates
+                // 3. Cascade updates to maintain financial consistency
 
-                // 3a & 3b. DISABLE Recalculate Totals (Using Delta Logic Instead)
+                // Recalculate Ministry & Expense Category aggregates if detailed lines changed
                 if (!ministryUpdates.isEmpty()) {
                     // ministryDao.recalculateTotals(conn, budgetID); // DISABLED: Using Delta Logic
                     // expenseCategoryDao.recalculateTotals(conn, budgetID); // DISABLED: Using
                     // Delta Logic
                 }
 
-                // 3c. Recalculate Revenue Total (Always needed as revenue might change)
+                // Refresh the global Revenue ceiling
                 long totalRevenue = revenueCategoryDao.calculateTotalRevenue(conn, budgetID);
                 budgetYearDao.updateTotalRevenue(conn, budgetID, totalRevenue);
 
-                // 3d. Update Budget Expenses and Result
-                // Note: calculateTotalExpenses sums up Ministry Totals.
-                // Since we updated Ministry Totals via Delta, this sum will be correct and
-                // consistent.
+                // Sync the overall Budget expenditure and net result
                 long totalExpenses = budgetYearDao.calculateTotalExpenses(conn, budgetID);
                 budgetYearDao.updateTotalExpensesAndResult(conn, budgetID, totalExpenses);
 
                 return null;
             });
         } catch (SQLException e) {
-            throw new RuntimeException("Update budget amounts failed", e);
+            throw new RuntimeException("Mass update failed", e);
         }
     }
 }

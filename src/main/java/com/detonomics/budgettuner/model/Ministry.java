@@ -1,7 +1,7 @@
 package com.detonomics.budgettuner.model;
 
 /**
- * Represents a Ministry entity.
+ * Model representing a government ministry and its allocated funding.
  */
 public final class Ministry {
     private final int ministryID;
@@ -12,14 +12,14 @@ public final class Ministry {
     private long totalBudget;
 
     /**
-     * Constructs a new Ministry.
+     * Initialize a new ministry record.
      *
-     * @param ministryID             The ID of the ministry.
-     * @param code                   The code of the ministry.
-     * @param name                   The name of the ministry.
-     * @param regularBudget          The regular budget amount.
-     * @param publicInvestmentBudget The public investment budget amount.
-     * @param totalBudget            The total budget amount.
+     * @param ministryID             Unique internal ID
+     * @param code                   Ministry system code
+     * @param name                   Ministry name
+     * @param regularBudget          Baseline funding
+     * @param publicInvestmentBudget Investment funding
+     * @param totalBudget            Aggregate funding
      */
     public Ministry(final int ministryID, final long code, final String name,
             final long regularBudget, final long publicInvestmentBudget,
@@ -33,81 +33,81 @@ public final class Ministry {
     }
 
     /**
-     * Gets the ministry ID.
+     * Get the unique database identifier.
      *
-     * @return The ministry ID.
+     * @return Internal primary key
      */
     public int getMinistryID() {
         return ministryID;
     }
 
     /**
-     * Gets the ministry code.
+     * Get the unique government classification code.
      *
-     * @return The code.
+     * @return System code
      */
     public long getCode() {
         return code;
     }
 
     /**
-     * Gets the ministry name.
+     * Get the full legal name of the ministry.
      *
-     * @return The name.
+     * @return Entity name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Gets the regular budget.
+     * Get the persistent operational budget allocation.
      *
-     * @return The regular budget.
+     * @return Regular budget amount
      */
     public long getRegularBudget() {
         return regularBudget;
     }
 
     /**
-     * Gets the public investment budget.
+     * Get the restricted funding for development projects.
      *
-     * @return The public investment budget.
+     * @return Public investment amount
      */
     public long getPublicInvestmentBudget() {
         return publicInvestmentBudget;
     }
 
     /**
-     * Gets the total budget.
+     * Get the combined total of regular and investment budgets.
      *
-     * @return The total budget.
+     * @return Aggregate funding
      */
     public long getTotalBudget() {
         return totalBudget;
     }
 
     /**
-     * Sets the regular budget.
+     * Set the operational budget portion.
      *
-     * @param regularBudget The new regular budget.
+     * @param regularBudget New funding level
      */
     public void setRegularBudget(final long regularBudget) {
         this.regularBudget = regularBudget;
     }
 
     /**
-     * Sets the public investment budget.
+     * Set the restricted investment budget portion.
      *
-     * @param publicInvestmentBudget The new public investment budget.
+     * @param publicInvestmentBudget New funding level
      */
     public void setPublicInvestmentBudget(final long publicInvestmentBudget) {
         this.publicInvestmentBudget = publicInvestmentBudget;
     }
 
     /**
-     * Sets the total budget.
+     * Set the aggregate budget total.
      *
-     * @param totalBudget The new total budget.
+     * @param totalBudget New funding level
      */
     public void setTotalBudget(final long totalBudget) {
         this.totalBudget = totalBudget;

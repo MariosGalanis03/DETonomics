@@ -19,9 +19,7 @@ import javafx.scene.control.Label;
 import javafx.util.StringConverter;
 
 /**
- * Controller for the Budget Comparison View.
- * Handles the logic for comparing two budget years, displaying charts and
- * statistics.
+ * Handle side-by-side comparison of different budget years and versions.
  */
 public final class BudgetComparisonController {
 
@@ -68,10 +66,10 @@ public final class BudgetComparisonController {
     private final BudgetDataService dataService;
 
     /**
-     * Constructs the BudgetComparisonController.
+     * Initialize with navigation and data services.
      *
-     * @param viewManager The manager for handling view transitions.
-     * @param dataService The service for budget data retrieval.
+     * @param viewManager Application view coordinator
+     * @param dataService Budget data provider
      */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public BudgetComparisonController(final ViewManager viewManager, final BudgetDataService dataService) {
@@ -80,15 +78,12 @@ public final class BudgetComparisonController {
     }
 
     /**
-     * Initializes the controller class.
-     * Loads available budgets into the combo boxes.
+     * Set up selection dropdowns and attach change listeners.
      */
     @FXML
     public void initialize() {
-        // Load ALL budgets (including clones)
         allSummaries = dataService.loadAllSummaries();
 
-        // Setup StringConverter to display source_title
         StringConverter<Summary> converter = new StringConverter<>() {
             @Override
             public String toString(final Summary object) {
@@ -109,7 +104,6 @@ public final class BudgetComparisonController {
         year1ComboBox.setItems(FXCollections.observableArrayList(allSummaries));
         year2ComboBox.setItems(FXCollections.observableArrayList(allSummaries));
 
-        // Add listeners to update available options and comparison
         year1ComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !isUpdating) {
                 isUpdating = true;
@@ -129,17 +123,13 @@ public final class BudgetComparisonController {
     }
 
     /**
-     * Sets the pre-selected years for comparison.
+     * Set the initial budgets to compare.
      *
-     * @param s1 The summary for the first year.
-     * @param s2 The summary for the second year.
+     * @param s1 Baseline budget summary
+     * @param s2 Target budget summary
      */
     public void setPreselectedYears(final Summary s1, final Summary s2) {
         if (s1 != null) {
-            // Find the object in the items list that aligns (equals might rely on ref or
-            // content)
-            // Summary doesn't override equals/hashcode usually? Check Summary.java
-            // If not overridden, we need to match by year.
             for (Summary s : year1ComboBox.getItems()) {
                 if (s.getBudgetYear() == s1.getBudgetYear()) {
                     year1ComboBox.setValue(s);
@@ -167,7 +157,6 @@ public final class BudgetComparisonController {
         year1ComboBox.getItems().clear();
         year1ComboBox.getItems().addAll(availableOptions);
 
-        // Restore selection if still available
         if (currentSelection != null) {
             for (Summary s : availableOptions) {
                 if (s.getBudgetID() == currentSelection.getBudgetID()) {
@@ -188,7 +177,6 @@ public final class BudgetComparisonController {
         year2ComboBox.getItems().clear();
         year2ComboBox.getItems().addAll(availableOptions);
 
-        // Restore selection if still available
         if (currentSelection != null) {
             for (Summary s : availableOptions) {
                 if (s.getBudgetID() == currentSelection.getBudgetID()) {
@@ -236,7 +224,7 @@ public final class BudgetComparisonController {
             return;
         }
 
-        // Revenue Chart
+        // Visualize Revenues
         XYChart.Series<String, Number> revSeries1 = new XYChart.Series<>();
         revSeries1.setName(s1.getSourceTitle());
         revSeries1.getData().add(new XYChart.Data<>("Έσοδα", s1.getTotalRevenues()));
@@ -247,7 +235,7 @@ public final class BudgetComparisonController {
 
         revenueChart.getData().addAll(revSeries1, revSeries2);
 
-        // Expense Chart
+        // Visualize Expenses
         XYChart.Series<String, Number> expSeries1 = new XYChart.Series<>();
         expSeries1.setName(s1.getSourceTitle());
         expSeries1.getData().add(new XYChart.Data<>("Έξοδα", s1.getTotalExpenses()));
@@ -258,7 +246,7 @@ public final class BudgetComparisonController {
 
         expenseChart.getData().addAll(expSeries1, expSeries2);
 
-        // Balance Chart
+        // Visualize Surplus/Deficit
         XYChart.Series<String, Number> balSeries1 = new XYChart.Series<>();
         balSeries1.setName(s1.getSourceTitle());
         balSeries1.getData().add(new XYChart.Data<>("Ισοζύγιο", s1.getBudgetResult()));

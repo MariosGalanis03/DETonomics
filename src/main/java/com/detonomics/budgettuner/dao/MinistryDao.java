@@ -10,26 +10,26 @@ import com.detonomics.budgettuner.model.Ministry;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for Ministry.
+ * Manage Ministry records and their associated budget allocations.
  */
 public class MinistryDao {
 
     private final DatabaseManager dbManager;
 
     /**
-     * Constructs a new MinistryDao.
+     * Initialize with the provided database manager.
      *
-     * @param dbManager The database manager.
+     * @param dbManager Database accessor
      */
     public MinistryDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
     /**
-     * Loads ministries for a given budget ID.
+     * Retrieve a list of all ministries linked to a specific budget.
      *
-     * @param budgetID The ID of the budget.
-     * @return A list of Ministry objects.
+     * @param budgetID Target budget ID
+     * @return List of ministry records
      */
     public ArrayList<Ministry> loadMinistries(final int budgetID) {
         ArrayList<Ministry> ministries = new ArrayList<>();
@@ -60,11 +60,11 @@ public class MinistryDao {
 
     // Internal helper for use inside transactions
     /**
-     * Loads ministries for a given budget ID using an existing connection.
+     * Fetch ministry records within an active database transaction.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
-     * @return A list of Ministries.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
+     * @return List of ministry records
      */
     public ArrayList<Ministry> loadMinistries(final Connection conn, final int budgetID) {
         ArrayList<Ministry> ministries = new ArrayList<>();
@@ -86,12 +86,12 @@ public class MinistryDao {
     }
 
     /**
-     * Updates a ministry's total budget.
+     * Persist an updated total budget figure for a specific ministry code.
      *
-     * @param budgetId       The budget ID.
-     * @param ministryCode   The ministry code.
-     * @param newTotalBudget The new total budget.
-     * @return Number of rows affected.
+     * @param budgetId       Working budget ID
+     * @param ministryCode   Ministry system code
+     * @param newTotalBudget Updated funding value
+     * @return Count of records updated
      */
     public int updateMinistryTotalBudget(final int budgetId, final String ministryCode, final long newTotalBudget) {
         String sql = "UPDATE Ministries SET total_budget = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
@@ -99,13 +99,13 @@ public class MinistryDao {
     }
 
     /**
-     * Updates a ministry's total budget using an existing connection.
+     * Update ministry funding levels within a transactional context.
      *
-     * @param conn           The database connection.
-     * @param budgetId       The budget ID.
-     * @param ministryCode   The ministry code.
-     * @param newTotalBudget The new total budget.
-     * @return Number of rows affected.
+     * @param conn           Active database connection
+     * @param budgetId       Working budget ID
+     * @param ministryCode   Ministry system code
+     * @param newTotalBudget Updated funding value
+     * @return Count of records updated
      */
     public int updateMinistryTotalBudget(final Connection conn, final int budgetId, final String ministryCode,
             final long newTotalBudget) {
@@ -114,10 +114,10 @@ public class MinistryDao {
     }
 
     /**
-     * Deletes all ministries associated with a budget.
+     * Remove all ministry records belonging to a target budget.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
      */
     public void deleteByBudget(final Connection conn, final int budgetID) {
         String sql = "DELETE FROM Ministries WHERE budget_id = ?";
@@ -125,12 +125,12 @@ public class MinistryDao {
     }
 
     /**
-     * Clones ministries from a source budget to a new budget.
+     * Duplicate ministry definitions from a baseline budget into a new one.
      *
-     * @param conn           The database connection.
-     * @param sourceBudgetID The source budget ID.
-     * @param newBudgetID    The new budget ID.
-     * @return A map mapping old ministry IDs to new ministry IDs.
+     * @param conn           Active database connection
+     * @param sourceBudgetID Baseline budget ID
+     * @param newBudgetID    Target budget ID
+     * @return Mapping of old category IDs to their new identities
      */
     public Map<Integer, Integer> cloneMinistries(final Connection conn, final int sourceBudgetID,
             final int newBudgetID) {
@@ -152,10 +152,11 @@ public class MinistryDao {
     }
 
     /**
-     * Recalculates total budgets for ministries based on their expenses.
+     * Restore consistency by re-summing ministry totals from their constituent
+     * expense lines.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
      */
     public void recalculateTotals(final Connection conn, final int budgetID) {
         String recalcMinistrySql = "SELECT ministry_id, SUM(amount) as total FROM MinistryExpenses "

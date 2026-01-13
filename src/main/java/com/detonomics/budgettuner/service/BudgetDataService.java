@@ -14,161 +14,160 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Service interface for accessing and managing Budget Data.
- * Abstracts the Persistence Layer (DAOs) from the Presentation Layer
- * (Controllers).
+ * Service interface for accessing and managing internal budget records.
+ * Provides a high-level abstraction over the data access layer.
  */
 public interface BudgetDataService {
 
     /**
-     * Loads database sequence statistics.
+     * Retrieve global database record statistics.
      *
-     * @return SqlSequence object containing stats.
+     * @return Sequence counts for all major tables
      */
     SqlSequence loadStatistics();
 
     /**
-     * Retrieves the list of available budget years.
+     * Fetch a list of all fiscal years currently in the system.
      *
-     * @return List of years (Integers).
+     * @return List of years
      */
     ArrayList<Integer> loadBudgetYears();
 
     /**
-     * Finds the Budget ID associated with a specific year.
+     * Resolve the internal primary key for a specific fiscal year.
      *
-     * @param year The budget year.
-     * @return The Budget ID.
+     * @param year Target budget year
+     * @return Internal database ID
      */
     int loadBudgetIDByYear(int year);
 
     /**
-     * Loads the complete BudgetYear object, including all related entities.
+     * Fetch the complete dataset for a specific budget year.
      *
-     * @param budgetID The ID of the budget to load.
-     * @return The fully populated BudgetYear object.
+     * @param budgetID Target budget ID
+     * @return Fully populated budget year record
      */
     BudgetYear loadBudgetYear(int budgetID);
 
     /**
-     * Ingests a new budget from a PDF file.
+     * Orchesrate the ingestion of a budget PDF into the database.
      *
-     * @param pdfPath Absolute path to the PDF file.
-     * @param logger  Consumer for logging progress messages.
-     * @throws Exception If ingestion fails.
+     * @param pdfPath File path to the source PDF
+     * @param logger  Callback for progress updates
+     * @throws Exception If any part of the conversion fails
      */
     void insertNewBudgetYear(String pdfPath, Consumer<String> logger) throws Exception;
 
     /**
-     * Clones an existing budget to a new budget ID (Transactional).
+     * Duplicate a budget record and all its associated data.
      *
-     * @param sourceBudgetID The ID of the source budget.
-     * @param targetBudgetID The ID of the target budget.
+     * @param sourceBudgetID Baseline budget ID
+     * @param targetBudgetID Target budget ID
      */
     void cloneBudget(int sourceBudgetID, int targetBudgetID);
 
     /**
-     * Deletes a budget and all its associated data (Transactional).
+     * Purge a budget and all its linked records from the database.
      *
-     * @param budgetID The ID of the budget to delete.
+     * @param budgetID Target budget ID
      */
     void deleteBudget(int budgetID);
 
     /**
-     * Loads summaries for all budgets.
+     * Load header metadata for all budgets in the system.
      *
-     * @return List of Summary objects.
+     * @return List of all budget summaries
      */
     List<Summary> loadAllSummaries();
 
     /**
-     * Loads the summary for a specific budget.
+     * Fetch metadata for a specific budget record.
      *
-     * @param budgetID The budget ID.
-     * @return The Summary object.
+     * @param budgetID Target budget ID
+     * @return Budget summary metadata
      */
     Summary loadSummary(int budgetID);
 
     /**
-     * Loads budget totals for all budgets.
+     * Retrieve the financial totals for all budget years.
      *
-     * @return List of BudgetTotals objects.
+     * @return List of high-level budget totals
      */
     List<BudgetTotals> loadAllBudgetTotals();
 
     /**
-     * Loads revenue categories for a budget.
+     * Load the full revenue structure for a given budget.
      *
-     * @param budgetID The budget ID.
-     * @return List of RevenueCategory objects.
+     * @param budgetID Target budget ID
+     * @return List of revenue categories
      */
     ArrayList<RevenueCategory> loadRevenues(int budgetID);
 
     /**
-     * Loads expense categories for a budget.
+     * Fetch all general expense classifications for a given budget.
      *
-     * @param budgetID The budget ID.
-     * @return List of ExpenseCategory objects.
+     * @param budgetID Target budget ID
+     * @return List of expense categories
      */
     ArrayList<ExpenseCategory> loadExpenses(int budgetID);
 
     /**
-     * Loads ministries for a budget.
+     * Retrieve all ministries and their baseline funding for a budget.
      *
-     * @param budgetID The budget ID.
-     * @return List of Ministry objects.
+     * @param budgetID Target budget ID
+     * @return List of ministry records
      */
     ArrayList<Ministry> loadMinistries(int budgetID);
 
     /**
-     * Loads ministry expenses for a budget.
+     * Load the granular expense mappings for all ministries in a budget.
      *
-     * @param budgetID The budget ID.
-     * @return List of MinistryExpense objects.
+     * @param budgetID Target budget ID
+     * @return List of ministry-expense mappings
      */
     ArrayList<MinistryExpense> loadMinistryExpenses(int budgetID);
 
     /**
-     * Updates the amount of a revenue category.
+     * Update the projected amount for a specific revenue category.
      *
-     * @param budgetID The budget ID.
-     * @param code     The revenue code.
-     * @param amount   The new amount.
+     * @param budgetID Working budget ID
+     * @param code     Target revenue code
+     * @param amount   New financial value
      */
     void setRevenueAmount(int budgetID, long code, long amount);
 
     /**
-     * Updates the amount of an expense category.
+     * Update the aggregate amount for a generic expense category.
      *
-     * @param budgetId    The budget ID.
-     * @param expenseCode The expense code.
-     * @param newAmount   The new amount.
+     * @param budgetId    Working budget ID
+     * @param expenseCode Target expense code
+     * @param newAmount   Updated funding value
      */
     void updateExpenseCategoryAmount(int budgetId, String expenseCode, long newAmount);
 
     /**
-     * Updates a ministry's total budget.
+     * Update the total funding allocation for a specific ministry.
      *
-     * @param budgetId       The budget ID.
-     * @param ministryCode   The ministry code.
-     * @param newTotalBudget The new total.
+     * @param budgetId       Working budget ID
+     * @param ministryCode   Ministry system code
+     * @param newTotalBudget Updated funding value
      */
     void updateMinistryTotalBudget(int budgetId, String ministryCode, long newTotalBudget);
 
     /**
-     * Updates a specific ministry expense amount.
+     * Update a specific granular ministry expense record.
      *
-     * @param ministryExpenseId The ID of the ministry expense.
-     * @param newAmount         The new amount.
+     * @param ministryExpenseId Internal mapping ID
+     * @param newAmount         Updated funding value
      */
     void updateMinistryExpenseAmount(int ministryExpenseId, long newAmount);
 
     /**
-     * Updates the summary of a budget.
+     * Sync the top-level financial outcome for a budget record.
      *
-     * @param budgetId      The budget ID.
-     * @param totalExpenses Total expenses.
-     * @param budgetResult  The budget result (surplus/deficit).
+     * @param budgetId      Target budget ID
+     * @param totalExpenses Aggregate expenditure
+     * @param budgetResult  Net financial balance
      */
     void updateBudgetSummary(int budgetId, long totalExpenses, long budgetResult);
 }

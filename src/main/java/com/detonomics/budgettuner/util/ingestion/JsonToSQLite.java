@@ -20,52 +20,42 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * A reusable service class to process a budget JSON file and store it in
- * a SQLite database. It can be called from other parts of an application
- * or run as a standalone tool.
+ * Persist budget data from a JSON file into a SQLite database.
+ * Maps the hierarchical JSON structure to normalized relational tables.
  */
 public class JsonToSQLite implements IJsonToSQLite {
 
-    /**
-     * Default constructor.
-     */
     private static final String DEFAULT_DB_FILE_PATH = "data/output/BudgetDB.db";
-    private static final String DEFAULT_DB_URL = "jdbc:sqlite:"
-            + DEFAULT_DB_FILE_PATH;
+    private static final String DEFAULT_DB_URL = "jdbc:sqlite:" + DEFAULT_DB_FILE_PATH;
 
     private final String dbUrl;
 
     /**
-     * Default constructor. Uses the default database path.
+     * Initialize with the system default database location.
      */
     public JsonToSQLite() {
         this.dbUrl = DEFAULT_DB_URL;
     }
 
     /**
-     * Constructor with custom database path.
+     * Initialize with a custom database location.
      *
-     * @param dbPath The path to the SQLite database file.
+     * @param dbPath Path to the target SQLite database file
      */
     public JsonToSQLite(final String dbPath) {
         this.dbUrl = "jdbc:sqlite:" + dbPath;
     }
 
     /**
-     * Main method to allow running this class as a standalone
-     * command-line tool. It simply calls the reusable processing method.
+     * Entry point for CLI-driven data ingestion.
      *
-     * @param args Command line arguments. Expects the path to the JSON file.
+     * @param args Single argument expected: path to the JSON file
      */
     public static void main(final String[] args) {
         if (args.length == 0) {
+            System.err.println("Error: Please provide the path to the JSON file as an argument.");
             System.err.println(
-                    "Error: Please provide the path to the JSON file as "
-                            + "an argument.");
-            System.err.println(
-                    "Usage Example: java com.detonomics.budgettuner.util"
-                            + ".ingestion.JsonToSQLite "
-                            + "\"data/BudgetGreece2025.json\"");
+                    "Usage Example: java com.detonomics.budgettuner.util.ingestion.JsonToSQLite \"data/BudgetGreece2025.json\"");
             return;
         }
         String jsonFilePath = args[0];
@@ -74,47 +64,29 @@ public class JsonToSQLite implements IJsonToSQLite {
         try {
             processor.processAndStoreBudget(jsonFilePath);
         } catch (Exception e) {
-            System.err.println(
-                    "A critical error occurred during the budget "
-                            + "processing pipeline.");
+            System.err.println("A critical error occurred during the budget processing pipeline.");
             e.printStackTrace();
         }
     }
 
-    /**
-     * The main public method that can be called from other classes (like
-     * IngestBudgetPdf). This method contains the entire logic for
-     * processing one JSON file.
-     *
-     * @param jsonFilePath The absolute path to the JSON file to be
-     *                     processed.
-     * @throws Exception if any error occurs during file reading or database
-     *                   insertion.
-     */
-    public void processAndStoreBudget(final String jsonFilePath)
-            throws Exception {
-        System.out.println("Processing file for database insertion: "
-                + jsonFilePath);
+    @Override
+    public void processAndStoreBudget(final String jsonFilePath) throws Exception {
+        System.out.println("Processing file for database insertion: " + jsonFilePath);
 
         createTables();
 
         try (InputStream inputStream = new FileInputStream(jsonFilePath)) {
             ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-            BudgetFile budgetData = mapper.readValue(inputStream,
-                    BudgetFile.class);
-            System.out.println("Successfully parsed JSON for year: "
-                    + budgetData.getMetadata().getBudgetYear());
+            BudgetFile budgetData = mapper.readValue(inputStream, BudgetFile.class);
+            System.out.println("Successfully parsed JSON for year: " + budgetData.getMetadata().getBudgetYear());
 
             insertBudgetData(budgetData);
         }
-        // Let exceptions propagate to the caller (IngestBudgetPdf)
     }
 
     private void createTables() throws SQLException {
-        // ... (Code is identical to the last version)
         String sqlBudgets = """
                 CREATE TABLE IF NOT EXISTS Budgets (
                     budget_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -139,8 +111,7 @@ public class JsonToSQLite implements IJsonToSQLite {
                     amount REAL,
                     parent_id INTEGER,
                     FOREIGN KEY (budget_id) REFERENCES Budgets (budget_id),
-                    FOREIGN KEY (parent_id) REFERENCES RevenueCategories
-                        (revenue_category_id)
+                    FOREIGN KEY (parent_id) REFERENCES RevenueCategories (revenue_category_id)
                 );
                 """;
 
@@ -174,10 +145,8 @@ public class JsonToSQLite implements IJsonToSQLite {
                     ministry_id INTEGER,
                     expense_category_id INTEGER,
                     amount REAL,
-                    FOREIGN KEY (ministry_id) REFERENCES Ministries
-                        (ministry_id),
-                    FOREIGN KEY (expense_category_id)
-                        REFERENCES ExpenseCategories (expense_category_id)
+                    FOREIGN KEY (ministry_id) REFERENCES Ministries (ministry_id),
+                    FOREIGN KEY (expense_category_id) REFERENCES ExpenseCategories (expense_category_id)
                 );
                 """;
 
@@ -192,19 +161,14 @@ public class JsonToSQLite implements IJsonToSQLite {
         }
     }
 
-    private void insertBudgetData(final BudgetFile budgetFile)
-            throws SQLException {
-        // ... (Code is identical to the last version)
+    private void insertBudgetData(final BudgetFile budgetFile) throws SQLException {
         String checkSql = "SELECT budget_id FROM Budgets WHERE budget_year = ?";
         try (Connection conn = DriverManager.getConnection(dbUrl);
-                PreparedStatement pstmtCheck = conn
-                        .prepareStatement(checkSql)) {
+                PreparedStatement pstmtCheck = conn.prepareStatement(checkSql)) {
             pstmtCheck.setInt(1, budgetFile.getMetadata().getBudgetYear());
             if (pstmtCheck.executeQuery().next()) {
-                System.out.println("Budget for year "
-                        + budgetFile.getMetadata().getBudgetYear()
-                        + " already exists in the database. "
-                        + "Skipping insertion.");
+                System.out.println("Budget for year " + budgetFile.getMetadata().getBudgetYear()
+                        + " already exists in the database. Skipping insertion.");
                 return;
             }
         }
@@ -214,24 +178,19 @@ public class JsonToSQLite implements IJsonToSQLite {
             conn = DriverManager.getConnection(dbUrl);
             conn.setAutoCommit(false);
             long budgetId = insertBudget(conn, budgetFile);
-            insertRevenueCategoriesRecursive(conn,
-                    budgetFile.getRevenueAnalysis(), budgetId, null);
-            Map<String, Integer> expenseCategoryIds = insertExpenseCategories(
-                    conn, budgetFile.getExpenseAnalysis(), budgetId);
-            insertMinistriesAndExpenses(conn,
-                    budgetFile.getDistributionByMinistry(), budgetId,
-                    expenseCategoryIds);
+            insertRevenueCategoriesRecursive(conn, budgetFile.getRevenueAnalysis(), budgetId, null);
+            Map<String, Integer> expenseCategoryIds = insertExpenseCategories(conn, budgetFile.getExpenseAnalysis(),
+                    budgetId);
+            insertMinistriesAndExpenses(conn, budgetFile.getDistributionByMinistry(), budgetId, expenseCategoryIds);
             conn.commit();
-            System.out.println("SUCCESS: Data for year "
-                    + budgetFile.getMetadata().getBudgetYear()
+            System.out.println("SUCCESS: Data for year " + budgetFile.getMetadata().getBudgetYear()
                     + " has been saved to the database.");
         } catch (SQLException e) {
-            System.err.println(
-                    "Error during data insertion. Rolling back transaction.");
+            System.err.println("Error during data insertion. Rolling back transaction.");
             if (conn != null) {
                 conn.rollback();
             }
-            throw e; // Re-throw the exception
+            throw e;
         } finally {
             if (conn != null) {
                 conn.close();
@@ -239,14 +198,9 @@ public class JsonToSQLite implements IJsonToSQLite {
         }
     }
 
-    private long insertBudget(final Connection conn,
-            final BudgetFile budgetFile) throws SQLException {
-        String sql = "INSERT INTO Budgets(source_title, source_date, "
-                + "budget_year, currency, locale, total_revenue, "
-                + "total_expenses, budget_result, "
-                + "coverage_with_cash_reserves) VALUES(?,?,?,?,?,?,?,?,?)";
+    private long insertBudget(final Connection conn, final BudgetFile budgetFile) throws SQLException {
+        String sql = "INSERT INTO Budgets(source_title, source_date, budget_year, currency, locale, total_revenue, total_expenses, budget_result, coverage_with_cash_reserves) VALUES(?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            // Enforce default source_title naming convention
             String sourceTitle = "Προϋπολογισμός " + budgetFile.getMetadata().getBudgetYear();
             pstmt.setString(1, sourceTitle);
             pstmt.setString(2, "0000-00-00");
@@ -255,15 +209,12 @@ public class JsonToSQLite implements IJsonToSQLite {
             pstmt.setString(5, budgetFile.getMetadata().getLocale());
             pstmt.setLong(6, budgetFile.getBudgetSummary().getTotalRevenue());
             pstmt.setLong(7, budgetFile.getBudgetSummary().getTotalExpenses());
-            pstmt.setLong(8, budgetFile.getBudgetSummary()
-                    .getStateBudgetBalance());
-            pstmt.setLong(9, budgetFile.getBudgetSummary()
-                    .getCoverageWithCashReserves());
+            pstmt.setLong(8, budgetFile.getBudgetSummary().getStateBudgetBalance());
+            pstmt.setLong(9, budgetFile.getBudgetSummary().getCoverageWithCashReserves());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException(
-                        "Creating budget failed, no rows affected.");
+                throw new SQLException("Creating budget failed, no rows affected.");
             }
         }
 
@@ -272,20 +223,17 @@ public class JsonToSQLite implements IJsonToSQLite {
             if (rs.next()) {
                 return rs.getLong(1);
             } else {
-                throw new SQLException(
-                        "Creating budget failed, no ID obtained.");
+                throw new SQLException("Creating budget failed, no ID obtained.");
             }
         }
     }
 
-    private void insertRevenueCategoriesRecursive(final Connection conn,
-            final List<RevenueCategory> categories, final long budgetId,
-            final Integer parentId) throws SQLException {
+    private void insertRevenueCategoriesRecursive(final Connection conn, final List<RevenueCategory> categories,
+            final long budgetId, final Integer parentId) throws SQLException {
         if (categories == null || categories.isEmpty()) {
             return;
         }
-        String sql = "INSERT INTO RevenueCategories(budget_id, code, name, "
-                + "amount, parent_id) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO RevenueCategories(budget_id, code, name, amount, parent_id) VALUES(?,?,?,?,?)";
 
         for (RevenueCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -307,22 +255,17 @@ public class JsonToSQLite implements IJsonToSQLite {
                 if (rs.next()) {
                     currentId = rs.getLong(1);
                 } else {
-                    throw new SQLException(
-                            "Creating revenue category failed, no ID "
-                                    + "obtained.");
+                    throw new SQLException("Creating revenue category failed, no ID obtained.");
                 }
             }
-            insertRevenueCategoriesRecursive(conn, cat.getChildren(), budgetId,
-                    (int) currentId);
+            insertRevenueCategoriesRecursive(conn, cat.getChildren(), budgetId, (int) currentId);
         }
     }
 
-    private Map<String, Integer> insertExpenseCategories(final Connection conn,
-            final List<ExpenseCategory> categories, final long budgetId)
-            throws SQLException {
+    private Map<String, Integer> insertExpenseCategories(final Connection conn, final List<ExpenseCategory> categories,
+            final long budgetId) throws SQLException {
         Map<String, Integer> expenseCategoryIds = new HashMap<>();
-        String sql = "INSERT INTO ExpenseCategories(budget_id, code, name, "
-                + "amount) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO ExpenseCategories(budget_id, code, name, amount) VALUES(?,?,?,?)";
 
         for (ExpenseCategory cat : categories) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -340,28 +283,20 @@ public class JsonToSQLite implements IJsonToSQLite {
                     lastId = rs.getLong(1);
                     expenseCategoryIds.put(cat.getCode(), (int) lastId);
                 } else {
-                    throw new SQLException(
-                            "Creating expense category failed, no ID "
-                                    + "obtained.");
+                    throw new SQLException("Creating expense category failed, no ID obtained.");
                 }
             }
         }
         return expenseCategoryIds;
     }
 
-    private void insertMinistriesAndExpenses(final Connection conn,
-            final List<Ministry> ministries, final long budgetId,
-            final Map<String, Integer> expenseCategoryIds)
-            throws SQLException {
-        String sqlMinistry = "INSERT INTO Ministries(budget_id, code, name, "
-                + "regular_budget, public_investment_budget, total_budget) "
-                + "VALUES(?,?,?,?,?,?)";
-        String sqlMinistryExpense = "INSERT INTO MinistryExpenses(ministry_id, "
-                + "expense_category_id, amount) VALUES(?,?,?)";
+    private void insertMinistriesAndExpenses(final Connection conn, final List<Ministry> ministries,
+            final long budgetId, final Map<String, Integer> expenseCategoryIds) throws SQLException {
+        String sqlMinistry = "INSERT INTO Ministries(budget_id, code, name, regular_budget, public_investment_budget, total_budget) VALUES(?,?,?,?,?,?)";
+        String sqlMinistryExpense = "INSERT INTO MinistryExpenses(ministry_id, expense_category_id, amount) VALUES(?,?,?)";
 
         for (Ministry ministry : ministries) {
-            try (PreparedStatement pstmtMinistry = conn
-                    .prepareStatement(sqlMinistry)) {
+            try (PreparedStatement pstmtMinistry = conn.prepareStatement(sqlMinistry)) {
                 pstmtMinistry.setLong(1, budgetId);
                 pstmtMinistry.setString(2, ministry.getCode());
                 pstmtMinistry.setString(3, ministry.getMinistryBody());
@@ -377,17 +312,13 @@ public class JsonToSQLite implements IJsonToSQLite {
                 if (rs.next()) {
                     ministryId = rs.getLong(1);
                 } else {
-                    throw new SQLException(
-                            "Creating ministry failed, no ID obtained.");
+                    throw new SQLException("Creating ministry failed, no ID obtained.");
                 }
             }
 
-            try (PreparedStatement pstmtMinistryExpense = conn
-                    .prepareStatement(sqlMinistryExpense)) {
-                for (MinistryExpenseItem item : ministry
-                        .getTotalFromMajorCategories()) {
-                    Integer expenseCatId = expenseCategoryIds
-                            .get(item.getCode());
+            try (PreparedStatement pstmtMinistryExpense = conn.prepareStatement(sqlMinistryExpense)) {
+                for (MinistryExpenseItem item : ministry.getTotalFromMajorCategories()) {
+                    Integer expenseCatId = expenseCategoryIds.get(item.getCode());
                     if (expenseCatId != null) {
                         pstmtMinistryExpense.setLong(1, ministryId);
                         pstmtMinistryExpense.setInt(2, expenseCatId);
@@ -400,14 +331,10 @@ public class JsonToSQLite implements IJsonToSQLite {
         }
     }
 
-    // --- Inner POJO classes to map the JSON structure ---
     /**
-     * Represents the top-level budget file structure.
+     * Top-level container for a complete budget data set.
      */
     public static final class BudgetFile {
-        /**
-         * Default constructor.
-         */
         public BudgetFile() {
         }
 
@@ -422,114 +349,50 @@ public class JsonToSQLite implements IJsonToSQLite {
         @JsonProperty("distributionByMinistry")
         private List<Ministry> distributionByMinistry;
 
-        /**
-         * Gets the metadata.
-         *
-         * @return The metadata.
-         */
         public Metadata getMetadata() {
             return new Metadata(metadata);
         }
 
-        /**
-         * Sets the metadata.
-         *
-         * @param metadata The new Metadata.
-         */
         public void setMetadata(final Metadata metadata) {
             this.metadata = new Metadata(metadata);
         }
 
-        /**
-         * Gets the budget summary.
-         *
-         * @return The budget summary.
-         */
         public BudgetSummary getBudgetSummary() {
             return new BudgetSummary(budgetSummary);
         }
 
-        /**
-         * Sets the budget summary.
-         *
-         * @param budgetSummary The new BudgetSummary.
-         */
         public void setBudgetSummary(final BudgetSummary budgetSummary) {
             this.budgetSummary = new BudgetSummary(budgetSummary);
         }
 
-        /**
-         * Gets the revenue analysis list.
-         *
-         * @return The revenue analysis list.
-         */
         public List<RevenueCategory> getRevenueAnalysis() {
-            return revenueAnalysis == null
-                    ? Collections.emptyList()
-                    : new ArrayList<>(revenueAnalysis);
+            return revenueAnalysis == null ? Collections.emptyList() : new ArrayList<>(revenueAnalysis);
         }
 
-        /**
-         * Sets the revenue analysis list.
-         *
-         * @param revenueAnalysis The new revenue analysis list.
-         */
-        public void setRevenueAnalysis(
-                final List<RevenueCategory> revenueAnalysis) {
-            this.revenueAnalysis = revenueAnalysis == null
-                    ? null
-                    : new ArrayList<>(revenueAnalysis);
+        public void setRevenueAnalysis(final List<RevenueCategory> revenueAnalysis) {
+            this.revenueAnalysis = revenueAnalysis == null ? null : new ArrayList<>(revenueAnalysis);
         }
 
-        /**
-         * Gets the expense analysis list.
-         *
-         * @return The expense analysis list.
-         */
         public List<ExpenseCategory> getExpenseAnalysis() {
-            return expenseAnalysis == null
-                    ? Collections.emptyList()
-                    : new ArrayList<>(expenseAnalysis);
+            return expenseAnalysis == null ? Collections.emptyList() : new ArrayList<>(expenseAnalysis);
         }
 
-        /**
-         * Sets the expense analysis list.
-         *
-         * @param expenseAnalysis The new expense analysis list.
-         */
-        public void setExpenseAnalysis(
-                final List<ExpenseCategory> expenseAnalysis) {
-            this.expenseAnalysis = expenseAnalysis == null
-                    ? null
-                    : new ArrayList<>(expenseAnalysis);
+        public void setExpenseAnalysis(final List<ExpenseCategory> expenseAnalysis) {
+            this.expenseAnalysis = expenseAnalysis == null ? null : new ArrayList<>(expenseAnalysis);
         }
 
-        /**
-         * Gets the distribution by ministry list.
-         *
-         * @return The distribution by ministry list.
-         */
         public List<Ministry> getDistributionByMinistry() {
-            return distributionByMinistry == null
-                    ? Collections.emptyList()
-                    : new ArrayList<>(distributionByMinistry);
+            return distributionByMinistry == null ? Collections.emptyList() : new ArrayList<>(distributionByMinistry);
         }
 
-        /**
-         * Sets the distribution by ministry list.
-         *
-         * @param distributionByMinistry The new distribution list.
-         */
-        public void setDistributionByMinistry(
-                final List<Ministry> distributionByMinistry) {
-            this.distributionByMinistry = distributionByMinistry == null
-                    ? null
+        public void setDistributionByMinistry(final List<Ministry> distributionByMinistry) {
+            this.distributionByMinistry = distributionByMinistry == null ? null
                     : new ArrayList<>(distributionByMinistry);
         }
     }
 
     /**
-     * Metadata regarding the budget source.
+     * Metadata describing the origin and parameters of the budget record.
      */
     public static final class Metadata {
         @JsonProperty("sourceTitle")
@@ -546,7 +409,6 @@ public class JsonToSQLite implements IJsonToSQLite {
         private List<String> missingFields;
 
         Metadata() {
-            // Default constructor required for Jackson deserialization
         }
 
         Metadata(final Metadata other) {
@@ -558,121 +420,57 @@ public class JsonToSQLite implements IJsonToSQLite {
             this.missingFields = other.getMissingFields();
         }
 
-        /**
-         * Gets the source title.
-         *
-         * @return The source title.
-         */
         public String getSourceTitle() {
             return sourceTitle;
         }
 
-        /**
-         * Sets the source title.
-         *
-         * @param sourceTitle The new source title.
-         */
         public void setSourceTitle(final String sourceTitle) {
             this.sourceTitle = sourceTitle;
         }
 
-        /**
-         * Gets the source date.
-         *
-         * @return The source date.
-         */
         public String getSourceDate() {
             return sourceDate;
         }
 
-        /**
-         * Sets the source date.
-         *
-         * @param sourceDate The new source date.
-         */
         public void setSourceDate(final String sourceDate) {
             this.sourceDate = sourceDate;
         }
 
-        /**
-         * Gets the budget year.
-         *
-         * @return The budget year.
-         */
         public int getBudgetYear() {
             return budgetYear;
         }
 
-        /**
-         * Sets the budget year.
-         *
-         * @param budgetYear The new budget year.
-         */
         public void setBudgetYear(final int budgetYear) {
             this.budgetYear = budgetYear;
         }
 
-        /**
-         * Gets the currency.
-         *
-         * @return The currency.
-         */
         public String getCurrency() {
             return currency;
         }
 
-        /**
-         * Sets the currency.
-         *
-         * @param currency The new currency.
-         */
         public void setCurrency(final String currency) {
             this.currency = currency;
         }
 
-        /**
-         * Gets the locale.
-         *
-         * @return The locale.
-         */
         public String getLocale() {
             return locale;
         }
 
-        /**
-         * Sets the locale.
-         *
-         * @param locale The new locale.
-         */
         public void setLocale(final String locale) {
             this.locale = locale;
         }
 
-        /**
-         * Gets the value of missing fields list.
-         *
-         * @return The missingFields list.
-         */
         public List<String> getMissingFields() {
-            return missingFields == null
-                    ? Collections.emptyList()
-                    : new ArrayList<>(missingFields);
+            return missingFields == null ? Collections.emptyList() : new ArrayList<>(missingFields);
         }
 
-        /**
-         * Sets the missing fields list.
-         *
-         * @param missingFields The new missing details.
-         */
         public void setMissingFields(final List<String> missingFields) {
-            this.missingFields = missingFields == null
-                    ? null
-                    : new ArrayList<>(missingFields);
+            this.missingFields = missingFields == null ? null : new ArrayList<>(missingFields);
         }
     }
 
     /**
-     * Summary figures of the budget.
+     * High-level financial aggregates for a budget year.
      */
     public static final class BudgetSummary {
         @JsonProperty("totalRevenue")
@@ -685,7 +483,6 @@ public class JsonToSQLite implements IJsonToSQLite {
         private long coverageWithCashReserves;
 
         BudgetSummary() {
-            // Default constructor required for Jackson deserialization
         }
 
         BudgetSummary(final BudgetSummary other) {
@@ -695,87 +492,43 @@ public class JsonToSQLite implements IJsonToSQLite {
             this.coverageWithCashReserves = other.coverageWithCashReserves;
         }
 
-        /**
-         * Gets the total revenue.
-         *
-         * @return The total revenue.
-         */
         public long getTotalRevenue() {
             return totalRevenue;
         }
 
-        /**
-         * Sets the total revenue.
-         *
-         * @param totalRevenue The total revenue amount.
-         */
         public void setTotalRevenue(final long totalRevenue) {
             this.totalRevenue = totalRevenue;
         }
 
-        /**
-         * Gets the total expenses.
-         *
-         * @return The total expenses.
-         */
         public long getTotalExpenses() {
             return totalExpenses;
         }
 
-        /**
-         * Sets the total expenses.
-         *
-         * @param totalExpenses The total expenses amount.
-         */
         public void setTotalExpenses(final long totalExpenses) {
             this.totalExpenses = totalExpenses;
         }
 
-        /**
-         * Gets the state budget balance.
-         *
-         * @return The state budget balance.
-         */
         public long getStateBudgetBalance() {
             return stateBudgetBalance;
         }
 
-        /**
-         * Sets the state budget balance.
-         *
-         * @param stateBudgetBalance The state budget balance amount.
-         */
         public void setStateBudgetBalance(final long stateBudgetBalance) {
             this.stateBudgetBalance = stateBudgetBalance;
         }
 
-        /**
-         * Gets the coverage with cash reserves.
-         *
-         * @return The coverage amount.
-         */
         public long getCoverageWithCashReserves() {
             return coverageWithCashReserves;
         }
 
-        /**
-         * Sets the coverage with cash reserves.
-         *
-         * @param coverageWithCashReserves The coverage amount.
-         */
-        public void setCoverageWithCashReserves(
-                final long coverageWithCashReserves) {
+        public void setCoverageWithCashReserves(final long coverageWithCashReserves) {
             this.coverageWithCashReserves = coverageWithCashReserves;
         }
     }
 
     /**
-     * Represents a revenue category node (hierarchical).
+     * Individual revenue item with optional structural children.
      */
     public static final class RevenueCategory {
-        /**
-         * Default constructor.
-         */
         public RevenueCategory() {
         }
 
@@ -788,90 +541,43 @@ public class JsonToSQLite implements IJsonToSQLite {
         @JsonProperty("children")
         private List<RevenueCategory> children;
 
-        /**
-         * Gets the code.
-         *
-         * @return The code.
-         */
         public String getCode() {
             return code;
         }
 
-        /**
-         * Sets the code.
-         *
-         * @param code The new code.
-         */
         public void setCode(final String code) {
             this.code = code;
         }
 
-        /**
-         * Gets the name.
-         *
-         * @return The name.
-         */
         public String getName() {
             return name;
         }
 
-        /**
-         * Sets the name.
-         *
-         * @param name The new name.
-         */
         public void setName(final String name) {
             this.name = name;
         }
 
-        /**
-         * Gets the amount.
-         *
-         * @return The amount.
-         */
         public long getAmount() {
             return amount;
         }
 
-        /**
-         * Sets the amount.
-         *
-         * @param amount The new amount.
-         */
         public void setAmount(final long amount) {
             this.amount = amount;
         }
 
-        /**
-         * Gets the children list.
-         *
-         * @return The children list.
-         */
         public List<RevenueCategory> getChildren() {
-            return children == null
-                    ? Collections.emptyList()
-                    : new ArrayList<>(children);
+            return children == null ? Collections.emptyList() : new ArrayList<>(children);
         }
 
-        /**
-         * Sets the children list.
-         *
-         * @param children The new children list.
-         */
         public void setChildren(final List<RevenueCategory> children) {
-            this.children = children == null
-                    ? null
-                    : new ArrayList<>(children);
+            this.children = children == null ? null : new ArrayList<>(children);
         }
     }
 
     /**
-     * Represents an expense category (flat list).
+     * Flat expense category definition.
      */
     public static final class ExpenseCategory {
-        /**
-         * Default constructor.
-         */
         public ExpenseCategory() {
         }
 
@@ -882,68 +588,35 @@ public class JsonToSQLite implements IJsonToSQLite {
         @JsonProperty("amount")
         private long amount;
 
-        /**
-         * Gets the code.
-         *
-         * @return The code.
-         */
         public String getCode() {
             return code;
         }
 
-        /**
-         * Sets the code.
-         *
-         * @param code The new code.
-         */
         public void setCode(final String code) {
             this.code = code;
         }
 
-        /**
-         * Gets the name.
-         *
-         * @return The name.
-         */
         public String getName() {
             return name;
         }
 
-        /**
-         * Sets the name.
-         *
-         * @param name The new name.
-         */
         public void setName(final String name) {
             this.name = name;
         }
 
-        /**
-         * Gets the amount.
-         *
-         * @return The amount.
-         */
         public long getAmount() {
             return amount;
         }
 
-        /**
-         * Sets the amount.
-         *
-         * @param amount The new amount.
-         */
         public void setAmount(final long amount) {
             this.amount = amount;
         }
     }
 
     /**
-     * Represents a ministry and its budget distribution.
+     * Ministry record containing allocated funds and granular expense mappings.
      */
     public static final class Ministry {
-        /**
-         * Default constructor.
-         */
         public Ministry() {
         }
 
@@ -960,128 +633,61 @@ public class JsonToSQLite implements IJsonToSQLite {
         @JsonProperty("totalFromMajorCategories")
         private List<MinistryExpenseItem> totalFromMajorCategories;
 
-        /**
-         * Gets the code.
-         *
-         * @return The code.
-         */
         public String getCode() {
             return code;
         }
 
-        /**
-         * Sets the code.
-         *
-         * @param code The new code.
-         */
         public void setCode(final String code) {
             this.code = code;
         }
 
-        /**
-         * Gets the ministry body.
-         *
-         * @return The ministry body.
-         */
         public String getMinistryBody() {
             return ministryBody;
         }
 
-        /**
-         * Sets the ministry body.
-         *
-         * @param ministryBody The new ministry body.
-         */
         public void setMinistryBody(final String ministryBody) {
             this.ministryBody = ministryBody;
         }
 
-        /**
-         * Gets the regular budget.
-         *
-         * @return The regular budget.
-         */
         public long getRegularBudget() {
             return regularBudget;
         }
 
-        /**
-         * Sets the regular budget.
-         *
-         * @param regularBudget The new regular budget.
-         */
         public void setRegularBudget(final long regularBudget) {
             this.regularBudget = regularBudget;
         }
 
-        /**
-         * Gets the public investment budget.
-         *
-         * @return The public investment budget.
-         */
         public long getPublicInvestmentBudget() {
             return publicInvestmentBudget;
         }
 
-        /**
-         * Sets the public investment budget.
-         *
-         * @param publicInvestmentBudget The new public investment budget.
-         */
-        public void setPublicInvestmentBudget(
-                final long publicInvestmentBudget) {
+        public void setPublicInvestmentBudget(final long publicInvestmentBudget) {
             this.publicInvestmentBudget = publicInvestmentBudget;
         }
 
-        /**
-         * Gets the total budget.
-         *
-         * @return The total budget.
-         */
         public long getTotal() {
             return total;
         }
 
-        /**
-         * Sets the total budget.
-         *
-         * @param total The new total budget.
-         */
         public void setTotal(final long total) {
             this.total = total;
         }
 
-        /**
-         * Gets the total from major categories list.
-         *
-         * @return The list.
-         */
         public List<MinistryExpenseItem> getTotalFromMajorCategories() {
-            return totalFromMajorCategories == null
-                    ? Collections.emptyList()
+            return totalFromMajorCategories == null ? Collections.emptyList()
                     : new ArrayList<>(totalFromMajorCategories);
         }
 
-        /**
-         * Sets the total from major categories list.
-         *
-         * @param totalFromMajorCategories The new list.
-         */
-        public void setTotalFromMajorCategories(
-                final List<MinistryExpenseItem> totalFromMajorCategories) {
-            this.totalFromMajorCategories = totalFromMajorCategories == null
-                    ? null
+        public void setTotalFromMajorCategories(final List<MinistryExpenseItem> totalFromMajorCategories) {
+            this.totalFromMajorCategories = totalFromMajorCategories == null ? null
                     : new ArrayList<>(totalFromMajorCategories);
         }
     }
 
     /**
-     * Represents an expense item within a ministry.
+     * Mapping of a specific expense category amount to a ministry.
      */
     public static final class MinistryExpenseItem {
-        /**
-         * Default constructor.
-         */
         public MinistryExpenseItem() {
         }
 
@@ -1092,56 +698,26 @@ public class JsonToSQLite implements IJsonToSQLite {
         @JsonProperty("amount")
         private long amount;
 
-        /**
-         * Gets the code.
-         *
-         * @return The code.
-         */
         public String getCode() {
             return code;
         }
 
-        /**
-         * Sets the code.
-         *
-         * @param code The new code.
-         */
         public void setCode(final String code) {
             this.code = code;
         }
 
-        /**
-         * Gets the name.
-         *
-         * @return The name.
-         */
         public String getName() {
             return name;
         }
 
-        /**
-         * Sets the name.
-         *
-         * @param name The new name.
-         */
         public void setName(final String name) {
             this.name = name;
         }
 
-        /**
-         * Gets the amount.
-         *
-         * @return The amount.
-         */
         public long getAmount() {
             return amount;
         }
 
-        /**
-         * Sets the amount.
-         *
-         * @param amount The new amount.
-         */
         public void setAmount(final long amount) {
             this.amount = amount;
         }

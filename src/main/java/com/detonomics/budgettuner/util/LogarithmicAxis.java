@@ -7,22 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A logarithmic axis for JavaFX charts.
+ * Custom JavaFX axis implementation for displaying data on a logarithmic scale.
  */
 public final class LogarithmicAxis extends ValueAxis<Number> {
 
     /**
-     * Creates a new LogarithmicAxis with defaults.
+     * Initialize a new LogarithmicAxis with default settings.
      */
     public LogarithmicAxis() {
         super();
     }
 
     /**
-     * Creates a new LogarithmicAxis with specified bounds.
+     * Initialize with explicit display boundaries.
      *
-     * @param lowerBound The lower bound.
-     * @param upperBound The upper bound.
+     * @param lowerBound Minimum axis value
+     * @param upperBound Maximum axis value
      */
     public LogarithmicAxis(final double lowerBound, final double upperBound) {
         super(lowerBound, upperBound);
@@ -45,7 +45,7 @@ public final class LogarithmicAxis extends ValueAxis<Number> {
 
     @Override
     protected void setRange(final Object range, final boolean animate) {
-        // Implementation logic
+        // Range management logic
     }
 
     @Override
@@ -58,7 +58,7 @@ public final class LogarithmicAxis extends ValueAxis<Number> {
             final Object range) {
         final List<Number> tickValues = new ArrayList<>();
         if (range != null) {
-            // Simplified logic for tick calculation
+            // Distribute ticks linearly between bounds
             double lower = getLowerBound();
             double upper = getUpperBound();
             for (double i = lower; i <= upper; i += (upper - lower) / 10) {

@@ -7,25 +7,25 @@ import com.detonomics.budgettuner.model.SqlSequence;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for SqlSequence.
+ * Access internal SQLite sequence definitions.
  */
 public class SqlSequenceDao {
 
     private final DatabaseManager dbManager;
 
     /**
-     * Constructs a new SqlSequenceDao.
+     * Initialize with a database manager.
      *
-     * @param dbManager The database manager.
+     * @param dbManager Database accessor
      */
     public SqlSequenceDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
     /**
-     * Loads the SQLite sequence values.
+     * Retrieve the current auto-increment counters from the system metadata.
      *
-     * @return A SqlSequence object containing sequence values.
+     * @return Map of table names to their highest allocated IDs
      */
     public SqlSequence loadSqliteSequence() {
         String sql = "SELECT name, seq FROM sqlite_sequence";

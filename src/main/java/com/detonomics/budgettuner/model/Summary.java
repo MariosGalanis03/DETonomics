@@ -3,14 +3,7 @@ package com.detonomics.budgettuner.model;
 import com.detonomics.budgettuner.util.BudgetFormatter;
 
 /**
- * Represents the high-level summary of a state budget.
- * <p>
- * This immutable model class holds aggregate figures such as total revenue,
- * total expenses,
- * the final budget result (surplus/deficit), and coverage metrics. It
- * corresponds to
- * the {@code Budgets} table in the database.
- * </p>
+ * High-level metadata for a state budget record from the database.
  */
 public final class Summary {
     private final int budgetID;
@@ -25,19 +18,18 @@ public final class Summary {
     private final long coverageWithCashReserves;
 
     /**
-     * Constructs a new Summary instance with the specified budget details.
+     * Initialize the budget summary metadata.
      *
-     * @param budgetID                 Unique identifier of the budget.
-     * @param sourceTitle              Title of the budget source document.
-     * @param currency                 Currency code (e.g., "EUR").
-     * @param locale                   Locale string (e.g., "el_GR").
-     * @param sourceDate               Date of the source document.
-     * @param budgetYear               The fiscal year of the budget.
-     * @param totalRevenues            Total projected revenues.
-     * @param totalExpenses            Total projected expenses.
-     * @param budgetResult             The net result (Revenues - Expenses).
-     * @param coverageWithCashReserves The coverage capability using cash
-     *                                 reserves.
+     * @param budgetID                 Unique system ID
+     * @param sourceTitle              Identifier for the source PDF
+     * @param currency                 Fiscal currency
+     * @param locale                   Display locale
+     * @param sourceDate               Publication date
+     * @param budgetYear               Target fiscal year
+     * @param totalRevenues            Aggregate revenue
+     * @param totalExpenses            Aggregate expenditure
+     * @param budgetResult             Net surplus or deficit
+     * @param coverageWithCashReserves Reserve coverage capacity
      */
     public Summary(final int budgetID, final String sourceTitle, final String currency,
             final String locale, final String sourceDate, final int budgetYear,
@@ -56,90 +48,90 @@ public final class Summary {
     }
 
     /**
-     * Gets the budget ID.
+     * Get the unique database identifier.
      *
-     * @return The budget ID.
+     * @return System budget ID
      */
     public int getBudgetID() {
         return budgetID;
     }
 
     /**
-     * Gets the source title.
+     * Get the descriptive name of the data source.
      *
-     * @return The source title.
+     * @return Source document title
      */
     public String getSourceTitle() {
         return sourceTitle;
     }
 
     /**
-     * Gets the currency.
+     * Get the currency unit used in this budget.
      *
-     * @return The currency.
+     * @return ISO currency code or symbol
      */
     public String getCurrency() {
         return currency;
     }
 
     /**
-     * Gets the locale.
+     * Get the formatting locale for monetary values.
      *
-     * @return The locale.
+     * @return String representation of the locale
      */
     public String getLocale() {
         return locale;
     }
 
     /**
-     * Gets the source date.
+     * Get the exact publication date of the source document.
      *
-     * @return The source date.
+     * @return Source document date
      */
     public String getSourceDate() {
         return sourceDate;
     }
 
     /**
-     * Gets the budget year.
+     * Get the specific calendar year this budget covers.
      *
-     * @return The budget year.
+     * @return Target fiscal year
      */
     public int getBudgetYear() {
         return budgetYear;
     }
 
     /**
-     * Gets the total revenues.
+     * Get the calculated total of all revenue streams.
      *
-     * @return The total revenues.
+     * @return Aggregate revenue
      */
     public long getTotalRevenues() {
         return totalRevenues;
     }
 
     /**
-     * Gets the total expenses.
+     * Get the calculated total of all expenditures.
      *
-     * @return The total expenses.
+     * @return Aggregate expenditure
      */
     public long getTotalExpenses() {
         return totalExpenses;
     }
 
     /**
-     * Gets the budget result (balance).
+     * Get the net difference between revenue and expenditure.
      *
-     * @return The budget result.
+     * @return Financial balance
      */
     public long getBudgetResult() {
         return budgetResult;
     }
 
     /**
-     * Gets the coverage with cash reserves.
+     * Get the portion of the budget covered by existing cash reserves.
      *
-     * @return The coverage amount.
+     * @return Reserve coverage amount
      */
     public long getCoverageWithCashReserves() {
         return coverageWithCashReserves;

@@ -17,8 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Utility class for GUI-related operations.
- * Provides helper methods for setting up charts and navigation.
+ * Common GUI helpers and navigation utilities for the JavaFX front-end.
  */
 public final class GuiUtils {
 
@@ -29,16 +28,15 @@ public final class GuiUtils {
     }
 
     /**
-     * Sets up a BarChart with the provided data.
+     * Configure a BarChart with specialized data mapping and conditional styling.
      *
-     * @param chart             The chart to populate.
-     * @param seriesName        The name of the data series.
-     * @param data              The list of Summary objects to plot.
-     * @param valueExtractor    Function to extract the Number value from a Summary.
-     * @param categoryExtractor Function to extract the category (String) from a
-     *                          Summary (X-Axis label).
-     * @param colorCondition    Predicate to determine if a specific data point
-     *                          should be highlighted.
+     * @param chart             Target JavaFX BarChart
+     * @param seriesName        Display name for the data series
+     * @param data              List of record summaries to visualize
+     * @param valueExtractor    Map summary to its numeric value
+     * @param categoryExtractor Map summary to its X-axis label
+     * @param colorCondition    Logic to determine if a bar should use an alternate
+     *                          color
      */
     public static void setupChart(final BarChart<String, Number> chart, final String seriesName,
             final List<Summary> data,
@@ -46,7 +44,7 @@ public final class GuiUtils {
             final Predicate<Summary> colorCondition) {
         chart.getData().clear();
 
-        // Fix: Explicitly set axis categories if it's a CategoryAxis.
+        // Enforce specific axis categories if using a CategoryAxis
         if (chart.getXAxis() instanceof javafx.scene.chart.CategoryAxis) {
             javafx.scene.chart.CategoryAxis xAxis = (javafx.scene.chart.CategoryAxis) chart.getXAxis();
             List<String> categories = data.stream()
@@ -65,17 +63,16 @@ public final class GuiUtils {
                     category,
                     valueExtractor.apply(s));
 
-            // Add listener to apply styles and tooltips once the node is attached to the
-            // scene graph
+            // Apply interactive styles and tooltips once the bar is rendered
             chartData.nodeProperty().addListener((obs, oldNode, newNode) -> {
                 if (newNode != null) {
                     if (colorCondition.test(s)) {
-                        newNode.setStyle("-fx-bar-fill: #D32F2F;"); // Highlight (Red)
+                        newNode.setStyle("-fx-bar-fill: #D32F2F;"); // Highlight color (Red)
                     } else {
-                        newNode.setStyle("-fx-bar-fill: #1565C0;"); // Default (Blue)
+                        newNode.setStyle("-fx-bar-fill: #1565C0;"); // Default color (Blue)
                     }
 
-                    // Create Tooltip
+                    // Attach informative tooltip
                     javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(
                             String.format("%s%n%s%n%,d €",
                                     category,
@@ -93,14 +90,13 @@ public final class GuiUtils {
     }
 
     /**
-     * Overload for charts using Budget Year as default category.
+     * Convenience overload for charts using fiscal years as categories.
      *
-     * @param chart          The chart to populate.
-     * @param seriesName     The name of the data series.
-     * @param data           The list of Summary objects to plot.
-     * @param valueExtractor Function to extract the Number value from a Summary.
-     * @param colorCondition Predicate to determine if a specific data point should
-     *                       be highlighted.
+     * @param chart          Target JavaFX BarChart
+     * @param seriesName     Display name for the data series
+     * @param data           List of record summaries to visualize
+     * @param valueExtractor Map summary to its numeric value
+     * @param colorCondition Logic to determine if a bar should be highlighted
      */
     public static void setupChart(final BarChart<String, Number> chart, final String seriesName,
             final List<Summary> data,
@@ -109,12 +105,12 @@ public final class GuiUtils {
     }
 
     /**
-     * Overload for simple blue charts (no special highlight condition).
+     * Convenience overload for standard charts without highlights.
      *
-     * @param chart          The chart to populate.
-     * @param seriesName     The name of the data series.
-     * @param data           The list of Summary objects to plot.
-     * @param valueExtractor Function to extract the Number value from a Summary.
+     * @param chart          Target JavaFX BarChart
+     * @param seriesName     Display name for the data series
+     * @param data           List of record summaries to visualize
+     * @param valueExtractor Map summary to its numeric value
      */
     public static void setupChart(final BarChart<String, Number> chart, final String seriesName,
             final List<Summary> data,
@@ -123,15 +119,13 @@ public final class GuiUtils {
     }
 
     /**
-     * Navigates to a new view defined by fxmlPath.
+     * Transition the user to a different application view.
      *
-     * @param event    The ActionEvent that triggered navigation (to get the
-     *                 Window).
-     * @param fxmlPath The path to the FXML file (relative to this package).
-     * @throws IOException If FXML loading fails.
+     * @param event    Triggering ActionEvent to resolve the parent window
+     * @param fxmlPath Resource path to the target FXML definition
+     * @throws IOException If the FXML resource cannot be loaded
      */
     public static void navigate(final ActionEvent event, final String fxmlPath) throws IOException {
-        // Use GuiApp.class to load resources from the controller package
         final FXMLLoader loader = new FXMLLoader(
                 com.detonomics.budgettuner.controller.GuiApp.class.getResource(fxmlPath));
         final Parent root = loader.load();
@@ -146,7 +140,7 @@ public final class GuiUtils {
         final Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
         window.setScene(scene);
 
-        // Maintain full screen / bounds logic
+        // Enforce full-screen layout consistency
         javafx.geometry.Rectangle2D bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
         window.setX(bounds.getMinX());
         window.setY(bounds.getMinY());

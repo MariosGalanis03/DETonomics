@@ -14,61 +14,50 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * The main entry point for the Budget Tuner application.
- * Initializes the database, services, and launches the JavaFX interface.
+ * Entry point for the Budget Tuner desktop application.
  */
 public final class GuiApp extends Application {
-        /** Default width of the application window. */
+        /** Standard resolution width. */
         public static final int DEFAULT_WIDTH = 1000;
-        /** Default height of the application window. */
+        /** Standard resolution height. */
         public static final int DEFAULT_HEIGHT = 800;
 
         /**
-         * Default constructor.
+         * Initialize the application instance.
          */
         public GuiApp() {
         }
 
         /**
-         * Starts the JavaFX application.
+         * Bootstrap services and launch the primary stage.
          *
-         * @param stage The primary stage for this application.
-         * @throws IOException If loading FXML resources fails.
+         * @param stage Root window stage
+         * @throws IOException If FXML loading fails
          */
         @Override
         public void start(final Stage stage) throws IOException {
-                // Initialize Database and DAOs
-                com.detonomics.budgettuner.util.DatabaseManager dbManager =
-                        new com.detonomics.budgettuner.util.DatabaseManager(
+                com.detonomics.budgettuner.util.DatabaseManager dbManager = new com.detonomics.budgettuner.util.DatabaseManager(
                                 com.detonomics.budgettuner.dao.DaoConfig.getDbPath());
 
-                com.detonomics.budgettuner.dao.SummaryDao summaryDao =
-                        new com.detonomics.budgettuner.dao.SummaryDao(
+                com.detonomics.budgettuner.dao.SummaryDao summaryDao = new com.detonomics.budgettuner.dao.SummaryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao =
-                        new com.detonomics.budgettuner.dao.RevenueCategoryDao(
+                com.detonomics.budgettuner.dao.RevenueCategoryDao revenueCategoryDao = new com.detonomics.budgettuner.dao.RevenueCategoryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao =
-                        new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
+                com.detonomics.budgettuner.dao.ExpenseCategoryDao expenseCategoryDao = new com.detonomics.budgettuner.dao.ExpenseCategoryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.MinistryDao ministryDao =
-                        new com.detonomics.budgettuner.dao.MinistryDao(
+                com.detonomics.budgettuner.dao.MinistryDao ministryDao = new com.detonomics.budgettuner.dao.MinistryDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao =
-                        new com.detonomics.budgettuner.dao.MinistryExpenseDao(
+                com.detonomics.budgettuner.dao.MinistryExpenseDao ministryExpenseDao = new com.detonomics.budgettuner.dao.MinistryExpenseDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao =
-                        new com.detonomics.budgettuner.dao.BudgetTotalsDao(
+                com.detonomics.budgettuner.dao.BudgetTotalsDao budgetTotalsDao = new com.detonomics.budgettuner.dao.BudgetTotalsDao(
                                 dbManager);
-                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao =
-                        new com.detonomics.budgettuner.dao.SqlSequenceDao(
+                com.detonomics.budgettuner.dao.SqlSequenceDao sqlSequenceDao = new com.detonomics.budgettuner.dao.SqlSequenceDao(
                                 dbManager);
 
                 com.detonomics.budgettuner.dao.BudgetYearDao budgetYearDao = new com.detonomics.budgettuner.dao.BudgetYearDao(
                                 dbManager, summaryDao, revenueCategoryDao, expenseCategoryDao, ministryDao,
                                 ministryExpenseDao);
 
-                // Initialize Services
                 BudgetDataService dataService = new BudgetDataServiceImpl(budgetYearDao, revenueCategoryDao,
                                 expenseCategoryDao,
                                 ministryDao, ministryExpenseDao, summaryDao, budgetTotalsDao, sqlSequenceDao);
@@ -76,14 +65,11 @@ public final class GuiApp extends Application {
                                 budgetYearDao,
                                 revenueCategoryDao, expenseCategoryDao, ministryDao, ministryExpenseDao, summaryDao);
 
-                // Initialize ViewManager
                 ViewManager viewManager = new ViewManager(stage, dataService, modificationService);
 
-                // Set Dock Icon for macOS
+                // Set application identity for OS taskbars
                 try {
                         String os = System.getProperty("os.name").toLowerCase();
-                        // AWT Taskbar execution on Linux causes GDK warnings when mixed with JavaFX
-                        // so we explicitly skip it for Linux users
                         if (!os.contains("linux") && Taskbar.isTaskbarSupported()) {
                                 var taskbar = Taskbar.getTaskbar();
                                 if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
@@ -96,7 +82,6 @@ public final class GuiApp extends Application {
                         System.err.println("Failed to set dock icon: " + e.getMessage());
                 }
 
-                // Set Window Icon (for Task Switcher / other OS)
                 try {
                         stage.getIcons().add(new javafx.scene.image.Image(
                                         Objects.requireNonNull(getClass().getResourceAsStream("Budget_Tuner.png"))));
@@ -104,13 +89,9 @@ public final class GuiApp extends Application {
                         System.err.println("Failed to set window icon: " + e.getMessage());
                 }
 
-                // Load Initial Scene
                 viewManager.switchScene("welcome-view.fxml", "Budget Tuner");
 
-                // Use standard maximized state which works better across platforms including
-                // WSL
                 stage.setMaximized(true);
-                // Ensure user can resize/minimize if they want
                 stage.setResizable(true);
 
                 stage.setOnCloseRequest(event -> {
@@ -120,9 +101,9 @@ public final class GuiApp extends Application {
         }
 
         /**
-         * The main method, serving as the entry point for the application.
+         * Launch application directly.
          *
-         * @param args Command line arguments.
+         * @param args CLI arguments
          */
         public static void main(final String[] args) {
                 launch();

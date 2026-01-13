@@ -10,26 +10,26 @@ import com.detonomics.budgettuner.model.ExpenseCategory;
 import com.detonomics.budgettuner.util.DatabaseManager;
 
 /**
- * Data Access Object for ExpenseCategory.
+ * Manage expenditure categories and their funding levels.
  */
 public class ExpenseCategoryDao {
 
     private final DatabaseManager dbManager;
 
     /**
-     * Constructs a new ExpenseCategoryDao.
+     * Initialize with a database manager.
      *
-     * @param dbManager The database manager.
+     * @param dbManager Database accessor
      */
     public ExpenseCategoryDao(final DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
 
     /**
-     * Loads expense categories for a given budget ID.
+     * Retrieve all expense classifications linked to a specific budget.
      *
-     * @param budgetID The ID of the budget.
-     * @return A list of ExpenseCategory objects.
+     * @param budgetID Target budget ID
+     * @return List of expense categories
      */
     public ArrayList<ExpenseCategory> loadExpenses(final int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
@@ -57,11 +57,11 @@ public class ExpenseCategoryDao {
 
     // Internal helper for use effectively within other transactions if needed
     /**
-     * Loads expense categories for a given budget ID using an existing connection.
+     * Fetch expense categories within an open database transaction.
      *
-     * @param conn     The database connection.
-     * @param budgetID The ID of the budget.
-     * @return A list of ExpenseCategory objects.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
+     * @return List of expense categories
      */
     public ArrayList<ExpenseCategory> loadExpenses(final Connection conn, final int budgetID) {
         ArrayList<ExpenseCategory> expenses = new ArrayList<>();
@@ -79,12 +79,12 @@ public class ExpenseCategoryDao {
     }
 
     /**
-     * Updates an expense category amount.
+     * Persist a new funding amount for a specific expense code.
      *
-     * @param budgetId    The budget ID.
-     * @param expenseCode The expense category code.
-     * @param newAmount   The new amount.
-     * @return Number of rows affected.
+     * @param budgetId    Working budget ID
+     * @param expenseCode System code for the category
+     * @param newAmount   Updated financial value
+     * @return Count of records updated
      */
     public int updateExpenseCategoryAmount(final int budgetId, final String expenseCode, final long newAmount) {
         String sql = "UPDATE ExpenseCategories SET amount = ? WHERE budget_id = ? AND CAST(code AS INTEGER) = ?";
@@ -92,13 +92,13 @@ public class ExpenseCategoryDao {
     }
 
     /**
-     * Updates an expense category amount using an existing connection.
+     * Update funding levels within an active transaction.
      *
-     * @param conn        The database connection.
-     * @param budgetId    The budget ID.
-     * @param expenseCode The expense category code.
-     * @param newAmount   The new amount.
-     * @return The number of rows affected.
+     * @param conn        Active database connection
+     * @param budgetId    Working budget ID
+     * @param expenseCode Category system code
+     * @param newAmount   Updated financial value
+     * @return Count of records updated
      */
     public int updateExpenseCategoryAmount(final Connection conn, final int budgetId, final String expenseCode,
             final long newAmount) {
@@ -107,10 +107,10 @@ public class ExpenseCategoryDao {
     }
 
     /**
-     * Deletes all expense categories for a specific budget.
+     * Remove all expense category records associated with a budget.
      *
-     * @param conn     The database connection.
-     * @param budgetID The ID of the budget.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
      */
     public void deleteByBudget(final Connection conn, final int budgetID) {
         String sql = "DELETE FROM ExpenseCategories WHERE budget_id = ?";
@@ -118,12 +118,12 @@ public class ExpenseCategoryDao {
     }
 
     /**
-     * Clones expense categories from one budget to another.
+     * Duplicate expense classifications into a new budget context.
      *
-     * @param conn           The database connection.
-     * @param sourceBudgetID The source budget ID.
-     * @param newBudgetID    The target budget ID.
-     * @return A map of old expense category IDs to new expense category IDs.
+     * @param conn           Active database connection
+     * @param sourceBudgetID Baseline budget ID
+     * @param newBudgetID    Target budget ID
+     * @return Mapping of old category IDs to their new identities
      */
     public Map<Integer, Integer> cloneExpenseCategories(final Connection conn, final int sourceBudgetID,
             final int newBudgetID) {
@@ -143,11 +143,11 @@ public class ExpenseCategoryDao {
     }
 
     /**
-     * Recalculates the total amount for expense categories based on ministry
-     * expenses.
+     * Refresh aggregate category totals by summing underlying ministry-level
+     * distributions.
      *
-     * @param conn     The database connection.
-     * @param budgetID The budget ID.
+     * @param conn     Active database connection
+     * @param budgetID Target budget ID
      */
     public void recalculateTotals(final Connection conn, final int budgetID) {
         String recalcExpCatSql = "SELECT expense_category_id, SUM(amount) as total FROM MinistryExpenses "

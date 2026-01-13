@@ -12,12 +12,12 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 
 /**
- * Utility class to convert text to JSON using Google GenAI.
+ * Leverage AI models to extract structured budget data from raw text.
  */
 public class TextToJson implements ITextToJson {
 
   /**
-   * Default constructor.
+   * Initialize a new AI-powered transformation engine.
    */
   public TextToJson() {
   }
@@ -212,35 +212,24 @@ public class TextToJson implements ITextToJson {
       Return only the JSON defined by the schema. No extra information.
       """;
 
-  /**
-   * Converts a text file to a JSON file using the Gemini API
-   * reading the API key from the environment.
-   *
-   * @param inTxt   The path to the input text file.
-   * @param outJson The path to the output JSON file.
-   * @throws Exception If an error occurs during API call or file operations.
-   */
-  public void textFileToJson(final Path inTxt, final Path outJson)
-      throws Exception {
+  @Override
+  public void textFileToJson(final Path inTxt, final Path outJson) throws Exception {
     String apiKey = System.getenv("GEMINI_API_KEY");
     textFileToJson(inTxt, outJson, apiKey);
   }
 
   /**
-   * Converts a text file to a JSON file using the Gemini API.
+   * Map unstructured text to JSON using the Gemini API and a provided key.
    *
-   * @param inTxt   The path to the input text file.
-   * @param outJson The path to the output JSON file.
-   * @param apiKey  The Gemini API key.
-   * @throws Exception If an error occurs during API call or file operations.
+   * @param inTxt   Unstructured source text path
+   * @param outJson Normalized JSON output path
+   * @param apiKey  API key for the generation service
+   * @throws Exception If the service call or document processing fails
    */
-  public void textFileToJson(final Path inTxt,
-      final Path outJson, final String apiKey)
-      throws Exception {
+  public void textFileToJson(final Path inTxt, final Path outJson, final String apiKey) throws Exception {
 
     if (apiKey == null || apiKey.isBlank()) {
-      throw new IllegalArgumentException(
-          "Error: GEMINI_API_KEY environment variable is not set.");
+      throw new IllegalArgumentException("Error: GEMINI_API_KEY environment variable is not set.");
     }
 
     Client client = Client.builder()
@@ -263,16 +252,13 @@ public class TextToJson implements ITextToJson {
     String text = res.text();
 
     if (text == null) {
-      System.err.println(
-          "Model returned null text. Check API key, model name, or "
-              + "input size.");
+      System.err.println("Model returned null text. Check API key, model name, or input size.");
       System.err.println("Raw response: " + res);
       return;
     }
 
-    String json = text.trim()
-        .replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "");
-    // remove markdown fences
+    // Strip markdown delimiters to isolate raw JSON
+    String json = text.trim().replaceAll("(?s)^```(?:json)?\\s*|\\s*```$", "");
 
     Path parent = outJson.getParent();
     if (parent != null) {

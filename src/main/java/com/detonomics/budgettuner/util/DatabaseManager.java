@@ -16,12 +16,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Utility class for database operations.
+ * Handle database connection lifecycle and provides utility methods for SQL
+ * execution.
  */
 public class DatabaseManager {
 
     private final String dbPath;
-    private Connection persistentConnection; // For :memory: databases
+    private Connection persistentConnection; // Preserve in-memory databases
 
     static {
         try {
@@ -32,9 +33,9 @@ public class DatabaseManager {
     }
 
     /**
-     * Constructs a new DatabaseManager with the specified database path.
+     * Initialize with a specific database location.
      *
-     * @param dbPath The path to the SQLite database file.
+     * @param dbPath Path to the SQLite database file
      */
     public DatabaseManager(final String dbPath) {
         this.dbPath = dbPath;
@@ -53,10 +54,10 @@ public class DatabaseManager {
     }
 
     /**
-     * Executes a transactional operation.
+     * Wrap multiple database operations in a single atomic transaction.
      *
-     * @param action The action to execute with the connection.
-     * @throws SQLException If an error occurs.
+     * @param action Logical operations to perform
+     * @throws SQLException If any step fails or the transaction cannot commit
      */
     public void inTransaction(final Consumer<Connection> action) throws SQLException {
         try (Connection conn = createConnection()) {
@@ -69,7 +70,7 @@ public class DatabaseManager {
                 try {
                     conn.rollback();
                 } catch (SQLException rollbackEx) {
-                    // Logging ignored
+                    // Logging suppressed
                 }
                 throw new SQLException("Transaction failed: " + e.getMessage(), e);
             } finally {
@@ -79,12 +80,12 @@ public class DatabaseManager {
     }
 
     /**
-     * Executes a transactional operation returning a result.
+     * Wrap database operations in a transaction and return the computed result.
      *
-     * @param action The function to execute with the connection.
-     * @param <T>    The type of the result.
-     * @return The result of the action.
-     * @throws SQLException If an error occurs.
+     * @param action Logical operations returning a value
+     * @param <T>    Result type
+     * @return Computed result
+     * @throws SQLException If the transaction fails
      */
     public <T> T inTransaction(final java.util.function.Function<Connection, T> action) throws SQLException {
         try (Connection conn = createConnection()) {
@@ -98,7 +99,7 @@ public class DatabaseManager {
                 try {
                     conn.rollback();
                 } catch (SQLException rollbackEx) {
-                    // Logging ignored
+                    // Logging suppressed
                 }
                 throw new SQLException("Transaction failed: " + e.getMessage(), e);
             } finally {
@@ -108,13 +109,12 @@ public class DatabaseManager {
     }
 
     /**
-     * Executes an update (INSERT/UPDATE/DELETE) statement using a specific
-     * connection.
+     * Execute an INSERT, UPDATE, or DELETE query using an existing connection.
      *
-     * @param conn   The database connection.
-     * @param sql    The SQL statement.
-     * @param params The parameters for the statement.
-     * @return The number of rows affected.
+     * @param conn   Active database connection
+     * @param sql    Statement string
+     * @param params Bound parameter values
+     * @return Number of rows affected
      */
     public int executeUpdate(final Connection conn, final String sql, final Object... params) {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -127,12 +127,11 @@ public class DatabaseManager {
     }
 
     /**
-     * Executes an update (INSERT/UPDATE/DELETE) statement (creates a new
-     * connection).
+     * Execute an INSERT, UPDATE, or DELETE query using a fresh connection.
      *
-     * @param sql    The SQL statement.
-     * @param params The parameters for the statement.
-     * @return The number of rows affected.
+     * @param sql    Statement string
+     * @param params Bound parameter values
+     * @return Number of rows affected
      */
     public int executeUpdate(final String sql, final Object... params) {
         try (Connection conn = createConnection()) {
@@ -144,12 +143,12 @@ public class DatabaseManager {
     }
 
     /**
-     * Executes a query (SELECT) statement using a specific connection.
+     * Execute a SELECT query using an existing connection.
      *
-     * @param conn   The database connection.
-     * @param sql    The SQL statement.
-     * @param params The parameters for the statement.
-     * @return A list of maps representing the result rows.
+     * @param conn   Active database connection
+     * @param sql    Statement string
+     * @param params Bound parameter values
+     * @return List of result rows mapped to columns
      */
     public List<Map<String, Object>> executeQuery(final Connection conn, final String sql, final Object... params) {
         List<Map<String, Object>> results = new ArrayList<>();
@@ -175,11 +174,11 @@ public class DatabaseManager {
     }
 
     /**
-     * Executes a query (SELECT) statement (creates a new connection).
+     * Execute a SELECT query using a fresh connection.
      *
-     * @param sql    The SQL statement.
-     * @param params The parameters for the statement.
-     * @return A list of maps representing the result rows.
+     * @param sql    Statement string
+     * @param params Bound parameter values
+     * @return List of result rows mapped to columns
      */
     public List<Map<String, Object>> executeQuery(final String sql, final Object... params) {
         try (Connection conn = createConnection()) {
@@ -190,7 +189,6 @@ public class DatabaseManager {
         }
     }
 
-    // Static helper to be used internally
     private static void bindParameters(final PreparedStatement ps, final Object... params) throws SQLException {
         if (params == null) {
             return;
@@ -221,8 +219,8 @@ public class DatabaseManager {
     }
 
     /**
-     * A wrapper for Connection that prevents closing the underlying connection.
-     * Used for :memory: databases to keep them alive.
+     * Internal wrapper that ignores close requests to preserve specialized
+     * connections.
      */
     private static class CloseShieldConnection implements Connection {
         private final Connection delegate;
@@ -233,7 +231,7 @@ public class DatabaseManager {
 
         @Override
         public void close() throws SQLException {
-            // Do NOT close the underlying connection
+            // Guard the underlying connection
         }
 
         @Override
@@ -271,7 +269,6 @@ public class DatabaseManager {
             delegate.rollback();
         }
 
-        // ... delegate all other methods ...
         @Override
         public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
             return delegate.createStatement(resultSetType, resultSetConcurrency);

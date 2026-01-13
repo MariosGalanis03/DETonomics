@@ -3,7 +3,7 @@ package com.detonomics.budgettuner.model;
 import java.util.ArrayList;
 
 /**
- * Represents a complete budget for a specific year, including all related data.
+ * Aggregate model containing all data points for a specific fiscal year.
  */
 public final class BudgetYear {
     private final Summary summary;
@@ -12,15 +12,14 @@ public final class BudgetYear {
     private final ArrayList<Ministry> ministries;
     private final ArrayList<MinistryExpense> ministryExpenses;
 
-    // --- Constructor ---
     /**
-     * Constructs a new BudgetYear.
+     * Initialize a complete fiscal year object.
      *
-     * @param summary          The budget summary.
-     * @param revenues         The list of revenue categories.
-     * @param expenses         The list of expense categories.
-     * @param ministries       The list of ministries.
-     * @param ministryExpenses The list of ministry expenses.
+     * @param summary          Header metadata
+     * @param revenues         Complete revenue hierarchy
+     * @param expenses         General expense classifications
+     * @param ministries       Ministry-level allocations
+     * @param ministryExpenses Detailed expense mappings
      */
     public BudgetYear(final Summary summary,
             final ArrayList<RevenueCategory> revenues,
@@ -34,52 +33,46 @@ public final class BudgetYear {
         this.ministryExpenses = new ArrayList<>(ministryExpenses);
     }
 
-    // --- Getters ---
-
     /**
-     * Gets the budget summary.
+     * Get the budget summary.
      *
-     * @return The summary.
+     * @return Header summary
      */
     public Summary getSummary() {
         return summary;
     }
 
-    // Επιστρέφει τη λίστα εσόδων ως αμετάβλητη (immutable) συλλογή.
     /**
-     * Gets the list of revenue categories.
+     * Return a shallow copy of the revenues list.
      *
-     * @return The list of revenues.
+     * @return List of revenue categories
      */
     public ArrayList<RevenueCategory> getRevenues() {
         return new ArrayList<>(revenues);
     }
 
-    // Επιστρέφει τη λίστα εξόδων ως αμετάβλητη (immutable) συλλογή.
     /**
-     * Gets the list of expense categories.
+     * Return a shallow copy of the expenses list.
      *
-     * @return The list of expenses.
+     * @return List of expense categories
      */
     public ArrayList<ExpenseCategory> getExpenses() {
         return new ArrayList<>(expenses);
     }
 
-    // Επιστρέφει τη λίστα φορέων ως αμετάβλητη (immutable) συλλογή.
     /**
-     * Gets the list of ministries.
+     * Return a shallow copy of the ministries list.
      *
-     * @return The list of ministries.
+     * @return List of ministries
      */
     public ArrayList<Ministry> getMinistries() {
         return new ArrayList<>(ministries);
     }
 
-    // Επιστρέφει τη λίστα εξόδων φορέων ως αμετάβλητη (immutable) συλλογή.
     /**
-     * Gets the list of ministry expenses.
+     * Return a shallow copy of the ministry expenses list.
      *
-     * @return The list of ministry expenses.
+     * @return List of ministry-specific expenses
      */
     public ArrayList<MinistryExpense> getMinistryExpenses() {
         return new ArrayList<>(ministryExpenses);
