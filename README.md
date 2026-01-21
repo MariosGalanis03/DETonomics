@@ -74,8 +74,8 @@ java -jar target/budgettuner-0.1.0-SNAPSHOT.jar
     *   **util**: Utilities for Database, Ingestion, and UI helpers.
 * src/main/resources: Contains the FXML files for the JavaFX views and the immutable SQLite database shipped with the application.
 *   **src/test/java**: Unit tests for the application.
-*   **data**: Contains the mutable SQLite database that the client can modify and PDF input files.
-*   **docs**: DatabaseDocumentation, UML diagrams and Jacoco report.
+*   **docs**: Database Documentation, UML diagrams and Jacoco report.
+*   **data**: Is created once the client compiles the app for the first time containing the mutable SQLite database that can be modified directly through the app.
 
 ### UML Diagram regarding code design
 The detailed UML Class diagram for the project's design is available in the `docs` folder.
